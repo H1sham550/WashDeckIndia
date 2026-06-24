@@ -100,11 +100,11 @@ export async function PATCH(
         },
       });
 
-      // Update/Provision Feature Flags based on the plan features configuration
       const planFeatures = (plan.features as Record<string, boolean>) || {
         offers: true,
         reports: true,
         analytics: true,
+        recovery: true,
       };
 
       for (const [key, isEnabled] of Object.entries(planFeatures)) {

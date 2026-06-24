@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
             maxStaff: 10,
             maxReports: 500,
             trialDays: 30,
-            features: { offers: true, reports: true, analytics: true },
+            features: { offers: true, reports: true, analytics: true, recovery: true },
             isRecommended: true,
             isActive: true,
           },
@@ -156,6 +156,7 @@ export async function POST(request: NextRequest) {
         offers: true,
         reports: true,
         analytics: true,
+        recovery: true,
       };
 
       const featureFlagsData = Object.entries(planFeatures).map(([key, isEnabled]) => ({

@@ -24,7 +24,14 @@ import {
   Calendar,
   Sparkles,
   ArrowRightLeft,
-  X
+  X,
+  BarChart3,
+  PieChart,
+  Activity,
+  Percent,
+  Coins,
+  Download,
+  Globe
 } from "lucide-react";
 
 type FeatureFlag = {
@@ -107,12 +114,127 @@ type AdminPanelProps = {
 };
 
 export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, metrics }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<"stations" | "plans" | "logs">("stations");
+  const [activeTab, setActiveTab] = useState<"stations" | "plans" | "logs" | "analytics">("stations");
   
   // States
   const [stations, setStations] = useState<AdminStation[]>(initialStations);
   const [plans, setPlans] = useState<Plan[]>(initialPlans);
   const [logs, setLogs] = useState<AuditLog[]>(initialAuditLogs);
+
+  // Search state for SaaS Sales Ledger
+  const [saasSearch, setSaasSearch] = useState("");
+
+  // DYNAMIC COMPUTE FOR SAAS COMPANY PERFORMANCE
+  // 1. Flatten all subscription records into a single sales ledger
+  const allTransactions = React.useMemo(() => {
+    return stations.flatMap((station) => {
+      return station.stationSubscriptions.map((sub) => {
+        const plan = plans.find((p) => p.id === sub.subscriptionId);
+        const price = plan ? Number(plan.price) : 0;
+        const planName = plan ? plan.name : "Unknown Plan";
+        return {
+          id: sub.id,
+          stationId: station.id,
+          stationName: station.name,
+          planName,
+          price,
+          startDate: new Date(sub.startDate),
+          endDate: new Date(sub.endDate),
+          status: sub.status,
+          durationDays: plan ? plan.durationDays : 30,
+        };
+      });
+    }).sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+  }, [stations, plans]);
+
+  // 2. Total SaaS Company Lifetime Revenue
+  const totalSaaSLifetimeRevenue = React.useMemo(() => {
+    return allTransactions.reduce((acc, tx) => acc + tx.price, 0);
+  }, [allTransactions]);
+
+  // 3. Monthly Recurring Revenue (MRR) of active paid subscriptions
+  const totalActiveMRR = React.useMemo(() => {
+    return stations.reduce((acc, station) => {
+      if (station.status === "SUSPENDED") return acc;
+      const activeSub = station.stationSubscriptions.find(
+        (sub) => sub.status === "ACTIVE" || sub.status === "GRACE"
+      );
+      if (!activeSub) return acc;
+      const plan = plans.find((p) => p.id === activeSub.subscriptionId);
+      if (!plan || Number(plan.price) <= 0) return acc;
+      const duration = plan.durationDays || 30;
+      const monthlyPrice = (Number(plan.price) / duration) * 30;
+      return acc + monthlyPrice;
+    }, 0);
+  }, [stations, plans]);
+
+  // 4. Average Revenue Per Station (ARPU)
+  const arpu = React.useMemo(() => {
+    const totalStationsCount = stations.length;
+    return totalStationsCount > 0 ? totalSaaSLifetimeRevenue / totalStationsCount : 0;
+  }, [stations, totalSaaSLifetimeRevenue]);
+
+  // 5. Count of active paid subscriptions
+  const activePaidSubscriptionsCount = React.useMemo(() => {
+    return stations.filter((s) => {
+      if (s.status === "SUSPENDED") return false;
+      const activeSub = s.stationSubscriptions.find(
+        (sub) => sub.status === "ACTIVE" || sub.status === "GRACE"
+      );
+      if (!activeSub) return false;
+      const plan = plans.find((p) => p.id === activeSub.subscriptionId);
+      return plan ? Number(plan.price) > 0 : false;
+    }).length;
+  }, [stations, plans]);
+
+  // 6. 6-Month Historical Monthly Revenue dataset
+  const monthlyRevenueData = React.useMemo(() => {
+    const data = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthLabel = d.toLocaleDateString("en-IN", { month: "short", year: "2-digit" });
+      const year = d.getFullYear();
+      const month = d.getMonth();
+
+      const monthlyRev = allTransactions
+        .filter((tx) => {
+          const txDate = tx.startDate;
+          return txDate.getFullYear() === year && txDate.getMonth() === month;
+        })
+        .reduce((sum, tx) => sum + tx.price, 0);
+
+      data.push({ label: monthLabel, revenue: monthlyRev });
+    }
+    return data;
+  }, [allTransactions]);
+
+  // 7. Plan Distribution Breakdown
+  const planDistribution = React.useMemo(() => {
+    return plans.map((plan) => {
+      const activeTenants = stations.filter((s) => {
+        const activeSub = s.stationSubscriptions[0];
+        return (
+          activeSub &&
+          activeSub.subscriptionId === plan.id &&
+          (activeSub.status === "ACTIVE" || activeSub.status === "GRACE") &&
+          s.status !== "SUSPENDED"
+        );
+      }).length;
+
+      const planLifetimeRev = allTransactions
+        .filter((tx) => tx.planName === plan.name)
+        .reduce((sum, tx) => sum + tx.price, 0);
+
+      return {
+        id: plan.id,
+        name: plan.name,
+        price: plan.price,
+        activeTenants,
+        lifetimeRevenue: planLifetimeRev,
+      };
+    }).sort((a, b) => b.lifetimeRevenue - a.lifetimeRevenue);
+  }, [plans, stations, allTransactions]);
   
   // Search / Filters
   const [search, setSearch] = useState("");
@@ -596,11 +718,11 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
 
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
           <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
-            <TrendingUp size={22} />
+            <Coins size={22} />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Platform Rev</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">₹{metrics.totalRevenue}</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">SaaS Company Rev</p>
+            <p className="text-xl font-extrabold text-slate-800 mt-1">₹{totalSaaSLifetimeRevenue}</p>
           </div>
         </div>
 
@@ -616,11 +738,11 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
 
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
           <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-orange-50 text-orange-600">
-            <Users size={22} />
+            <TrendingUp size={22} />
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Vehicles Registered</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">{metrics.totalVehiclesCount}</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Carwash Operations Rev</p>
+            <p className="text-xl font-extrabold text-slate-800 mt-1">₹{metrics.totalRevenue}</p>
           </div>
         </div>
       </section>
@@ -656,6 +778,16 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
           }`}
         >
           Platform Audit Logs
+        </button>
+        <button
+          onClick={() => setActiveTab("analytics")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-all ${
+            activeTab === "analytics"
+              ? "border-[var(--primary-color)] text-[var(--primary-color)]"
+              : "border-transparent text-slate-400 hover:text-slate-600"
+          }`}
+        >
+          Platform Business Analytics
         </button>
       </div>
 
@@ -1095,6 +1227,348 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "analytics" && (
+        <div className="space-y-6">
+          {/* A. Secondary KPI Cards Grid */}
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+            <div className="bg-white border rounded-xl p-5 shadow-sm space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">MRR</span>
+                <div className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Activity size={14} />
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xl font-extrabold text-slate-800">₹{totalActiveMRR.toFixed(2)}</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Active recurring baseline</p>
+              </div>
+            </div>
+
+            <div className="bg-white border rounded-xl p-5 shadow-sm space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">ARPU (LTV)</span>
+                <div className="h-7 w-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Coins size={14} />
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xl font-extrabold text-slate-800">₹{arpu.toFixed(2)}</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Average value per tenant</p>
+              </div>
+            </div>
+
+            <div className="bg-white border rounded-xl p-5 shadow-sm space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Paid Stations</span>
+                <div className="h-7 w-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <Building2 size={14} />
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xl font-extrabold text-slate-800">{activePaidSubscriptionsCount} / {stations.length}</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Paid licenses vs. total tenants</p>
+              </div>
+            </div>
+
+            <div className="bg-white border rounded-xl p-5 shadow-sm space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Conversion Rate</span>
+                <div className="h-7 w-7 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center">
+                  <Percent size={14} />
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xl font-extrabold text-slate-800">
+                  {stations.length > 0 ? ((activePaidSubscriptionsCount / stations.length) * 100).toFixed(1) : "0"}%
+                </h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Ratio of paying customer base</p>
+              </div>
+            </div>
+          </div>
+
+          {/* B. Dynamic SVG Chart & Plan Distribution Grid */}
+          <div className="grid gap-6 md:grid-cols-12">
+            {/* Chart Column (col-span-7) */}
+            <div className="bg-white border rounded-xl p-5 shadow-sm md:col-span-7 space-y-4">
+              <div>
+                <h3 className="font-extrabold text-slate-800 text-sm">SaaS Revenue Growth Trend</h3>
+                <p className="text-[11px] text-slate-400 font-semibold">Monthly subscription sales over the last 6 months.</p>
+              </div>
+
+              <div className="w-full flex items-center justify-center pt-2">
+                {(() => {
+                  const maxRevenue = Math.max(...monthlyRevenueData.map((d) => d.revenue), 1000);
+                  const width = 500;
+                  const height = 220;
+                  const paddingLeft = 45;
+                  const paddingRight = 15;
+                  const paddingTop = 25;
+                  const paddingBottom = 35;
+                  const chartWidth = width - paddingLeft - paddingRight;
+                  const chartHeight = height - paddingTop - paddingBottom;
+
+                  // Divisions for Y-axis
+                  const divisions = 4;
+                  const yLines = Array.from({ length: divisions + 1 }, (_, i) => i);
+
+                  return (
+                    <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto max-h-[240px] overflow-visible">
+                      {/* Grid Lines & Y-Axis Labels */}
+                      {yLines.map((k) => {
+                        const yVal = (maxRevenue / divisions) * k;
+                        const yCoord = paddingTop + chartHeight - (k / divisions) * chartHeight;
+                        return (
+                          <g key={k}>
+                            <line
+                              x1={paddingLeft}
+                              y1={yCoord}
+                              x2={width - paddingRight}
+                              y2={yCoord}
+                              stroke="#e2e8f0"
+                              strokeWidth={1}
+                              strokeDasharray="3 3"
+                            />
+                            <text
+                              x={paddingLeft - 8}
+                              y={yCoord + 3}
+                              textAnchor="end"
+                              className="text-[9px] fill-slate-400 font-bold"
+                            >
+                              ₹{Math.round(yVal)}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* X-Axis Month Labels & Bars */}
+                      {monthlyRevenueData.map((d, idx) => {
+                        const colWidth = chartWidth / monthlyRevenueData.length;
+                        const barWidth = colWidth * 0.55;
+                        const barHeight = (d.revenue / maxRevenue) * chartHeight;
+                        const xCoord = paddingLeft + idx * colWidth + (colWidth - barWidth) / 2;
+                        const yCoord = paddingTop + chartHeight - barHeight;
+
+                        return (
+                          <g key={idx} className="group">
+                            {/* Bar Graphic with Gradient Fill */}
+                            <rect
+                              x={xCoord}
+                              y={yCoord}
+                              width={barWidth}
+                              height={barHeight}
+                              fill="#0f172a"
+                              rx={3}
+                              className="transition-all duration-200 hover:fill-slate-800"
+                            />
+                            {/* Label above Bar */}
+                            {d.revenue > 0 && (
+                              <text
+                                x={xCoord + barWidth / 2}
+                                y={yCoord - 6}
+                                textAnchor="middle"
+                                className="text-[8px] fill-slate-700 font-extrabold"
+                              >
+                                ₹{d.revenue}
+                              </text>
+                            )}
+                            {/* Month X-Axis Label */}
+                            <text
+                              x={xCoord + barWidth / 2}
+                              y={paddingTop + chartHeight + 18}
+                              textAnchor="middle"
+                              className="text-[9px] fill-slate-400 font-bold"
+                            >
+                              {d.label}
+                            </text>
+                          </g>
+                        );
+                      })}
+
+                      {/* Base Axis Line */}
+                      <line
+                        x1={paddingLeft}
+                        y1={paddingTop + chartHeight}
+                        x2={width - paddingRight}
+                        y2={paddingTop + chartHeight}
+                        stroke="#94a3b8"
+                        strokeWidth={1}
+                      />
+                    </svg>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Plan Distribution Column (col-span-5) */}
+            <div className="bg-white border rounded-xl p-5 shadow-sm md:col-span-5 space-y-4">
+              <div>
+                <h3 className="font-extrabold text-slate-800 text-sm">Plan Popularity & Performance</h3>
+                <p className="text-[11px] text-slate-400 font-semibold">Distribution of active licenses & lifetime revenue.</p>
+              </div>
+
+              <div className="space-y-4 pt-1">
+                {planDistribution.map((plan) => {
+                  const revenuePercentage =
+                    totalSaaSLifetimeRevenue > 0
+                      ? (plan.lifetimeRevenue / totalSaaSLifetimeRevenue) * 100
+                      : 0;
+
+                  return (
+                    <div key={plan.id} className="space-y-1.5">
+                      <div className="flex justify-between items-center text-xs font-semibold">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-800">{plan.name}</span>
+                          <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">
+                            ₹{Number(plan.price)}
+                          </span>
+                        </div>
+                        <span className="text-slate-400 text-[10px] font-bold">
+                          {plan.activeTenants} Active Tenant{plan.activeTenants !== 1 ? "s" : ""}
+                        </span>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="bg-slate-800 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${revenuePercentage}%` }}
+                        />
+                      </div>
+
+                      <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold">
+                        <span>{revenuePercentage.toFixed(1)}% revenue share</span>
+                        <span className="text-slate-700">₹{plan.lifetimeRevenue} Lifetime</span>
+                      </div>
+                    </div>
+                  );
+                })}
+                {planDistribution.length === 0 && (
+                  <p className="text-center text-xs text-slate-400 italic py-6">No plan distribution details available.</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* C. SaaS Sales Ledger Table */}
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 border rounded-xl shadow-sm">
+              <div className="relative w-full md:max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <input
+                  type="text"
+                  placeholder="Search ledger by station or plan..."
+                  value={saasSearch}
+                  onChange={(e) => setSaasSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)] bg-slate-50/50"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  const headers = ["Activation Date", "Tenant Station", "Subscription Plan", "Amount (INR)", "Duration (Days)", "Expiry Date", "Status"];
+                  const rows = allTransactions.map((tx) => [
+                    tx.startDate.toISOString().split("T")[0],
+                    `"${tx.stationName.replace(/"/g, '""')}"`,
+                    `"${tx.planName.replace(/"/g, '""')}"`,
+                    tx.price,
+                    tx.durationDays,
+                    tx.endDate.toISOString().split("T")[0],
+                    tx.status,
+                  ]);
+
+                  const csvContent = [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+                  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.setAttribute("href", url);
+                  link.setAttribute("download", `WashDeck_SaaS_Sales_Ledger_${new Date().toISOString().split("T")[0]}.csv`);
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="w-full md:w-auto inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border text-slate-700 hover:bg-slate-50 text-xs font-bold px-4 transition shadow-sm bg-white"
+              >
+                <Download size={14} />
+                Export Ledger (CSV)
+              </button>
+            </div>
+
+            <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
+              <table className="min-w-full divide-y divide-slate-100 text-left text-xs font-semibold">
+                <thead className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-4">Activation Date</th>
+                    <th className="px-6 py-4">Tenant Station</th>
+                    <th className="px-6 py-4">Subscription Plan</th>
+                    <th className="px-6 py-4">Revenue Collected</th>
+                    <th className="px-6 py-4">Licensing Period</th>
+                    <th className="px-6 py-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {(() => {
+                    const filteredTx = allTransactions.filter(
+                      (tx) =>
+                        tx.stationName.toLowerCase().includes(saasSearch.toLowerCase()) ||
+                        tx.planName.toLowerCase().includes(saasSearch.toLowerCase())
+                    );
+
+                    if (filteredTx.length === 0) {
+                      return (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-8 text-center text-slate-400 italic">
+                            No subscription sales transactions found matching search criteria.
+                          </td>
+                        </tr>
+                      );
+                    }
+
+                    return filteredTx.map((tx) => (
+                      <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 text-slate-400 font-medium">
+                          {tx.startDate.toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="px-6 py-4 font-bold text-slate-800">{tx.stationName}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span>{tx.planName}</span>
+                            <span className="text-[10px] text-slate-400 font-semibold">{tx.durationDays} Days validity</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-extrabold text-slate-900">₹{tx.price.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-slate-500 font-medium">
+                          {tx.startDate.toLocaleDateString("en-IN", { day: "numeric", month: "short" })} -{" "}
+                          {tx.endDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        </td>
+                        <td className="px-6 py-4">
+                          {tx.status === "ACTIVE" ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                              Active
+                            </span>
+                          ) : tx.status === "GRACE" ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200">
+                              Grace
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full border border-slate-200">
+                              Expired
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

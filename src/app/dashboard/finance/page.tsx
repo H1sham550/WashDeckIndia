@@ -2,12 +2,29 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { FinancePanel } from "@/components/dashboard/finance-panel";
+import { isFeatureEnabled } from "@/lib/feature-flags";
+import { ShieldAlert } from "lucide-react";
 
 export default async function FinancePage() {
   const session = await requireRole(["OWNER"]);
 
   if (!session.stationId) {
     redirect("/login");
+  }
+
+  const enabled = await isFeatureEnabled(session.stationId, "finance");
+  if (!enabled) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-center space-y-4 font-sans">
+        <div className="h-14 w-14 bg-amber-50 text-amber-600 flex items-center justify-center rounded-full mx-auto">
+          <ShieldAlert size={28} />
+        </div>
+        <h2 className="text-xl font-extrabold text-slate-800">Feature Locked</h2>
+        <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
+          Financial Tracking is not enabled under your current subscription plan. Upgrade your plan in settings to unlock the Expense & Income Manager.
+        </p>
+      </div>
+    );
   }
 
   const station = await prisma.station.findUnique({

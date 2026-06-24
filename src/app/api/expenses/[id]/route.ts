@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireFeature } from "@/lib/feature-flags";
 
 const updateExpenseSchema = z.object({
   title: z.string().trim().min(1, "Title is required").optional(),
@@ -19,6 +20,7 @@ type RouteContext = {
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
+    await requireFeature("finance");
     const session = await requireRole(["OWNER"]);
     const { id } = await context.params;
     const body = await request.json();
@@ -71,6 +73,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
+    await requireFeature("finance");
     const session = await requireRole(["OWNER"]);
     const { id } = await context.params;
 

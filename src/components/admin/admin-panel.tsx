@@ -325,7 +325,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
     maxReports: "100",
     description: "",
     trialDays: "0",
-    features: { offers: true, reports: true, analytics: true, recovery: true },
+    features: { offers: true, reports: true, analytics: true, recovery: true, finance: true },
     isRecommended: false,
     isActive: true,
   });
@@ -611,7 +611,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
           maxReports: "100",
           description: "",
           trialDays: "0",
-          features: { offers: true, reports: true, analytics: true, recovery: true },
+          features: { offers: true, reports: true, analytics: true, recovery: true, finance: true },
           isRecommended: false,
           isActive: true,
         });
@@ -842,6 +842,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                 const reportsFlag = station.featureFlags.find((f) => f.featureKey === "reports")?.isEnabled ?? true;
                 const analyticsFlag = station.featureFlags.find((f) => f.featureKey === "analytics")?.isEnabled ?? true;
                 const recoveryFlag = station.featureFlags.find((f) => f.featureKey === "recovery")?.isEnabled ?? true;
+                const financeFlag = station.featureFlags.find((f) => f.featureKey === "finance")?.isEnabled ?? true;
 
                 const daysLeft = activeSub
                   ? Math.max(0, Math.ceil((new Date(activeSub.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
@@ -1055,6 +1056,26 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                             onCheckedChange={() => handleToggleFlag(station.id, "recovery", recoveryFlag)}
                           />
                         </div>
+
+                        {/* Finance Module Row */}
+                        <div
+                          onClick={() => {
+                            if (!processingFlags[`${station.id}_finance`]) {
+                              handleToggleFlag(station.id, "finance", financeFlag);
+                            }
+                          }}
+                          className="flex items-center justify-between cursor-pointer select-none p-2.5 -mx-2.5 rounded-xl hover:bg-slate-50 transition active:scale-[0.99] duration-100"
+                        >
+                          <div>
+                            <span className="text-xs font-bold text-slate-700 block">Finance Manager</span>
+                            <span className="text-[9px] text-slate-400 font-semibold block">Expense & income logs</span>
+                          </div>
+                          <Switch
+                            checked={financeFlag}
+                            disabled={!!processingFlags[`${station.id}_finance`]}
+                            onCheckedChange={() => handleToggleFlag(station.id, "finance", financeFlag)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1137,12 +1158,13 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1 max-w-[200px]">
                           {(() => {
-                            const features = plan.features || { offers: true, reports: true, analytics: true, recovery: true };
+                            const features = plan.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true };
                             const list = [];
                             if (features.offers) list.push("Loyalty Offers");
                             if (features.reports) list.push("Service Reports");
                             if (features.analytics) list.push("Analytics");
                             if (features.recovery) list.push("Revenue Recovery");
+                            if (features.finance) list.push("Finance Manager");
                             if (list.length === 0) return <span className="text-slate-400 text-[10px]">None</span>;
                             return list.map((f, i) => (
                               <span key={i} className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[9px] font-bold">
@@ -2217,7 +2239,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
               {/* Feature Access Checkboxes */}
               <div className="space-y-2">
                 <span className="font-extrabold text-slate-500 text-[10px] uppercase tracking-wider block">Authorized Features</span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50/50 p-2.5 border rounded-lg select-none">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-50/50 p-2.5 border rounded-lg select-none">
                   <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
                     <input
                       type="checkbox"
@@ -2273,6 +2295,20 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                       className="rounded border-slate-300 text-[var(--primary-color)] focus:ring-[var(--primary-color)] h-3.5 w-3.5"
                     />
                     <span>Revenue Recovery</span>
+                  </label>
+                  <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newPlan.features.finance}
+                      onChange={(e) =>
+                        setNewPlan((prev) => ({
+                          ...prev,
+                          features: { ...prev.features, finance: e.target.checked },
+                        }))
+                      }
+                      className="rounded border-slate-300 text-[var(--primary-color)] focus:ring-[var(--primary-color)] h-3.5 w-3.5"
+                    />
+                    <span>Finance Manager</span>
                   </label>
                 </div>
               </div>
@@ -2415,13 +2451,13 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
               {/* Feature Access Checkboxes */}
               <div className="space-y-2">
                 <span className="font-extrabold text-slate-500 text-[10px] uppercase tracking-wider block">Authorized Features</span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50/50 p-2.5 border rounded-lg select-none">
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 bg-slate-50/50 p-2.5 border rounded-lg select-none">
                   <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true }).offers}
+                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true }).offers}
                       onChange={(e) => {
-                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true };
+                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true };
                         setEditPlanModal((prev: any) => ({
                           ...prev,
                           features: { ...features, offers: e.target.checked },
@@ -2434,9 +2470,9 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                   <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true }).reports}
+                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true }).reports}
                       onChange={(e) => {
-                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true };
+                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true };
                         setEditPlanModal((prev: any) => ({
                           ...prev,
                           features: { ...features, reports: e.target.checked },
@@ -2449,9 +2485,9 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                   <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true }).analytics}
+                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true }).analytics}
                       onChange={(e) => {
-                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true };
+                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true };
                         setEditPlanModal((prev: any) => ({
                           ...prev,
                           features: { ...features, analytics: e.target.checked },
@@ -2464,9 +2500,9 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                   <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true }).recovery}
+                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true }).recovery}
                       onChange={(e) => {
-                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true };
+                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true };
                         setEditPlanModal((prev: any) => ({
                           ...prev,
                           features: { ...features, recovery: e.target.checked },
@@ -2475,6 +2511,21 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                       className="rounded border-slate-300 text-[var(--primary-color)] focus:ring-[var(--primary-color)] h-3.5 w-3.5"
                     />
                     <span>Revenue Recovery</span>
+                  </label>
+                  <label className="flex items-center gap-2 font-bold text-slate-600 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true }).finance}
+                      onChange={(e) => {
+                        const features = editPlanModal.features || { offers: true, reports: true, analytics: true, recovery: true, finance: true };
+                        setEditPlanModal((prev: any) => ({
+                          ...prev,
+                          features: { ...features, finance: e.target.checked },
+                        }));
+                      }}
+                      className="rounded border-slate-300 text-[var(--primary-color)] focus:ring-[var(--primary-color)] h-3.5 w-3.5"
+                    />
+                    <span>Finance Manager</span>
                   </label>
                 </div>
               </div>

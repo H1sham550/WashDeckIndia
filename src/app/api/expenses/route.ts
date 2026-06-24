@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { requireFeature } from "@/lib/feature-flags";
 
 const createExpenseSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
@@ -15,6 +16,7 @@ const createExpenseSchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
+    await requireFeature("finance");
     const session = await requireRole(["OWNER"]);
     const expenses = await prisma.expense.findMany({
       where: {
@@ -32,6 +34,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    await requireFeature("finance");
     const session = await requireRole(["OWNER"]);
     const body = await request.json();
 

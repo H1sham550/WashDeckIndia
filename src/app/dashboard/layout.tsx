@@ -25,6 +25,8 @@ export default async function DashboardLayout({
   
   const offersEnabled = await isFeatureEnabled(session.stationId, "offers");
   const analyticsEnabled = await isFeatureEnabled(session.stationId, "analytics");
+  const recoveryEnabled = await isFeatureEnabled(session.stationId, "recovery");
+  const financeEnabled = await isFeatureEnabled(session.stationId, "finance");
 
   return (
     <div
@@ -88,12 +90,14 @@ export default async function DashboardLayout({
                   >
                     Staff
                   </Link>
-                  <Link
-                    href={"/dashboard/finance" as any}
-                    className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    Finance
-                  </Link>
+                  {financeEnabled && (
+                    <Link
+                      href={"/dashboard/finance" as any}
+                      className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    >
+                      Finance
+                    </Link>
+                  )}
                   <Link
                     href="/dashboard/services"
                     className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
@@ -108,12 +112,14 @@ export default async function DashboardLayout({
                       Offers
                     </Link>
                   )}
-                  <Link
-                    href="/dashboard/recovery"
-                    className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    Recovery
-                  </Link>
+                  {recoveryEnabled && (
+                    <Link
+                      href="/dashboard/recovery"
+                      className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    >
+                      Recovery
+                    </Link>
+                  )}
                   {analyticsEnabled && (
                     <Link
                       href="/dashboard/analytics"
@@ -147,10 +153,12 @@ export default async function DashboardLayout({
                 <Users size={16} />
                 <span>Staff</span>
               </Link>
-              <Link href={"/dashboard/finance" as any} className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                <Coins size={16} />
-                <span>Finance</span>
-              </Link>
+              {financeEnabled && (
+                <Link href={"/dashboard/finance" as any} className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
+                  <Coins size={16} />
+                  <span>Finance</span>
+                </Link>
+              )}
               <Link href="/dashboard/services" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
                 <Sparkles size={16} />
                 <span>Services</span>
@@ -161,10 +169,12 @@ export default async function DashboardLayout({
                   <span>Offers</span>
                 </Link>
               )}
-              <Link href="/dashboard/recovery" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                <ListRestart size={16} />
-                <span>Recovery</span>
-              </Link>
+              {recoveryEnabled && (
+                <Link href="/dashboard/recovery" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
+                  <ListRestart size={16} />
+                  <span>Recovery</span>
+                </Link>
+              )}
               {analyticsEnabled && (
                 <Link href="/dashboard/analytics" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
                   <BarChart3 size={16} />

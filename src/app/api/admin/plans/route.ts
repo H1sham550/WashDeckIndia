@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         maxReports: parseInt(maxReports, 10),
         description: description || null,
         trialDays: trialDays !== undefined ? parseInt(trialDays, 10) : 0,
-        features: features || { offers: true, reports: true, analytics: true, recovery: true },
+        features: features || { offers: true, reports: true, analytics: true, recovery: true, finance: true },
         isRecommended: isRecommended !== undefined ? !!isRecommended : false,
         isActive: isActive !== undefined ? !!isActive : true,
       },

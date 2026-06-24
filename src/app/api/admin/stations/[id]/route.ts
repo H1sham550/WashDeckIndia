@@ -105,6 +105,7 @@ export async function PATCH(
         reports: true,
         analytics: true,
         recovery: true,
+        finance: true,
       };
 
       for (const [key, isEnabled] of Object.entries(planFeatures)) {

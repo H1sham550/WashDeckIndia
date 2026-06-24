@@ -3,10 +3,12 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/crypto";
 import { checkStationStatus } from "@/lib/subscription-guard";
+import { requireFeature } from "@/lib/feature-flags";
 
 export async function GET(request: NextRequest) {
   try {
     const session = await requireRole(["OWNER"]);
+    await requireFeature("staff");
     const staff = await prisma.user.findMany({
       where: {
         stationId: session.stationId,
@@ -21,7 +23,7 @@ export async function GET(request: NextRequest) {
       where: { id: session.stationId || "" },
       include: {
         stationSubscriptions: {
-          where: { status: { in: ["ACTIVE", "GRACE"] } },
+          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
           include: { subscription: true },
           orderBy: { endDate: "desc" },
           take: 1,
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
     });
 
     const activePlanName = station?.stationSubscriptions[0]?.subscription.name || "Trial Plan";
-    const allowedStaff = station?.stationSubscriptions[0]?.subscription.maxStaff ?? 5;
+    const allowedStaff = station?.stationSubscriptions[0]?.subscription.staffLimit ?? 5;
     const usedStaff = staff.length;
 
     return NextResponse.json({
@@ -52,6 +54,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await requireRole(["OWNER"]);
     await checkStationStatus(session.stationId || "");
+    await requireFeature("staff");
     const body = await request.json();
     const { name, email, mobile, role, password } = body;
 
@@ -82,7 +85,7 @@ export async function POST(request: NextRequest) {
       where: { id: session.stationId || "" },
       include: {
         stationSubscriptions: {
-          where: { status: { in: ["ACTIVE", "GRACE"] } },
+          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
           include: { subscription: true },
           orderBy: { endDate: "desc" },
           take: 1,
@@ -90,7 +93,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const allowedStaff = station?.stationSubscriptions[0]?.subscription.maxStaff ?? 5;
+    const allowedStaff = station?.stationSubscriptions[0]?.subscription.staffLimit ?? 5;
     if (staffCount >= allowedStaff) {
       // Trigger a system alert notification as well
       await prisma.notification.create({

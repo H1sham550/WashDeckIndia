@@ -40,14 +40,14 @@ export async function GET(request: NextRequest) {
       where: { id: stationId },
       include: {
         stationSubscriptions: {
-          where: { status: { in: ["ACTIVE", "GRACE"] } },
+          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
           include: { subscription: true },
           orderBy: { endDate: "desc" },
           take: 1,
         },
       },
     });
-    const allowedStaff = station?.stationSubscriptions[0]?.subscription.maxStaff ?? 5;
+    const allowedStaff = station?.stationSubscriptions[0]?.subscription.staffLimit ?? 5;
     if (staffCount >= allowedStaff) {
       const exists = await prisma.notification.findFirst({
         where: { stationId, type: "STAFF_LIMIT", isRead: false },

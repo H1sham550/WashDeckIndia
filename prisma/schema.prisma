@@ -26,9 +26,11 @@ enum StationStatus {
 }
 
 enum SubscriptionStatus {
+  TRIAL
   ACTIVE
   GRACE
   EXPIRED
+  SUSPENDED
 }
 
 enum OnboardingStatus {
@@ -67,9 +69,10 @@ model Station {
   updatedAt            DateTime @updatedAt @map("updated_at")
 
   users                User[]
-  featureFlags         FeatureFlag[]
   auditLogs            AuditLog[]
   stationSubscriptions StationSubscription[]
+  featureOverrides     StationFeatureOverride[]
+  subscriptionAuditLogs SubscriptionAuditLog[]
   customers            Customer[]
   vehicles             Vehicle[]
   services             Service[]
@@ -123,53 +126,81 @@ model OtpToken {
   @@map("otp_tokens")
 }
 
-model Subscription {
+model SubscriptionPlan {
   id            String   @id @default(uuid())
   name          String
   price         Decimal  @db.Decimal(10, 2)
   durationDays  Int      @map("duration_days")
-  maxStaff      Int      @map("max_staff")
-  maxReports    Int      @map("max_reports")
+  staffLimit    Int      @default(1) @map("staff_limit")
+  reportLimit   Int      @default(10) @map("report_limit")
   description   String?
   trialDays     Int      @default(0) @map("trial_days")
-  features      Json?
   isRecommended Boolean  @default(false) @map("is_recommended")
   isActive      Boolean  @default(true) @map("is_active")
   createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
+  planFeatures         PlanFeature[]
   stationSubscriptions StationSubscription[]
 
-  @@map("subscriptions")
+  @@map("subscription_plans")
+}
+
+model PlanFeature {
+  id         String   @id @default(uuid())
+  planId     String   @map("plan_id")
+  featureKey String   @map("feature_key")
+  enabled    Boolean  @default(true)
+
+  plan       SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureKey])
+  @@map("plan_features")
 }
 
 model StationSubscription {
   id             String             @id @default(uuid())
   stationId      String             @map("station_id")
-  subscriptionId String             @map("subscription_id")
-  startDate      DateTime           @map("start_date")
-  endDate        DateTime           @map("end_date")
+  subscriptionId String             @map("plan_id")
+  startDate      DateTime           @map("starts_at")
+  endDate        DateTime           @map("expires_at")
   graceUntil     DateTime?          @map("grace_until")
   status         SubscriptionStatus @default(ACTIVE)
   createdAt      DateTime           @default(now()) @map("created_at")
 
-  station      Station      @relation(fields: [stationId], references: [id])
-  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  station      Station          @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  subscription SubscriptionPlan @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 
   @@index([stationId])
   @@map("station_subscriptions")
 }
 
-model FeatureFlag {
+model StationFeatureOverride {
   id         String   @id @default(uuid())
   stationId  String   @map("station_id")
   featureKey String   @map("feature_key")
   isEnabled  Boolean  @default(true) @map("is_enabled")
   updatedAt  DateTime @updatedAt @map("updated_at")
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  station Station @relation(fields: [stationId], references: [id])
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
 
   @@unique([stationId, featureKey])
-  @@map("feature_flags")
+  @@map("station_feature_overrides")
+}
+
+model SubscriptionAuditLog {
+  id            String   @id @default(uuid())
+  stationId     String   @map("station_id")
+  action        String
+  previousValue String?  @map("previous_value")
+  newValue      String?  @map("new_value")
+  performedBy   String?  @map("performed_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@map("subscription_audit_logs")
 }
 
 model AuditLog {

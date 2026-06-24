@@ -1,11 +1,9 @@
-import { WashDeckLogo } from "@/components/brand/washdeck-logo";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Settings, Gift, ListRestart, Sparkles, BarChart3, Users, Coins } from "lucide-react";
-import { isFeatureEnabled } from "@/lib/feature-flags";
+import { getStationEntitlements } from "@/lib/entitlement";
+import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 
 export default async function DashboardLayout({
   children,
@@ -13,6 +11,15 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireStationUser();
+  
+  // High-performance batched database fetch (combines station status, subscription, plans, and overrides in 1 query)
+  const entitlements = await getStationEntitlements(session.stationId);
+
+  // If station is suspended, block access completely
+  if (entitlements.lifecycle === "SUSPENDED") {
+    redirect("/suspended" as any); // Or let the sub-pages deal with it, but redirecting/showing a message is best.
+  }
+
   const station = await prisma.station.findUnique({
     where: { id: session.stationId },
   });
@@ -23,17 +30,15 @@ export default async function DashboardLayout({
 
   const isOwner = session.role === "OWNER";
   
-  const offersEnabled = await isFeatureEnabled(session.stationId, "offers");
-  const analyticsEnabled = await isFeatureEnabled(session.stationId, "analytics");
-  const recoveryEnabled = await isFeatureEnabled(session.stationId, "recovery");
-  const financeEnabled = await isFeatureEnabled(session.stationId, "finance");
+  const logoUrl = entitlements.features.branding ? station?.logoUrl : null;
+  const primaryColor = entitlements.features.branding ? (station?.primaryColor || "#0f766e") : "#0f766e";
 
   return (
     <div
       className="min-h-screen flex flex-col font-sans"
       style={
         {
-          "--primary-color": station?.primaryColor || "#0f766e",
+          "--primary-color": primaryColor,
         } as React.CSSProperties
       }
     >
@@ -51,10 +56,10 @@ export default async function DashboardLayout({
       <header className="border-b bg-white shadow-sm sticky top-0 z-40">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            {station?.logoUrl ? (
+            {logoUrl ? (
               <img
-                src={station.logoUrl}
-                alt={station.name}
+                src={logoUrl}
+                alt={station?.name}
                 className="h-10 w-10 object-contain rounded-md border"
               />
             ) : (
@@ -75,118 +80,9 @@ export default async function DashboardLayout({
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <nav className="hidden md:flex items-center gap-1 text-sm font-semibold text-slate-600">
-              <Link
-                href="/dashboard"
-                className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-              >
-                Queue
-              </Link>
-              {isOwner && (
-                <>
-                  <Link
-                    href="/dashboard/staff"
-                    className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    Staff
-                  </Link>
-                  {financeEnabled && (
-                    <Link
-                      href={"/dashboard/finance" as any}
-                      className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                    >
-                      Finance
-                    </Link>
-                  )}
-                  <Link
-                    href="/dashboard/services"
-                    className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    Services
-                  </Link>
-                  {offersEnabled && (
-                    <Link
-                      href="/dashboard/offers"
-                      className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                    >
-                      Offers
-                    </Link>
-                  )}
-                  {recoveryEnabled && (
-                    <Link
-                      href="/dashboard/recovery"
-                      className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                    >
-                      Recovery
-                    </Link>
-                  )}
-                  {analyticsEnabled && (
-                    <Link
-                      href="/dashboard/analytics"
-                      className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                    >
-                      Analytics
-                    </Link>
-                  )}
-                  <Link
-                    href="/dashboard/settings"
-                    className="px-3 py-1.5 rounded-md hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                  >
-                    Settings
-                  </Link>
-                </>
-              )}
-            </nav>
+            <DashboardNav isOwner={isOwner} features={entitlements.features} />
             <LogoutButton />
           </div>
-        </div>
-
-        {/* Mobile Navigation bar */}
-        <div className="border-t md:hidden flex justify-around py-1.5 text-[10px] font-bold text-slate-500 bg-slate-50/50">
-          <Link href="/dashboard" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-            <LayoutDashboard size={16} />
-            <span>Queue</span>
-          </Link>
-          {isOwner && (
-            <>
-              <Link href="/dashboard/staff" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                <Users size={16} />
-                <span>Staff</span>
-              </Link>
-              {financeEnabled && (
-                <Link href={"/dashboard/finance" as any} className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                  <Coins size={16} />
-                  <span>Finance</span>
-                </Link>
-              )}
-              <Link href="/dashboard/services" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                <Sparkles size={16} />
-                <span>Services</span>
-              </Link>
-              {offersEnabled && (
-                <Link href="/dashboard/offers" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                  <Gift size={16} />
-                  <span>Offers</span>
-                </Link>
-              )}
-              {recoveryEnabled && (
-                <Link href="/dashboard/recovery" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                  <ListRestart size={16} />
-                  <span>Recovery</span>
-                </Link>
-              )}
-              {analyticsEnabled && (
-                <Link href="/dashboard/analytics" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                  <BarChart3 size={16} />
-                  <span>Analytics</span>
-                </Link>
-              )}
-              <Link href="/dashboard/settings" className="flex flex-col items-center gap-0.5 px-3 py-1 text-slate-700 hover:text-[var(--primary-color)] transition-colors">
-                <Settings size={16} />
-                <span>Settings</span>
-              </Link>
-            </>
-          )}
         </div>
       </header>
 

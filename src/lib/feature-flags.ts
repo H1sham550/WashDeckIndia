@@ -1,18 +1,7 @@
-import { prisma } from "@/lib/prisma";
 import { requireStationUser } from "@/lib/auth";
+import { isFeatureEnabled } from "./entitlement";
 
-export async function isFeatureEnabled(stationId: string, featureKey: string): Promise<boolean> {
-  const flag = await prisma.featureFlag.findUnique({
-    where: {
-      stationId_featureKey: {
-        stationId,
-        featureKey,
-      },
-    },
-  });
-
-  return flag ? flag.isEnabled : true;
-}
+export { isFeatureEnabled };
 
 export async function requireFeature(featureKey: string): Promise<string> {
   const session = await requireStationUser();

@@ -16,7 +16,7 @@ function generateTemporaryPassword() {
 export async function POST(request: NextRequest) {
   try {
     // 1. Authenticate original user as SUPER_ADMIN
-    await requireRole(["SUPER_ADMIN"]);
+    const session = await requireRole(["SUPER_ADMIN"]);
     const body = await request.json();
     const {
       name,
@@ -103,32 +103,31 @@ export async function POST(request: NextRequest) {
       // Find selected Subscription Plan or fetch default
       let planTemplate = null;
       if (subscriptionId) {
-        planTemplate = await tx.subscription.findUnique({
+        planTemplate = await tx.subscriptionPlan.findUnique({
           where: { id: subscriptionId },
         });
       }
 
       if (!planTemplate) {
-        planTemplate = await tx.subscription.findFirst({
+        planTemplate = await tx.subscriptionPlan.findFirst({
           where: { isActive: true },
           orderBy: { isRecommended: "desc" },
         });
       }
 
       if (!planTemplate) {
-        planTemplate = await tx.subscription.findFirst();
+        planTemplate = await tx.subscriptionPlan.findFirst();
       }
 
       if (!planTemplate) {
-        planTemplate = await tx.subscription.create({
+        planTemplate = await tx.subscriptionPlan.create({
           data: {
             name: "Pro Plan",
             price: 2999.00,
             durationDays: 30,
-            maxStaff: 10,
-            maxReports: 500,
+            staffLimit: 10,
+            reportLimit: 500,
             trialDays: 30,
-            features: { offers: true, reports: true, analytics: true, recovery: true, finance: true },
             isRecommended: true,
             isActive: true,
           },
@@ -140,6 +139,8 @@ export async function POST(request: NextRequest) {
       const finalTrialDays = trialDays !== undefined && trialDays !== "" ? parseInt(trialDays, 10) : planTemplate.trialDays;
       const daysCount = finalTrialDays > 0 ? finalTrialDays : planTemplate.durationDays;
       const trialEndDate = new Date(now.getTime() + daysCount * 24 * 60 * 60 * 1000);
+      const isTrialPlan = planTemplate.name.toUpperCase() === "TRIAL";
+      const newStatus = isTrialPlan ? SubscriptionStatus.TRIAL : SubscriptionStatus.ACTIVE;
 
       await tx.stationSubscription.create({
         data: {
@@ -147,30 +148,20 @@ export async function POST(request: NextRequest) {
           subscriptionId: planTemplate.id,
           startDate: now,
           endDate: trialEndDate,
-          status: SubscriptionStatus.ACTIVE,
+          status: newStatus,
         },
       });
 
-      // Initialize default Feature Flags based on plan features configuration
-      const planFeatures = (planTemplate.features as Record<string, boolean>) || {
-        offers: true,
-        reports: true,
-        analytics: true,
-        recovery: true,
-        finance: true,
-      };
-
-      const featureFlagsData = Object.entries(planFeatures).map(([key, isEnabled]) => ({
-        stationId: station.id,
-        featureKey: key,
-        isEnabled,
-      }));
-
-      if (featureFlagsData.length > 0) {
-        await tx.featureFlag.createMany({
-          data: featureFlagsData,
-        });
-      }
+      // Specialized Subscription Audit Log
+      await tx.subscriptionAuditLog.create({
+        data: {
+          stationId: station.id,
+          action: "PLAN_ASSIGNED",
+          previousValue: "None",
+          newValue: planTemplate.name,
+          performedBy: session.name || session.email,
+        },
+      });
 
       // Create Audit Logs
       await tx.auditLog.create({

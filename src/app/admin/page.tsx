@@ -8,11 +8,11 @@ export default async function AdminPage() {
   // 1. Enforce SUPER_ADMIN validation
   const session = await requireRole(["SUPER_ADMIN"]);
 
-  // 2. Fetch all stations with subscriptions, feature flags, and owner details
+  // 2. Fetch all stations with subscriptions, feature overrides, and owner details
   const stations = await prisma.station.findMany({
     where: { isDeleted: false },
     include: {
-      featureFlags: true,
+      featureOverrides: true,
       users: {
         where: { role: "OWNER", isDeleted: false },
         select: {
@@ -31,8 +31,9 @@ export default async function AdminPage() {
   });
 
   // 3. Fetch all subscription plan products
-  const plans = await prisma.subscription.findMany({
+  const plans = await prisma.subscriptionPlan.findMany({
     orderBy: { createdAt: "desc" },
+    include: { planFeatures: true },
   });
 
   // 4. Fetch the global audit logs
@@ -89,9 +90,9 @@ export default async function AdminPage() {
     upiId: station.upiId,
     gstNumber: station.gstNumber,
     users: station.users,
-    featureFlags: station.featureFlags.map((ff) => ({
-      featureKey: ff.featureKey,
-      isEnabled: ff.isEnabled,
+    featureFlags: station.featureOverrides.map((fo) => ({
+      featureKey: fo.featureKey,
+      isEnabled: fo.isEnabled,
     })),
     stationSubscriptions: station.stationSubscriptions.map((sub) => ({
       id: sub.id,
@@ -103,20 +104,28 @@ export default async function AdminPage() {
     })),
   }));
 
-  const serializedPlans = plans.map((plan) => ({
-    id: plan.id,
-    name: plan.name,
-    price: Number(plan.price),
-    durationDays: plan.durationDays,
-    maxStaff: plan.maxStaff,
-    maxReports: plan.maxReports,
-    description: plan.description,
-    trialDays: plan.trialDays,
-    features: plan.features,
-    isRecommended: plan.isRecommended,
-    isActive: plan.isActive,
-    createdAt: plan.createdAt.toISOString(),
-  }));
+  const serializedPlans = plans.map((plan) => {
+    const featuresObj: Record<string, boolean> = {};
+    plan.planFeatures.forEach((pf) => {
+      featuresObj[pf.featureKey] = pf.enabled;
+      featuresObj[pf.featureKey.toLowerCase()] = pf.enabled;
+    });
+
+    return {
+      id: plan.id,
+      name: plan.name,
+      price: Number(plan.price),
+      durationDays: plan.durationDays,
+      maxStaff: plan.staffLimit,
+      maxReports: plan.reportLimit,
+      description: plan.description,
+      trialDays: plan.trialDays,
+      features: featuresObj,
+      isRecommended: plan.isRecommended,
+      isActive: plan.isActive,
+      createdAt: plan.createdAt.toISOString(),
+    };
+  });
 
   const serializedAuditLogs = auditLogs.map((log) => ({
     id: log.id,

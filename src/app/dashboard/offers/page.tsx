@@ -3,23 +3,51 @@ import { prisma } from "@/lib/prisma";
 import { OffersPanel } from "@/components/dashboard/offers-panel";
 import { redirect } from "next/navigation";
 import { isFeatureEnabled } from "@/lib/feature-flags";
-import { ShieldAlert } from "lucide-react";
+import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
 
 export default async function OffersPage() {
   const session = await requireStationUser();
 
   const enabled = await isFeatureEnabled(session.stationId, "offers");
   if (!enabled) {
+    const allPlans = await prisma.subscriptionPlan.findMany({
+      where: { isActive: true },
+      orderBy: { price: "asc" },
+      include: { planFeatures: true },
+    });
+
+    const upgradePlans = allPlans
+      .filter(p => p.planFeatures.some(pf => pf.featureKey === "LOYALTY_PROGRAMS" && pf.enabled))
+      .map(p => ({
+        id: p.id,
+        name: p.name,
+        price: Number(p.price),
+        description: p.description,
+        staffLimit: p.staffLimit,
+        reportLimit: p.reportLimit,
+        features: p.planFeatures.map(pf => pf.featureKey),
+      }));
+
+    const station = await prisma.station.findUnique({
+      where: { id: session.stationId },
+      include: {
+        stationSubscriptions: {
+          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
+          include: { subscription: true },
+          orderBy: { endDate: "desc" },
+          take: 1,
+        },
+      },
+    });
+    const currentPlanName = station?.stationSubscriptions[0]?.subscription.name || "Trial Plan";
+
     return (
-      <div className="mx-auto max-w-xl px-4 py-16 text-center space-y-4 font-sans">
-        <div className="h-14 w-14 bg-amber-50 text-amber-600 flex items-center justify-center rounded-full mx-auto">
-          <ShieldAlert size={28} />
-        </div>
-        <h2 className="text-xl font-extrabold text-slate-800">Feature Locked</h2>
-        <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
-          Loyalty Offers & Campaigns are not enabled under your current subscription plan. Upgrade your plan in settings to unlock customer stamp campaigns.
-        </p>
-      </div>
+      <UpgradeLock
+        featureName="Loyalty Programs & Campaigns"
+        currentPlanName={currentPlanName}
+        availablePlans={upgradePlans}
+        stationId={session.stationId}
+      />
     );
   }
 

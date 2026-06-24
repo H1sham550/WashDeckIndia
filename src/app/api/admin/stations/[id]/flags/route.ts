@@ -21,8 +21,8 @@ export async function POST(
       );
     }
 
-    // 2. Fetch the old value of the feature flag for auditing (default to true)
-    const existingFlag = await prisma.featureFlag.findUnique({
+    // 2. Fetch the old value of the feature override for auditing
+    const existingOverride = await prisma.stationFeatureOverride.findUnique({
       where: {
         stationId_featureKey: {
           stationId,
@@ -30,11 +30,11 @@ export async function POST(
         },
       },
     });
-    const oldValue = existingFlag ? existingFlag.isEnabled : true;
+    const oldValue = existingOverride ? String(existingOverride.isEnabled) : "not_set";
 
-    // 3. Upsert the feature flag and write the audit log in a transaction
+    // 3. Upsert the feature override and write the audit logs in a transaction
     const result = await prisma.$transaction(async (tx) => {
-      const flag = await tx.featureFlag.upsert({
+      const override = await tx.stationFeatureOverride.upsert({
         where: {
           stationId_featureKey: {
             stationId,
@@ -51,24 +51,36 @@ export async function POST(
         },
       });
 
+      // Standard operational audit log
       await tx.auditLog.create({
         data: {
           actorUserId: session.id,
           stationId,
-          action: "FEATURE_FLAG_UPDATED",
-          entityType: "FeatureFlag",
-          entityId: flag.id,
+          action: "FEATURE_OVERRIDE_UPDATED",
+          entityType: "StationFeatureOverride",
+          entityId: override.id,
           metadataJson: {
             station_id: stationId,
             feature_key: featureKey,
             old_value: oldValue,
-            new_value: isEnabled,
+            new_value: String(isEnabled),
             updated_by: session.name,
           },
         },
       });
 
-      return flag;
+      // Specialized Subscription/Feature Audit Log
+      await tx.subscriptionAuditLog.create({
+        data: {
+          stationId,
+          action: `FEATURE_OVERRIDE_${featureKey.toUpperCase()}`,
+          previousValue: oldValue,
+          newValue: String(isEnabled),
+          performedBy: session.name || session.email,
+        },
+      });
+
+      return override;
     });
 
     return NextResponse.json({ ok: true, flag: result });

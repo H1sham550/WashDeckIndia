@@ -77,6 +77,54 @@ export async function POST(
     const pdfUrl = `/reports/${secureSlug}.pdf`;
 
     if (!report) {
+      // Calculate current calendar month's report count
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const reportCount = await prisma.serviceReport.count({
+        where: {
+          jobCard: {
+            stationId: session.stationId,
+          },
+          createdAt: {
+            gte: startOfMonth,
+          },
+        },
+      });
+
+      // Fetch subscription report limit
+      const station = await prisma.station.findUnique({
+        where: { id: session.stationId },
+        include: {
+          stationSubscriptions: {
+            where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
+            include: { subscription: true },
+            orderBy: { endDate: "desc" },
+            take: 1,
+          },
+        },
+      });
+
+      const reportLimit = station?.stationSubscriptions[0]?.subscription.reportLimit ?? 10;
+
+      if (reportCount >= reportLimit) {
+        // Trigger a system alert notification
+        await prisma.notification.create({
+          data: {
+            stationId: session.stationId,
+            title: "Report Limit Reached",
+            message: `You have reached your subscription monthly report limit of ${reportLimit}. Upgrade your plan to generate more reports.`,
+            type: "REPORT_LIMIT",
+          },
+        });
+
+        return NextResponse.json(
+          { ok: false, error: `Monthly report generation limit reached (${reportLimit}). Upgrade your plan to generate more.` },
+          { status: 400 }
+        );
+      }
+
       report = await prisma.serviceReport.create({
         data: {
           jobCardId: id,

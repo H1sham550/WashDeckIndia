@@ -29,8 +29,12 @@ async function main() {
   await prisma.serviceTemplate.deleteMany();
   await prisma.service.deleteMany();
   await prisma.stationSubscription.deleteMany();
-  await prisma.subscription.deleteMany();
-  await prisma.featureFlag.deleteMany();
+  await prisma.subscriptionPlan.deleteMany();
+  await prisma.planFeature.deleteMany();
+  await prisma.stationFeatureOverride.deleteMany();
+  await prisma.subscriptionAuditLog.deleteMany();
+  await prisma.expense.deleteMany();
+  await prisma.notification.deleteMany();
   await prisma.otpToken.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.user.deleteMany();
@@ -38,6 +42,99 @@ async function main() {
 
   console.log("Seeding database...");
   const defaultPasswordHash = hashPassword("WashDeck123");
+
+  // Seeding Subscription Plans
+  console.log("Seeding Subscription Plans...");
+  const plans = [
+    {
+      name: "Trial",
+      description: "14-day free trial to test WashDeck's core features",
+      price: 0,
+      durationDays: 14,
+      trialDays: 14,
+      staffLimit: 3,
+      reportLimit: 30,
+      isRecommended: false,
+      isActive: true,
+      features: ["LOYALTY_PROGRAMS", "SERVICE_REPORTS", "WHATSAPP_SHARING", "PHOTO_DOCUMENTATION"]
+    },
+    {
+      name: "Starter",
+      description: "Perfect for small single-owner car washes",
+      price: 999,
+      durationDays: 30,
+      trialDays: 0,
+      staffLimit: 1,
+      reportLimit: 50,
+      isRecommended: false,
+      isActive: true,
+      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING"]
+    },
+    {
+      name: "Growth",
+      description: "For growing car washes with multiple staff members",
+      price: 2999,
+      durationDays: 30,
+      trialDays: 0,
+      staffLimit: 5,
+      reportLimit: 200,
+      isRecommended: true,
+      isActive: true,
+      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING", "LOYALTY_PROGRAMS", "PHOTO_DOCUMENTATION", "STAFF_MANAGEMENT", "CUSTOM_BRANDING"]
+    },
+    {
+      name: "Professional",
+      description: "For high-volume washes requiring advanced analytics and tools",
+      price: 5999,
+      durationDays: 30,
+      trialDays: 0,
+      staffLimit: 20,
+      reportLimit: 1000,
+      isRecommended: false,
+      isActive: true,
+      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING", "LOYALTY_PROGRAMS", "PHOTO_DOCUMENTATION", "STAFF_MANAGEMENT", "CUSTOM_BRANDING", "ANALYTICS", "REVENUE_RECOVERY"]
+    },
+    {
+      name: "Enterprise",
+      description: "Unlimited capacity and premium custom integrations",
+      price: 14999,
+      durationDays: 30,
+      trialDays: 0,
+      staffLimit: 9999,
+      reportLimit: 99999,
+      isRecommended: false,
+      isActive: true,
+      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING", "LOYALTY_PROGRAMS", "PHOTO_DOCUMENTATION", "STAFF_MANAGEMENT", "CUSTOM_BRANDING", "ANALYTICS", "REVENUE_RECOVERY", "MULTI_BRANCH", "API_ACCESS"]
+    }
+  ];
+
+  const dbPlans = {};
+  for (const p of plans) {
+    const plan = await prisma.subscriptionPlan.create({
+      data: {
+        name: p.name,
+        description: p.description,
+        price: p.price,
+        durationDays: p.durationDays,
+        trialDays: p.trialDays,
+        staffLimit: p.staffLimit,
+        reportLimit: p.reportLimit,
+        isRecommended: p.isRecommended,
+        isActive: p.isActive,
+      }
+    });
+    dbPlans[p.name.toUpperCase()] = plan;
+
+    for (const fKey of p.features) {
+      await prisma.planFeature.create({
+        data: {
+          planId: plan.id,
+          featureKey: fKey,
+          enabled: true
+        }
+      });
+    }
+  }
 
   // 1. Seed Station
   const station = await prisma.station.upsert({
@@ -57,6 +154,20 @@ async function main() {
       vipSpendThreshold: 10000,
       vipVisitThreshold: 5,
     },
+  });
+
+  // Seed active station subscription for Sparkle Shine (Trial Plan)
+  const trialPlan = dbPlans["TRIAL"];
+  const now = new Date();
+  const trialEndDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  await prisma.stationSubscription.create({
+    data: {
+      stationId: station.id,
+      subscriptionId: trialPlan.id,
+      startDate: now,
+      endDate: trialEndDate,
+      status: "TRIAL",
+    }
   });
 
   // 2. Seed Users

@@ -134,40 +134,60 @@ async function main() {
   console.log("Checking existing stations...");
   const stations = await prisma.station.findMany();
   const trialPlan = dbPlans["TRIAL"];
+  const enterprisePlan = dbPlans["ENTERPRISE"];
 
   if (stations.length === 0) {
     console.log("No existing stations found to process.");
   } else {
     const now = new Date();
     const trialEndDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const enterpriseEndDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 
     for (const station of stations) {
+      const isTestStation = station.slug === "sparkle-shine" || station.email === "owner@example.com";
+      const targetPlan = isTestStation ? enterprisePlan : trialPlan;
+      const targetStatus = isTestStation ? "ACTIVE" : "TRIAL";
+      const targetEndDate = isTestStation ? enterpriseEndDate : trialEndDate;
+      const targetStationStatus = isTestStation ? StationStatus.ACTIVE : StationStatus.TRIAL;
+
       const activeSubscription = await prisma.stationSubscription.findFirst({
         where: {
-          stationId: station.id,
-          status: "TRIAL"
+          stationId: station.id
         }
       });
 
       if (!activeSubscription) {
-        console.log(`Station ${station.name} (${station.slug}) has no active subscription. Creating Trial subscription...`);
+        console.log(`Station ${station.name} (${station.slug}) has no active subscription. Creating ${targetPlan.name} subscription...`);
         await prisma.stationSubscription.create({
           data: {
             stationId: station.id,
-            subscriptionId: trialPlan.id,
+            subscriptionId: targetPlan.id,
             startDate: now,
-            endDate: trialEndDate,
-            status: "TRIAL",
+            endDate: targetEndDate,
+            status: targetStatus,
           }
         });
 
-        // Ensure station status is TRIAL
-        if (station.status !== StationStatus.TRIAL) {
-          await prisma.station.update({
-            where: { id: station.id },
-            data: { status: StationStatus.TRIAL }
-          });
-        }
+        await prisma.station.update({
+          where: { id: station.id },
+          data: { status: targetStationStatus }
+        });
+      } else if (isTestStation && activeSubscription.subscriptionId !== enterprisePlan.id) {
+        console.log(`Upgrading test station ${station.name} (${station.slug}) to Enterprise plan...`);
+        await prisma.stationSubscription.update({
+          where: { id: activeSubscription.id },
+          data: {
+            subscriptionId: enterprisePlan.id,
+            startDate: now,
+            endDate: enterpriseEndDate,
+            status: "ACTIVE",
+          }
+        });
+
+        await prisma.station.update({
+          where: { id: station.id },
+          data: { status: StationStatus.ACTIVE }
+        });
       } else {
         console.log(`Station ${station.name} already has a subscription.`);
       }

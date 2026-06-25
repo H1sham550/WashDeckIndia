@@ -142,6 +142,7 @@ async function main() {
     update: {
       vipSpendThreshold: 10000,
       vipVisitThreshold: 5,
+      status: StationStatus.ACTIVE,
     },
     create: {
       name: "Sparkle Shine Car Wash",
@@ -150,23 +151,23 @@ async function main() {
       phone: "+910000000000",
       primaryColor: "#0f766e",
       upiId: "sparkle@upi",
-      status: StationStatus.TRIAL,
+      status: StationStatus.ACTIVE,
       vipSpendThreshold: 10000,
       vipVisitThreshold: 5,
     },
   });
 
-  // Seed active station subscription for Sparkle Shine (Trial Plan)
-  const trialPlan = dbPlans["TRIAL"];
+  // Seed active station subscription for Sparkle Shine (Enterprise Plan - Unlocks All Features)
+  const enterprisePlan = dbPlans["ENTERPRISE"];
   const now = new Date();
-  const trialEndDate = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const enterpriseEndDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
   await prisma.stationSubscription.create({
     data: {
       stationId: station.id,
-      subscriptionId: trialPlan.id,
+      subscriptionId: enterprisePlan.id,
       startDate: now,
-      endDate: trialEndDate,
-      status: "TRIAL",
+      endDate: enterpriseEndDate,
+      status: "ACTIVE",
     }
   });
 

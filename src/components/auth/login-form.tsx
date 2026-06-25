@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertTriangle, KeyRound, User } from "lucide-react";
 
@@ -10,6 +10,13 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Silent background warmup to eliminate serverless cold starts while the user is typing
+  useEffect(() => {
+    fetch("/api/auth/login")
+      .then((res) => res.json())
+      .catch((err) => console.error("Silent warmup error:", err));
+  }, []);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

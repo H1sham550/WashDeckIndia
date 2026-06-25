@@ -100,3 +100,19 @@ export async function POST(request: Request) {
     );
   }
 }
+
+/**
+ * GET handler to warm up the serverless function and database connection pool.
+ * Triggered silently when the login page mounts, reducing user-perceived cold starts to zero.
+ */
+export async function GET() {
+  try {
+    // Run a ultra-fast query to initialize Prisma and warm up the Supabase connection pool
+    await prisma.$queryRaw`SELECT 1`;
+    return NextResponse.json({ ok: true, message: "auth server warmed" });
+  } catch (err) {
+    console.error("Auth warmup failed:", err);
+    return NextResponse.json({ ok: false, error: "warmup failed" }, { status: 500 });
+  }
+}
+

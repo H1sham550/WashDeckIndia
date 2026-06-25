@@ -45,13 +45,8 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xl shadow-slate-100/50 md:p-8">
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-slate-800">Secure Sign In</h3>
-        <p className="text-xs text-slate-400 mt-1">
-          Enter your registered email address or mobile number and password to access your detailing center workspace.
-        </p>
-      </div>
+    <div className="w-full rounded-2xl border-0 md:border border-slate-200/80 bg-transparent md:bg-white p-0 md:p-8 shadow-none md:shadow-xl md:shadow-slate-100/50">
+      {/* Header is now beautifully handled by the parent page to prevent duplication on mobile */}
 
       {error && (
         <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-lg">

@@ -29,3 +29,16 @@ button,
 input {
   font: inherit;
 }
+
+/* Mobile-oriented touch optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Tactile haptic-like scale feedback on active buttons */
+.active-tap {
+  transition: transform 0.1s ease-out;
+}
+.active-tap:active {
+  transform: scale(0.97);
+}

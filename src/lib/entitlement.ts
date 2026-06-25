@@ -18,6 +18,10 @@ export type StationEntitlements = {
   currentPlanName: string;
 };
 
+// Memory cache to hold entitlement results with a 60-second TTL
+const entitlementCache = new Map<string, { data: StationEntitlements; expiresAt: number }>();
+const CACHE_TTL_MS = 60 * 1000; // 1 minute
+
 const FEATURE_KEY_MAPPING: Record<string, string> = {
   offers: "LOYALTY_PROGRAMS",
   reports: "SERVICE_REPORTS",
@@ -43,8 +47,15 @@ export function normalizeFeatureKey(featureKey: string): string {
  * High-Performance Batched Entitlement Resolver.
  * Resolves station status, subscription plan details, feature flags, and overrides
  * in a single, unified database query. Prevents N+1 database queries.
+ * Caches the result in server memory for 60 seconds to make page loads instant.
  */
 export async function getStationEntitlements(stationId: string): Promise<StationEntitlements> {
+  const now = Date.now();
+  const cached = entitlementCache.get(stationId);
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
+
   const station = await prisma.station.findUnique({
     where: { id: stationId },
     include: {
@@ -190,13 +201,16 @@ export async function getStationEntitlements(stationId: string): Promise<Station
     });
   }
 
-  return {
+  const result = {
     lifecycle,
     features: features as any,
     staffLimit,
     reportLimit,
     currentPlanName,
   };
+
+  entitlementCache.set(stationId, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });
+  return result;
 }
 
 /**

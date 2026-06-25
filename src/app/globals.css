@@ -35,10 +35,13 @@ input {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Tactile haptic-like scale feedback on active buttons */
+/* System-wide tactile press feedback on all buttons and nav links */
+button,
 .active-tap {
-  transition: transform 0.1s ease-out;
+  transition: transform 0.15s ease-out !important;
 }
+
+button:active,
 .active-tap:active {
-  transform: scale(0.97);
+  transform: scale(0.97) !important;
 }

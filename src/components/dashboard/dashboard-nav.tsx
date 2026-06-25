@@ -28,7 +28,7 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
 
   const navItemClass = (href: string) => {
     const active = isActive(href);
-    return `px-3 py-1.5 rounded-md transition-all duration-200 flex items-center gap-1 text-xs sm:text-sm ${
+    return `px-3 py-1.5 rounded-md transition-all duration-200 flex items-center gap-1 text-xs sm:text-sm active-tap ${
       active
         ? "bg-[var(--primary-color)]/10 text-[var(--primary-color)] font-extrabold shadow-sm"
         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold"
@@ -37,7 +37,7 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
 
   const mobileItemClass = (href: string) => {
     const active = isActive(href);
-    return `flex flex-col items-center gap-0.5 px-3 py-1.5 transition-all duration-200 rounded-lg ${
+    return `flex flex-col items-center gap-0.5 px-3 py-1.5 transition-all duration-200 rounded-lg active-tap ${
       active
         ? "text-[var(--primary-color)] bg-[var(--primary-color)]/5 font-extrabold"
         : "text-slate-500 hover:text-slate-900 font-bold"

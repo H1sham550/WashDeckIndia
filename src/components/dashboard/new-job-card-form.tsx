@@ -17,6 +17,7 @@ import {
   Clock,
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
+import { compressImage } from "@/lib/image-compressor";
 
 type ServicePrice = {
   vehicleType: VehicleType;
@@ -114,8 +115,9 @@ export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormP
     setError("");
 
     const uploadPromises = Array.from(files).map(async (file) => {
+      const compressed = await compressImage(file, { maxWidth: 1024, quality: 0.75 });
       const data = new FormData();
-      data.append("file", file);
+      data.append("file", compressed);
 
       const res = await fetch("/api/upload", {
         method: "POST",

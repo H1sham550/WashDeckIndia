@@ -22,6 +22,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { JobStatus, PaymentMethod } from "@prisma/client";
+import { compressImage } from "@/lib/image-compressor";
 
 type JobDetailsViewProps = {
   job: {
@@ -215,8 +216,9 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
     setError("");
 
     const uploadPromises = Array.from(files).map(async (file) => {
+      const compressed = await compressImage(file, { maxWidth: 1024, quality: 0.75 });
       const data = new FormData();
-      data.append("file", file);
+      data.append("file", compressed);
 
       const res = await fetch("/api/upload", {
         method: "POST",

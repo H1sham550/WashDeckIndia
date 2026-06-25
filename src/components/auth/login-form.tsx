@@ -46,7 +46,6 @@ export function LoginForm() {
       router.push(data.redirectTo || "/dashboard");
     } catch (err: any) {
       setError(err.message || "Could not log in.");
-    } finally {
       setLoading(false);
     }
   }

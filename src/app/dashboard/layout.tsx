@@ -53,7 +53,7 @@ export default async function DashboardLayout({
           </a>
         </div>
       )}
-      <header className="border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+      <header className="border-b border-slate-100 bg-white sticky top-0 z-40 shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-3">
             {logoUrl ? (

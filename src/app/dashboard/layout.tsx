@@ -31,7 +31,7 @@ export default async function DashboardLayout({
   const isOwner = session.role === "OWNER";
   
   const logoUrl = entitlements.features.branding ? station?.logoUrl : null;
-  const primaryColor = entitlements.features.branding ? (station?.primaryColor || "#0f766e") : "#0f766e";
+  const primaryColor = entitlements.features.branding ? (station?.primaryColor || "#0b2240") : "#0b2240";
 
   return (
     <div

@@ -51,7 +51,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="w-full rounded-2xl border-0 md:border border-slate-200/80 bg-transparent md:bg-white p-0 md:p-8 shadow-none md:shadow-xl md:shadow-slate-100/50">
+    <div className="w-full">
       {/* Header is now beautifully handled by the parent page to prevent duplication on mobile */}
 
       {error && (
@@ -103,8 +103,8 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-white text-sm font-bold shadow-md shadow-emerald-700/10 hover:brightness-95 active:scale-[0.99] transition duration-150"
-          style={{ backgroundColor: "var(--primary-color, #0f766e)" }}
+          className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-white text-sm font-bold shadow-md shadow-slate-200 hover:brightness-95 active:scale-[0.99] transition duration-150"
+          style={{ backgroundColor: "var(--primary-color, #0b2240)" }}
         >
           {loading ? (
             <>

@@ -53,33 +53,39 @@ export default async function DashboardLayout({
           </a>
         </div>
       )}
-      <header className="border-b bg-white shadow-sm sticky top-0 z-40">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <header className="border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-3">
             {logoUrl ? (
               <img
                 src={logoUrl}
                 alt={station?.name}
-                className="h-10 w-10 object-contain rounded-md border"
+                className="h-10 w-10 object-contain rounded-xl border border-slate-100 shadow-sm"
               />
             ) : (
-              <div className="h-10 w-10 flex items-center justify-center rounded-md text-white font-bold bg-[var(--primary-color)] transition-all hover:scale-105 duration-200">
-                {station?.name.charAt(0)}
+              <div className="h-10 w-10 flex items-center justify-center rounded-xl text-white font-black text-base bg-gradient-to-br from-[#0b2240] via-[#0f2d57] to-[#2563eb] shadow-sm border border-blue-900/10 transition-all duration-200 active-tap hover:scale-[1.03]">
+                {station?.name.charAt(0).toUpperCase()}
               </div>
             )}
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-sm font-bold text-slate-800">{station?.name}</span>
-                <span className="text-[10px] text-slate-400 font-medium tracking-tight">
-                  powered by WashDeck
+            <div className="flex flex-col gap-0.5 text-left">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-sm sm:text-base font-black text-slate-800 tracking-tight leading-none">
+                  {station?.name}
+                </span>
+                <span className={`inline-flex items-center text-[8px] font-black tracking-widest px-1.5 py-0.5 rounded-md uppercase border ${
+                  isOwner 
+                    ? "bg-blue-50/60 border-blue-100/80 text-blue-600" 
+                    : "bg-slate-50 border-slate-150 text-slate-500"
+                }`}>
+                  {session.role}
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
-                {session.role} PORTAL
-              </p>
+              <div className="text-[9px] text-slate-400 font-bold tracking-tight">
+                powered by <span className="text-blue-500/90">WashDeck</span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <DashboardNav isOwner={isOwner} features={entitlements.features} />
             <LogoutButton />
           </div>

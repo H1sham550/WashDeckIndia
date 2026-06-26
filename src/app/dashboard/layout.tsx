@@ -86,7 +86,7 @@ export default async function DashboardLayout({
         </div>
       </header>
 
-      <main className="flex-1 bg-slate-50/50">
+      <main className="flex-1 bg-slate-50/50 pb-20 md:pb-0">
         {children}
       </main>
       <footer className="py-4 border-t bg-white text-center text-[10px] font-bold text-slate-400 tracking-wider">

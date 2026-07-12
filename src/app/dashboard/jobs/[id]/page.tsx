@@ -12,17 +12,18 @@ export default async function JobDetailsPage({ params }: PageProps) {
   const session = await requireStationUser();
   const { id } = await params;
 
-  let job;
+  let job, station;
   try {
-    job = await jobCardService.getJobCardDetails(session.stationId, id);
+    [job, station] = await Promise.all([
+      jobCardService.getJobCardDetails(session.stationId, id),
+      prisma.station.findUnique({
+        where: { id: session.stationId || "" },
+      }),
+    ]);
   } catch (error) {
     console.error("Error loading job card details:", error);
     notFound();
   }
-
-  const station = await prisma.station.findUnique({
-    where: { id: session.stationId || "" },
-  });
 
   if (!station) {
     redirect("/login");

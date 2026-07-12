@@ -756,19 +756,60 @@ export function NewJobIntakeWizard({
         </div>
       )}
 
-      {/* STEP 3: Inspection Notes */}
+      {/* STEP 3: Inspection Notes & Damage Checklist (Item 4) */}
       {step === 3 && (
         <div className="space-y-6 bg-white border rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Step 3: Vehicle Inspection Notes</h3>
-          <p className="text-[11px] text-slate-400 font-medium">
-            Note down pre-existing dents, scratches, missing components, or special client requests.
-          </p>
+          <div>
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Step 3: Vehicle Inspection & Damage Checklist</h3>
+            <p className="text-[11px] text-slate-400 font-medium mt-1">
+              Tap pre-existing issues to instantly record them before starting service:
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            {[
+              "Scratch on Body",
+              "Minor Dent",
+              "Paint Damage / Peeling",
+              "Broken Mirror / Housing",
+              "Windshield Crack / Chip",
+              "Interior Upholstery Damage",
+              "Alloy Wheel Scuff",
+              "No Visible Pre-existing Damage"
+            ].map((tag) => {
+              const isIncluded = inspectionNotes.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => {
+                    if (isIncluded) {
+                      setInspectionNotes((prev) => prev.replace(`[✓ ${tag}]`, "").replace(`${tag}, `, "").trim());
+                    } else {
+                      setInspectionNotes((prev) => (prev ? `${prev}\n[✓ ${tag}]` : `[✓ ${tag}]`));
+                    }
+                  }}
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
+                    isIncluded 
+                      ? "bg-rose-50 border-rose-300 text-rose-700 font-extrabold shadow-sm" 
+                      : tag.includes("No Visible") 
+                        ? "bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100" 
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  <span>{isIncluded ? "✓" : "+"}</span>
+                  <span>{tag}</span>
+                </button>
+              );
+            })}
+          </div>
+
           <textarea
             required
             value={inspectionNotes}
             onChange={(e) => setInspectionNotes(e.target.value)}
-            placeholder="Type inspection notes here..."
-            className="w-full h-32 border rounded-lg p-3 text-xs outline-none focus:border-[var(--primary-color)]"
+            placeholder="Additional inspection details, existing damage notes, or client special requests..."
+            className="w-full h-32 border rounded-xl p-3 text-xs font-medium outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]"
           />
 
           <div className="flex justify-between items-center border-t pt-4">

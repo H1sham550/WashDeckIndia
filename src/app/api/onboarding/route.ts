@@ -188,18 +188,28 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ ok: false, error: "Staff name, email, and password are required." }, { status: 400 });
         }
 
-        const normalizedEmail = staff.email.toLowerCase().trim();
-        const existingUser = await prisma.user.findUnique({
-          where: { email: normalizedEmail },
+        const inputIdentity = staff.email.toLowerCase().trim();
+        const isEmail = inputIdentity.includes("@");
+        const normalizedEmail = isEmail ? inputIdentity : null;
+        const normalizedUsername = staff.username ? staff.username.toLowerCase().trim() : (isEmail ? inputIdentity.split("@")[0] : inputIdentity);
+
+        const existingUser = await prisma.user.findFirst({
+          where: {
+            stationId,
+            OR: [
+              normalizedEmail ? { email: normalizedEmail } : {},
+              { username: normalizedUsername },
+            ].filter((c) => Object.keys(c).length > 0),
+            isDeleted: false,
+          },
         });
 
         if (existingUser) {
-          // If staff user already exists for this station, skip creation to avoid unique violation
-          if (existingUser.stationId === stationId && existingUser.role === "STAFF") {
-            return NextResponse.json({ ok: true, message: "Staff user already exists." });
+          if (existingUser.role === "STAFF") {
+            return NextResponse.json({ ok: true, message: "Staff user already exists for this station." });
           }
           return NextResponse.json(
-            { ok: false, error: "Email is already registered on the platform." },
+            { ok: false, error: "Staff email or username is already registered in this station." },
             { status: 400 }
           );
         }
@@ -209,6 +219,7 @@ export async function POST(request: NextRequest) {
             stationId,
             name: staff.name,
             email: normalizedEmail,
+            username: normalizedUsername,
             mobile: staff.mobile || null,
             passwordHash: hashPassword(staff.password),
             role: "STAFF",

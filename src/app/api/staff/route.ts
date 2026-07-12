@@ -62,14 +62,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Name, email, role, and password are required." }, { status: 400 });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email ? email.toLowerCase().trim() : null;
+    const normalizedUsername = body.username ? body.username.toLowerCase().trim() : (normalizedEmail ? normalizedEmail.split("@")[0] : null);
 
-    // Check if email already exists globally
-    const existing = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+    // Check if email or username already exists in THIS station only
+    const existing = await prisma.user.findFirst({
+      where: {
+        stationId: session.stationId,
+        OR: [
+          normalizedEmail ? { email: normalizedEmail } : {},
+          normalizedUsername ? { username: normalizedUsername } : {},
+        ].filter(c => Object.keys(c).length > 0),
+        isDeleted: false,
+      },
     });
     if (existing) {
-      return NextResponse.json({ ok: false, error: "Email is already registered on WashDeck." }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Staff email or username is already registered in your station." }, { status: 400 });
     }
 
     // Check plan limits
@@ -117,6 +125,7 @@ export async function POST(request: NextRequest) {
         stationId: session.stationId,
         name,
         email: normalizedEmail,
+        username: normalizedUsername,
         mobile: mobile || null,
         role,
         passwordHash: hashPassword(password),

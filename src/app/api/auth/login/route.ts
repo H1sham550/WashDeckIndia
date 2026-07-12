@@ -33,26 +33,29 @@ export async function POST(request: Request) {
 
     const { identity, password } = parsed.data;
 
-    // Search by email or mobile number
-    const user = await prisma.user.findFirst({
+    // Search by email, username, or mobile number across active users
+    const candidates = await prisma.user.findMany({
       where: {
         OR: [
           { email: { equals: identity, mode: "insensitive" } },
+          { username: { equals: identity, mode: "insensitive" } },
           { mobile: identity },
         ],
         isDeleted: false,
+        status: "ACTIVE",
       },
     });
 
-    if (!user || user.status !== "ACTIVE") {
+    if (candidates.length === 0) {
       return NextResponse.json(
         { ok: false, error: "Invalid identity or password." },
         { status: 401 }
       );
     }
 
-    const isValid = verifyPassword(password, user.passwordHash);
-    if (!isValid) {
+    // Verify password against matching candidates (handles identical staff emails/usernames across different stations cleanly)
+    const user = candidates.find((candidate) => verifyPassword(password, candidate.passwordHash));
+    if (!user) {
       return NextResponse.json(
         { ok: false, error: "Invalid identity or password." },
         { status: 401 }

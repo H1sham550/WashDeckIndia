@@ -949,12 +949,12 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-slate-600 mb-1 block">Staff Login Email *</label>
+                    <label className="font-bold text-slate-600 mb-1 block">Staff Login Email or Username *</label>
                     <input
-                      type="email"
+                      type="text"
                       value={staffConfig.email}
                       onChange={(e) => setStaffConfig((prev) => ({ ...prev, email: e.target.value }))}
-                      placeholder="e.g. anil@apex.com"
+                      placeholder="e.g. test1@gmail.com or anil_staff"
                       className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                     />
                   </div>

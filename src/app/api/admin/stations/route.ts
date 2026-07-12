@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email: ownerEmail.toLowerCase().trim() },
+    const existingUser = await prisma.user.findFirst({
+      where: { email: ownerEmail.toLowerCase().trim(), isDeleted: false },
     });
     if (existingUser) {
       return NextResponse.json(

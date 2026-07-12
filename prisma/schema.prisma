@@ -95,7 +95,8 @@ model User {
   id        String     @id @default(uuid())
   stationId String?    @map("station_id")
   name         String
-  email        String     @unique
+  email        String?
+  username     String?
   mobile       String?
   passwordHash String     @default("") @map("password_hash")
   role         UserRole
@@ -113,6 +114,8 @@ model User {
   vehicleNotes VehicleNote[]
   jobCards     JobCard[]
 
+  @@unique([stationId, email])
+  @@unique([stationId, username])
   @@index([stationId])
   @@map("users")
 }

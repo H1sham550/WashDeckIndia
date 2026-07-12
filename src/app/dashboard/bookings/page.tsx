@@ -11,10 +11,16 @@ export default async function BookingsPage() {
   const session = await requireStationUser();
   const stationId = session.stationId || "";
 
-  const bookings = await prisma.booking.findMany({
-    where: { stationId },
-    orderBy: { scheduledAt: "asc" },
-  });
+  const [station, bookings] = await Promise.all([
+    prisma.station.findUnique({
+      where: { id: stationId },
+      select: { slug: true, name: true },
+    }),
+    prisma.booking.findMany({
+      where: { stationId },
+      orderBy: { scheduledAt: "asc" },
+    }),
+  ]);
 
   // Serialize dates for client component
   const serialized = bookings.map((b) => ({
@@ -32,7 +38,12 @@ export default async function BookingsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6">
-      <BookingsPanel initialBookings={serialized} stationId={stationId} />
+      <BookingsPanel 
+        initialBookings={serialized} 
+        stationId={stationId}
+        stationSlug={station?.slug || stationId}
+        stationName={station?.name || "Your Station"}
+      />
     </div>
   );
 }

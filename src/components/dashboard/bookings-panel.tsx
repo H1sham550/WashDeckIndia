@@ -16,8 +16,14 @@ import {
   Phone, 
   Sparkles,
   ChevronRight,
-  MoreVertical
+  MoreVertical,
+  Copy,
+  Check,
+  ExternalLink,
+  Share2,
+  ArrowRight
 } from "lucide-react";
+import Link from "next/link";
 
 type Booking = {
   id: string;
@@ -35,14 +41,22 @@ type Booking = {
 interface BookingsPanelProps {
   initialBookings: Booking[];
   stationId: string;
+  stationSlug?: string;
+  stationName?: string;
 }
 
-export function BookingsPanel({ initialBookings, stationId }: BookingsPanelProps) {
+export function BookingsPanel({ initialBookings, stationId, stationSlug, stationName }: BookingsPanelProps) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [, startTransition] = useTransition();
+
+  const slugToUse = stationSlug || stationId;
+  const publicLink = typeof window !== "undefined" 
+    ? `${window.location.origin}/book/${slugToUse}` 
+    : `https://washdeck.vercel.app/book/${slugToUse}`;
 
   // Form state
   const [customerName, setCustomerName] = useState("");
@@ -118,14 +132,16 @@ export function BookingsPanel({ initialBookings, stationId }: BookingsPanelProps
 
   const getStatusBadge = (status: Booking["status"]) => {
     switch (status) {
-      case "CONFIRMED":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "PENDING":
         return "bg-amber-50 text-amber-700 border-amber-200";
-      case "CANCELLED":
-        return "bg-rose-50 text-rose-700 border-rose-200";
-      case "COMPLETED":
+      case "CONFIRMED":
         return "bg-blue-50 text-blue-700 border-blue-200";
+      case "COMPLETED":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "CANCELLED":
+        return "bg-slate-100 text-slate-500 border-slate-200";
+      default:
+        return "bg-slate-50 text-slate-700 border-slate-200";
     }
   };
 
@@ -149,6 +165,57 @@ export function BookingsPanel({ initialBookings, stationId }: BookingsPanelProps
           <Plus size={16} strokeWidth={2.5} />
           Schedule New Appointment
         </button>
+      </div>
+
+      {/* Public Booking Link Banner (Item 10) */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950 rounded-2xl p-5 text-white shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border border-emerald-500/30">
+        <div className="space-y-1.5 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
+              <Sparkles size={11} className="text-emerald-400" />
+              <span>Online Customer Portal Live</span>
+            </span>
+          </div>
+          <h3 className="text-base font-black text-white tracking-tight">Your Public Appointment Booking Page</h3>
+          <p className="text-xs text-slate-300 font-medium leading-relaxed max-w-2xl">
+            Customers can now self-book appointments online. Share this link on your WhatsApp bio, Instagram, Google Maps, or invoice footers:
+          </p>
+          <div className="mt-2.5 flex items-center gap-2 bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-emerald-300 select-all overflow-x-auto">
+            <span className="truncate">{publicLink}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 self-stretch lg:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              navigator.clipboard.writeText(publicLink);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 3000);
+            }}
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-sm transition-all"
+          >
+            {copied ? (
+              <>
+                <Check size={16} className="text-slate-950" />
+                <span>Copied Link!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={16} />
+                <span>Copy Public Link</span>
+              </>
+            )}
+          </button>
+          <a
+            href={`/book/${slugToUse}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-colors"
+          >
+            <span>Open Page</span>
+            <ExternalLink size={14} />
+          </a>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -267,12 +334,14 @@ export function BookingsPanel({ initialBookings, stationId }: BookingsPanelProps
                       </button>
                     )}
                     {b.status === "CONFIRMED" && (
-                      <button
+                      <Link
+                        href={`/dashboard/jobs/new?bookingNumber=${encodeURIComponent(b.vehicleNumber)}`}
                         onClick={() => handleUpdateStatus(b.id, "COMPLETED")}
-                        className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] border border-blue-200 transition-colors"
+                        className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-extrabold text-[11px] shadow-xs transition-all flex items-center gap-1"
                       >
-                        Check-in
-                      </button>
+                        <span>Check-in → Queue</span>
+                        <ArrowRight size={12} />
+                      </Link>
                     )}
                     {b.status !== "CANCELLED" && b.status !== "COMPLETED" && (
                       <button

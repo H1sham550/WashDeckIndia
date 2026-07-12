@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { FinancePanel } from "@/components/dashboard/finance-panel";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { getStationEntitlements, getCachedSubscriptionPlans } from "@/lib/entitlement";
 import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
 
 export default async function FinancePage() {
@@ -12,16 +13,15 @@ export default async function FinancePage() {
     redirect("/login");
   }
 
-  const enabled = await isFeatureEnabled(session.stationId, "finance");
-  if (!enabled) {
-    const allPlans = await prisma.subscriptionPlan.findMany({
-      where: { isActive: true },
-      orderBy: { price: "asc" },
-      include: { planFeatures: true },
-    });
+  const [enabled, entitlements, allPlans] = await Promise.all([
+    isFeatureEnabled(session.stationId, "finance"),
+    getStationEntitlements(session.stationId),
+    getCachedSubscriptionPlans(),
+  ]);
 
+  if (!enabled) {
     const upgradePlans = allPlans
-      .filter(p => p.planFeatures.some(pf => pf.featureKey === "SERVICE_REPORTS" && pf.enabled))
+      .filter(p => p.planFeatures.some((pf: any) => pf.featureKey === "SERVICE_REPORTS" && pf.enabled))
       .map(p => ({
         id: p.id,
         name: p.name,
@@ -29,67 +29,50 @@ export default async function FinancePage() {
         description: p.description,
         staffLimit: p.staffLimit,
         reportLimit: p.reportLimit,
-        features: p.planFeatures.map(pf => pf.featureKey),
+        features: p.planFeatures.map((pf: any) => pf.featureKey),
       }));
-
-    const station = await prisma.station.findUnique({
-      where: { id: session.stationId },
-      include: {
-        stationSubscriptions: {
-          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
-          include: { subscription: true },
-          orderBy: { endDate: "desc" },
-          take: 1,
-        },
-      },
-    });
-    const currentPlanName = station?.stationSubscriptions[0]?.subscription.name || "Trial Plan";
 
     return (
       <UpgradeLock
         featureName="Expense & Income Tracker"
-        currentPlanName={currentPlanName}
+        currentPlanName={entitlements.currentPlanName}
         availablePlans={upgradePlans}
         stationId={session.stationId}
       />
     );
   }
 
-  const station = await prisma.station.findUnique({
-    where: { id: session.stationId },
-  });
-
-  if (!station) {
+  if (!entitlements.stationMetadata) {
     redirect("/login");
   }
 
-  // 1. Fetch all paid invoices for the station
-  const paidInvoices = await prisma.invoice.findMany({
-    where: {
-      jobCard: {
-        stationId: session.stationId,
-        isDeleted: false,
+  // Fetch all paid invoices and expenses concurrently
+  const [paidInvoices, expenses] = await Promise.all([
+    prisma.invoice.findMany({
+      where: {
+        jobCard: {
+          stationId: session.stationId,
+          isDeleted: false,
+        },
+        paymentStatus: "PAID",
       },
-      paymentStatus: "PAID",
-    },
-    include: {
-      jobCard: {
-        include: {
-          vehicle: true,
-          customer: true,
+      include: {
+        jobCard: {
+          include: {
+            vehicle: true,
+            customer: true,
+          },
         },
       },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
-
-  // 2. Fetch all expenses for the station
-  const expenses = await prisma.expense.findMany({
-    where: {
-      stationId: session.stationId,
-    },
-    orderBy: { date: "desc" },
-  });
+      orderBy: { updatedAt: "desc" },
+    }),
+    prisma.expense.findMany({
+      where: {
+        stationId: session.stationId,
+      },
+      orderBy: { date: "desc" },
+    }),
+  ]);
 
   // 3. Serialize data for Client Component
   const incomes = paidInvoices.map((inv) => ({

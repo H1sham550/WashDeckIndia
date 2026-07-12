@@ -59,7 +59,17 @@ export async function POST(request: Request) {
       );
     }
 
-    await prisma.$transaction([
+    await createSession({
+      id: user.id,
+      stationId: user.stationId,
+      role: user.role,
+      name: user.name,
+      email: user.email,
+      isTempPassword: user.isTempPassword,
+    });
+
+    // Fire and forget non-blocking audit & login timestamp update (does not block HTTP response to client)
+    Promise.all([
       prisma.user.update({
         where: { id: user.id },
         data: { lastLogin: new Date() },
@@ -73,16 +83,7 @@ export async function POST(request: Request) {
           entityId: user.id,
         },
       }),
-    ]);
-
-    await createSession({
-      id: user.id,
-      stationId: user.stationId,
-      role: user.role,
-      name: user.name,
-      email: user.email,
-      isTempPassword: user.isTempPassword,
-    });
+    ]).catch((err) => console.error("Non-blocking login audit update error:", err));
 
     return NextResponse.json({
       ok: true,

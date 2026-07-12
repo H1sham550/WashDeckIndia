@@ -13,10 +13,12 @@ import {
   Car,
   User,
   ChevronRight,
+  Plus,
 } from "lucide-react";
 import { StatusBadge, PlanBadge } from "@/components/ui/badge";
 import { formatDate, daysRemaining, getDaysRemainingLabel } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { CreateStationModal } from "./create-station-modal";
 
 export interface CustomerStation {
   id: string;
@@ -61,6 +63,7 @@ export function CustomersPanel({ stations }: CustomersPanelProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [planFilter, setPlanFilter] = useState("ALL");
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [, startTransition] = useTransition();
 
   // Collect unique plan names
@@ -109,35 +112,42 @@ export function CustomersPanel({ stations }: CustomersPanelProps) {
 
   return (
     <div className="space-y-4">
-      {/* ── Filters ─────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-          />
-          <input
-            type="text"
-            placeholder="Search by name or email…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-wd-teal-300 placeholder:text-slate-400"
-          />
-        </div>
-        <div className="flex gap-2">
-          <div className="relative">
-            <Filter size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-7 pr-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-wd-teal-300 appearance-none cursor-pointer"
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s === "ALL" ? "All Statuses" : s}
-                </option>
-              ))}
-            </select>
+      <CreateStationModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => window.location.reload()}
+      />
+
+      {/* ── Filters & Create Button ────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-2 flex-1">
+          <div className="relative flex-1">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+            <input
+              type="text"
+              placeholder="Search by name or email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-wd-teal-300 placeholder:text-slate-400"
+            />
+          </div>
+          <div className="flex gap-2">
+            <div className="relative">
+              <Filter size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="pl-7 pr-3 py-2.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-wd-teal-300 appearance-none cursor-pointer"
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s === "ALL" ? "All Statuses" : s}
+                  </option>
+                ))}
+              </select>
           </div>
           <select
             value={planFilter}
@@ -152,6 +162,15 @@ export function CustomersPanel({ stations }: CustomersPanelProps) {
           </select>
         </div>
       </div>
+
+      <button
+        onClick={() => setShowCreateModal(true)}
+        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-wd-teal-600 hover:bg-wd-teal-700 text-white text-xs font-bold shadow-sm shadow-wd-teal-600/20 transition-all active:scale-[0.98] flex-shrink-0"
+      >
+        <Plus size={15} />
+        <span>Add Station</span>
+      </button>
+    </div>
 
       {/* ── Result count ────────────────────────────────────────── */}
       <p className="text-xs text-slate-400 font-medium">

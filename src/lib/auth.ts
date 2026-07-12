@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import type { UserRole } from "@prisma/client";
 import { getSession, type SessionUser } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
+import { getStationEntitlements } from "@/lib/entitlement";
 
-export async function requireUser() {
+export const requireUser = cache(async () => {
   const session = await getSession();
 
   if (!session) {
@@ -11,9 +12,9 @@ export async function requireUser() {
   }
 
   return session;
-}
+});
 
-export async function requireRole(roles: UserRole[]) {
+export const requireRole = cache(async (roles: UserRole[]) => {
   const session = await requireUser();
 
   if (!roles.includes(session.role)) {
@@ -21,26 +22,23 @@ export async function requireRole(roles: UserRole[]) {
   }
 
   return session;
-}
+});
 
 type StationSessionUser = SessionUser & {
   stationId: string;
 };
 
-export async function requireStationUser(): Promise<StationSessionUser> {
+export const requireStationUser = cache(async (): Promise<StationSessionUser> => {
   const session = await requireRole(["OWNER", "STAFF"]);
 
   if (!session.stationId) {
     redirect("/login");
   }
 
-  // Enforce SUSPENDED station lockout
-  const station = await prisma.station.findUnique({
-    where: { id: session.stationId },
-    select: { status: true },
-  });
+  // Enforce SUSPENDED station lockout using 60s in-memory cached entitlement resolver (0 DB trips)
+  const entitlements = await getStationEntitlements(session.stationId);
 
-  if (station?.status === "SUSPENDED") {
+  if (entitlements.lifecycle === "SUSPENDED") {
     redirect("/login?error=suspended");
   }
 
@@ -48,4 +46,4 @@ export async function requireStationUser(): Promise<StationSessionUser> {
     ...session,
     stationId: session.stationId,
   };
-}
+});

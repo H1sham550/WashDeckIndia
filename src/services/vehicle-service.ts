@@ -168,12 +168,12 @@ export async function getVehiclePassport(vehicleId: string) {
   }
 
   // Calculate VIP Status using station-specific rules
-  const station = await prisma.station.findUnique({
-    where: { id: vehicle.stationId },
-  });
+  const { getStationEntitlements } = await import("@/lib/entitlement");
+  const entitlements = await getStationEntitlements(vehicle.stationId);
+  const stationMeta = entitlements.stationMetadata;
 
-  const vipSpendLimit = station ? Number(station.vipSpendThreshold) : 10000;
-  const vipVisitLimit = station ? station.vipVisitThreshold : 5;
+  const vipSpendLimit = stationMeta ? Number(stationMeta.vipSpendThreshold) : 10000;
+  const vipVisitLimit = stationMeta ? stationMeta.vipVisitThreshold : 5;
   const isVip = totalSpend >= vipSpendLimit || totalVisits >= vipVisitLimit;
   const vipStatus = isVip ? "VIP" : "Regular";
 

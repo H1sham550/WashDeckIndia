@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { cache } from "react";
 
 export type SubscriptionLifecycleState = "ACTIVE" | "TRIAL" | "GRACE" | "EXPIRED" | "SUSPENDED";
 
@@ -16,6 +17,18 @@ export type StationEntitlements = {
   staffLimit: number;
   reportLimit: number;
   currentPlanName: string;
+  stationMetadata?: {
+    id: string;
+    name: string;
+    slug: string;
+    onboardingStatus: string;
+    logoUrl: string | null;
+    primaryColor: string | null;
+    dueForVisitThreshold: number;
+    country?: string;
+    currency?: string;
+    timezone?: string;
+  };
 };
 
 // Memory cache to hold entitlement results with a 60-second TTL
@@ -49,7 +62,7 @@ export function normalizeFeatureKey(featureKey: string): string {
  * in a single, unified database query. Prevents N+1 database queries.
  * Caches the result in server memory for 60 seconds to make page loads instant.
  */
-export async function getStationEntitlements(stationId: string): Promise<StationEntitlements> {
+export const getStationEntitlements = cache(async (stationId: string): Promise<StationEntitlements> => {
   const now = Date.now();
   const cached = entitlementCache.get(stationId);
   if (cached && cached.expiresAt > now) {
@@ -201,17 +214,49 @@ export async function getStationEntitlements(stationId: string): Promise<Station
     });
   }
 
-  const result = {
+  const result: StationEntitlements = {
     lifecycle,
     features: features as any,
     staffLimit,
     reportLimit,
     currentPlanName,
+    stationMetadata: {
+      id: station.id,
+      name: station.name,
+      slug: station.slug,
+      onboardingStatus: station.onboardingStatus,
+      logoUrl: station.logoUrl,
+      primaryColor: station.primaryColor,
+      dueForVisitThreshold: station.dueForVisitThreshold ?? 30,
+      country: station.country || "IND",
+      currency: station.currency || "INR",
+      timezone: station.timezone || "Asia/Kolkata",
+    },
   };
 
   entitlementCache.set(stationId, { data: result, expiresAt: Date.now() + CACHE_TTL_MS });
   return result;
-}
+});
+
+// Memory cache for user station memberships with 60s TTL
+const userStationsCache = new Map<string, { data: { id: string; name: string; slug: string }[]; expiresAt: number }>();
+
+export const getUserStations = cache(async (email: string, role: string): Promise<{ id: string; name: string; slug: string }[]> => {
+  if (role !== "OWNER") return [];
+  const now = Date.now();
+  const cached = userStationsCache.get(email);
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
+
+  const memberships = await prisma.user.findMany({
+    where: { email, role: "OWNER", isDeleted: false },
+    select: { station: { select: { id: true, name: true, slug: true } } },
+  });
+  const data = memberships.map((m) => m.station).filter(Boolean) as { id: string; name: string; slug: string }[];
+  userStationsCache.set(email, { data, expiresAt: now + CACHE_TTL_MS });
+  return data;
+});
 
 /**
  * Check if a specific feature is enabled for a station.
@@ -231,3 +276,20 @@ export async function checkSubscription(stationId: string): Promise<Subscription
   const entitlements = await getStationEntitlements(stationId);
   return entitlements.lifecycle;
 }
+
+// Memory cache for subscription plans with 60s TTL
+let cachedPlans: { data: any[]; expiresAt: number } | null = null;
+
+export const getCachedSubscriptionPlans = cache(async () => {
+  const now = Date.now();
+  if (cachedPlans && cachedPlans.expiresAt > now) {
+    return cachedPlans.data;
+  }
+  const allPlans = await prisma.subscriptionPlan.findMany({
+    where: { isActive: true },
+    orderBy: { price: "asc" },
+    include: { planFeatures: true },
+  });
+  cachedPlans = { data: allPlans, expiresAt: now + CACHE_TTL_MS };
+  return allPlans;
+});

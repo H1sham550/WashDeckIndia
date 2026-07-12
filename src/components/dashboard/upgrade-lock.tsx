@@ -1,4 +1,5 @@
 import React from "react";
+import { formatCurrency } from "@/lib/currency";
 import { Lock, CheckCircle2, ArrowRight } from "lucide-react";
 
 export type UpgradeLockPlan = {
@@ -22,29 +23,25 @@ export function UpgradeLock({
   featureName,
   currentPlanName,
   availablePlans,
+  stationId,
 }: UpgradeLockProps) {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-16 flex flex-col items-center justify-center">
-      {/* Locked Icon Container with animations */}
-      <div className="relative mb-8 flex items-center justify-center">
-        <div className="absolute inset-0 rounded-full bg-teal-500/20 blur-xl animate-pulse" />
-        <div className="relative h-20 w-20 flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700/50 shadow-2xl text-teal-400">
-          <Lock size={36} className="animate-[bounce_2s_infinite]" />
+    <div className="mx-auto max-w-4xl py-12 px-4 text-center space-y-8 animate-fade-in">
+      {/* Header icon and message */}
+      <div className="space-y-3">
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60 shadow-sm">
+          <Lock size={32} />
         </div>
-      </div>
-
-      {/* Header Text */}
-      <div className="text-center max-w-xl space-y-3 mb-12">
-        <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight sm:text-4xl">
-          Upgrade Required
+        <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+          Unlock {featureName}
         </h2>
-        <p className="text-base text-slate-500 font-medium">
-          The <span className="text-teal-600 font-bold font-mono">{featureName}</span> feature is not included in your current <span className="font-bold text-slate-800">{currentPlanName}</span> plan.
+        <p className="text-sm text-slate-500 max-w-md mx-auto font-medium">
+          Your station is currently on the <span className="font-extrabold text-slate-700 uppercase">{currentPlanName}</span> plan. Upgrade below to immediately unlock {featureName.toLowerCase()} alongside high-performance enterprise tools.
         </p>
       </div>
 
-      {/* Grid of Plans */}
-      <div className="grid md:grid-cols-2 gap-6 w-full max-w-3xl">
+      {/* Plans grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left pt-4">
         {availablePlans.map((plan) => (
           <div
             key={plan.id}
@@ -67,7 +64,7 @@ export function UpgradeLock({
 
               <div className="flex items-baseline gap-1 py-2">
                 <span className="text-3xl font-black text-slate-900 tracking-tight">
-                  ₹{plan.price.toLocaleString("en-IN")}
+                  {formatCurrency(plan.price)}
                 </span>
                 <span className="text-xs font-bold text-slate-400">/month</span>
               </div>

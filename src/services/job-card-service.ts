@@ -135,8 +135,10 @@ export async function updateStatus(
 }
 
 export async function getOperationsBoardData(stationId: string) {
-  const activeJobs = await jobCardRepository.getActiveJobCardsByStation(stationId);
-  const deliveredToday = await jobCardRepository.getDeliveredJobCardsByStationToday(stationId);
+  const [activeJobs, deliveredToday] = await Promise.all([
+    jobCardRepository.getActiveJobCardsByStation(stationId),
+    jobCardRepository.getDeliveredJobCardsByStationToday(stationId),
+  ]);
 
   // Group by Kanban columns
   return {

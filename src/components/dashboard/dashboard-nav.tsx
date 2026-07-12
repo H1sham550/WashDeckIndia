@@ -14,7 +14,10 @@ import {
   Home, 
   Menu, 
   X, 
-  ChevronRight 
+  ChevronRight,
+  Calendar,
+  UserCheck,
+  Package
 } from "lucide-react";
 
 interface DashboardNavProps {
@@ -65,8 +68,17 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
         <Link href="/dashboard" className={navItemClass("/dashboard")}>
           Queue
         </Link>
+        <Link href="/dashboard/bookings" className={navItemClass("/dashboard/bookings")}>
+          Bookings
+        </Link>
         {isOwner && (
           <>
+            <Link href="/dashboard/attendance" className={navItemClass("/dashboard/attendance")}>
+              Attendance
+            </Link>
+            <Link href="/dashboard/inventory" className={navItemClass("/dashboard/inventory")}>
+              Inventory
+            </Link>
             <Link href="/dashboard/staff" className={navItemClass("/dashboard/staff")}>
               <span>Staff</span>
               {!features.staff && <span className="text-xs" title="Upgrade Required">🔒</span>}
@@ -160,6 +172,57 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
 
             {/* Drawer Navigation List */}
             <div className="space-y-3">
+              <Link 
+                href="/dashboard/bookings" 
+                onClick={() => setIsMoreOpen(false)}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors active-tap"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <Calendar size={18} />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-xs font-bold text-slate-700">Advance Appointments</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Schedule slots, bay check-in, & ETA.</p>
+                  </div>
+                </div>
+                <ChevronRight size={16} className="text-slate-400" />
+              </Link>
+
+              <Link 
+                href="/dashboard/attendance" 
+                onClick={() => setIsMoreOpen(false)}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors active-tap"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
+                    <UserCheck size={18} />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-xs font-bold text-slate-700">Staff Attendance</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Mark daily check-ins, shifts, & leave.</p>
+                  </div>
+                </div>
+                <ChevronRight size={16} className="text-slate-400" />
+              </Link>
+
+              <Link 
+                href="/dashboard/inventory" 
+                onClick={() => setIsMoreOpen(false)}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors active-tap"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600">
+                    <Package size={18} />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-xs font-bold text-slate-700">Supplies & Inventory</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">SKU stock tracking & restock alerts.</p>
+                  </div>
+                </div>
+                <ChevronRight size={16} className="text-slate-400" />
+              </Link>
+
               <Link 
                 href="/dashboard/staff" 
                 onClick={() => setIsMoreOpen(false)}

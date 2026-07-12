@@ -1,9 +1,9 @@
 import { LogoutButton } from "@/components/layout/logout-button";
 import { requireStationUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { getStationEntitlements } from "@/lib/entitlement";
+import { getStationEntitlements, getUserStations } from "@/lib/entitlement";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { StationSelector } from "@/components/dashboard/station-selector";
 
 export default async function DashboardLayout({
   children,
@@ -12,17 +12,18 @@ export default async function DashboardLayout({
 }) {
   const session = await requireStationUser();
   
-  // High-performance batched database fetch (combines station status, subscription, plans, and overrides in 1 query)
-  const entitlements = await getStationEntitlements(session.stationId);
+  // High-performance batched database fetch (combines station status, subscription, plans, and metadata in 1 cached query)
+  const [entitlements, userStations] = await Promise.all([
+    getStationEntitlements(session.stationId),
+    getUserStations(session.email, session.role),
+  ]);
 
   // If station is suspended, block access completely
   if (entitlements.lifecycle === "SUSPENDED") {
-    redirect("/suspended" as any); // Or let the sub-pages deal with it, but redirecting/showing a message is best.
+    redirect("/suspended" as any);
   }
 
-  const station = await prisma.station.findUnique({
-    where: { id: session.stationId },
-  });
+  const station = entitlements.stationMetadata;
 
   if (station?.onboardingStatus !== "COMPLETED") {
     redirect("/onboarding" as any);
@@ -64,14 +65,19 @@ export default async function DashboardLayout({
               />
             ) : (
               <div className="h-10 w-10 flex items-center justify-center rounded-xl text-white font-black text-base bg-gradient-to-br from-[#0b2240] via-[#0f2d57] to-[#2563eb] shadow-sm border border-blue-900/10 transition-all duration-200 active-tap hover:scale-[1.03]">
-                {station?.name.charAt(0).toUpperCase()}
+                {station?.name?.charAt(0).toUpperCase()}
               </div>
             )}
             <div className="flex flex-col gap-0.5 text-left">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-sm sm:text-base font-black text-slate-800 tracking-tight leading-none">
-                  {station?.name}
-                </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <StationSelector
+                  currentStation={{
+                    id: station?.id || session.stationId,
+                    name: station?.name || "WashDeck Station",
+                    slug: station?.slug || "station",
+                  }}
+                  userStations={userStations}
+                />
                 <span className={`inline-flex items-center text-[8px] font-black tracking-widest px-1.5 py-0.5 rounded-md uppercase border ${
                   isOwner 
                     ? "bg-blue-50/60 border-blue-100/80 text-blue-600" 

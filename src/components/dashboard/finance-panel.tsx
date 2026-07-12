@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import { formatCurrency } from "@/lib/currency";
 import { 
   Coins, 
   TrendingUp, 
@@ -378,7 +379,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Gross Income</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">₹{totalIncome.toLocaleString("en-IN")}</p>
+            <p className="text-xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalIncome)}</p>
           </div>
         </div>
 
@@ -389,7 +390,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Expenses</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">₹{totalExpense.toLocaleString("en-IN")}</p>
+            <p className="text-xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalExpense)}</p>
           </div>
         </div>
 
@@ -405,7 +406,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Net Profit</p>
             <p className={`text-xl font-extrabold mt-1 ${netProfit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-              {netProfit >= 0 ? "+" : ""}₹{netProfit.toLocaleString("en-IN")}
+              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}
             </p>
           </div>
         </div>
@@ -667,7 +668,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           <span className="font-extrabold text-slate-500">{tx.paymentMethod}</span>
                         </td>
                         <td className="py-3 px-4 text-right font-extrabold text-emerald-600 whitespace-nowrap">
-                          +₹{tx.amount.toLocaleString("en-IN")}
+                          +{formatCurrency(tx.amount)}
                         </td>
                         <td className="py-3 px-4 text-center text-slate-300 italic text-[10px]">
                           Invoice Locked
@@ -698,7 +699,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           Operational
                         </td>
                         <td className="py-3 px-4 text-right font-extrabold text-rose-600 whitespace-nowrap">
-                          -₹{tx.amount.toLocaleString("en-IN")}
+                          -{formatCurrency(tx.amount)}
                         </td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex items-center justify-center gap-2">

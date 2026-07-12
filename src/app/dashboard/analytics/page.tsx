@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { TrendingUp, BarChart2, Award, CreditCard, Sparkles, Car } from "lucide-react";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { getStationEntitlements, getCachedSubscriptionPlans } from "@/lib/entitlement";
 import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
 
 export default async function AnalyticsPage() {
@@ -12,16 +13,15 @@ export default async function AnalyticsPage() {
     redirect("/login");
   }
 
-  const enabled = await isFeatureEnabled(session.stationId, "analytics");
-  if (!enabled) {
-    const allPlans = await prisma.subscriptionPlan.findMany({
-      where: { isActive: true },
-      orderBy: { price: "asc" },
-      include: { planFeatures: true },
-    });
+  const [enabled, entitlements, allPlans] = await Promise.all([
+    isFeatureEnabled(session.stationId, "analytics"),
+    getStationEntitlements(session.stationId),
+    getCachedSubscriptionPlans(),
+  ]);
 
+  if (!enabled) {
     const upgradePlans = allPlans
-      .filter(p => p.planFeatures.some(pf => pf.featureKey === "ANALYTICS" && pf.enabled))
+      .filter(p => p.planFeatures.some((pf: any) => pf.featureKey === "ANALYTICS" && pf.enabled))
       .map(p => ({
         id: p.id,
         name: p.name,
@@ -29,96 +29,50 @@ export default async function AnalyticsPage() {
         description: p.description,
         staffLimit: p.staffLimit,
         reportLimit: p.reportLimit,
-        features: p.planFeatures.map(pf => pf.featureKey),
+        features: p.planFeatures.map((pf: any) => pf.featureKey),
       }));
-
-    const station = await prisma.station.findUnique({
-      where: { id: session.stationId },
-      include: {
-        stationSubscriptions: {
-          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
-          include: { subscription: true },
-          orderBy: { endDate: "desc" },
-          take: 1,
-        },
-      },
-    });
-    const currentPlanName = station?.stationSubscriptions[0]?.subscription.name || "Trial Plan";
 
     return (
       <UpgradeLock
         featureName="Business Analytics & Advanced Insights"
-        currentPlanName={currentPlanName}
+        currentPlanName={entitlements.currentPlanName}
         availablePlans={upgradePlans}
         stationId={session.stationId}
       />
     );
   }
 
-  // 1. Fetch paid invoices for station
-  const paidInvoices = await prisma.invoice.findMany({
-    where: {
-      jobCard: {
-        stationId: session.stationId,
-        isDeleted: false,
+  // Fetch paid invoices and delivered job cards concurrently
+  const [paidInvoices, jobCards] = await Promise.all([
+    prisma.invoice.findMany({
+      where: {
+        jobCard: {
+          stationId: session.stationId,
+          isDeleted: false,
+        },
+        paymentStatus: "PAID",
       },
-      paymentStatus: "PAID",
-    },
-    include: {
-      jobCard: {
-        include: {
-          services: true,
+      include: {
+        jobCard: {
+          include: {
+            services: true,
+          },
         },
       },
-    },
-  });
-
-  const totalRevenue = paidInvoices.reduce((sum, inv) => sum + Number(inv.finalAmount), 0);
-  const totalPaidCount = paidInvoices.length;
-  const averageTicket = totalPaidCount > 0 ? Math.round(totalRevenue / totalPaidCount) : 0;
-
-  // 2. Payment Method distribution
-  const paymentMethods: Record<string, number> = {
-    CASH: 0,
-    UPI: 0,
-    CARD: 0,
-    BANK: 0,
-  };
-  paidInvoices.forEach((inv) => {
-    if (inv.paymentMethod) {
-      paymentMethods[inv.paymentMethod] = (paymentMethods[inv.paymentMethod] || 0) + Number(inv.finalAmount);
-    }
-  });
-
-  // 3. Top Services
-  const servicesCount: Record<string, { count: number; revenue: number }> = {};
-  paidInvoices.forEach((inv) => {
-    inv.jobCard.services.forEach((s) => {
-      if (!servicesCount[s.serviceNameSnapshot]) {
-        servicesCount[s.serviceNameSnapshot] = { count: 0, revenue: 0 };
-      }
-      servicesCount[s.serviceNameSnapshot].count += 1;
-      servicesCount[s.serviceNameSnapshot].revenue += Number(s.priceSnapshot);
-    });
-  });
-
-  const topServices = Object.entries(servicesCount)
-    .map(([name, data]) => ({ name, ...data }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 5);
-
-  // 4. Top Vehicles by wash volume
-  const vehiclesCount: Record<string, number> = {};
-  const jobCards = await prisma.jobCard.findMany({
-    where: {
-      stationId: session.stationId,
-      status: "DELIVERED",
-      isDeleted: false,
-    },
-    include: {
-      vehicle: true,
-    },
-  });
+    }),
+    prisma.jobCard.findMany({
+      where: {
+        stationId: session.stationId,
+        status: "DELIVERED",
+        isDeleted: false,
+      },
+      select: {
+        vehicle: {
+          select: { vehicleType: true },
+        },
+      },
+    }),
+  ]);
 
   jobCards.forEach((j) => {
     const type = j.vehicle.vehicleType;

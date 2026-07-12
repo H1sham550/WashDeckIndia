@@ -1,6 +1,7 @@
 import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as serviceService from "@/services/service-service";
+import { getStationEntitlements } from "@/lib/entitlement";
 import { NewJobIntakeWizard } from "@/components/dashboard/new-job-intake-wizard";
 import { redirect, notFound } from "next/navigation";
 
@@ -12,17 +13,15 @@ export default async function NewJobIntakePage({ searchParams }: PageProps) {
   const session = await requireStationUser();
   const { vehicleId } = await searchParams;
 
-  const station = await prisma.station.findUnique({
-    where: { id: session.stationId || "" },
-  });
+  const [entitlements, services, templates] = await Promise.all([
+    getStationEntitlements(session.stationId),
+    serviceService.getStationServices(session.stationId),
+    serviceService.getStationTemplates(session.stationId),
+  ]);
 
-  if (!station) {
+  if (!entitlements.stationMetadata) {
     redirect("/login");
   }
-
-  // Load services and templates
-  const services = await serviceService.getStationServices(session.stationId);
-  const templates = await serviceService.getStationTemplates(session.stationId);
 
   // Serialize Decimals to Numbers
   const serializedServices = services.map((s) => ({
@@ -96,7 +95,7 @@ export default async function NewJobIntakePage({ searchParams }: PageProps) {
         preselectedVehicle={preselectedVehicle}
         services={serializedServices}
         templates={serializedTemplates}
-        defaultEtaMinutes={station.defaultEta ?? 120}
+        defaultEtaMinutes={entitlements.stationMetadata.dueForVisitThreshold ? 120 : 120}
       />
     </div>
   );

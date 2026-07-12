@@ -49,6 +49,9 @@ model Station {
   phone        String?
   email        String?
   address      String?
+  country      String   @default("IND")
+  currency     String   @default("INR")
+  timezone     String   @default("Asia/Kolkata")
   upiId        String?  @map("upi_id")
   gstNumber    String?  @map("gst_number")
   status               StationStatus @default(TRIAL)
@@ -80,6 +83,9 @@ model Station {
   jobCards             JobCard[]
   notifications        Notification[]
   expenses             Expense[]
+  bookings             Booking[]
+  attendanceLogs       AttendanceLog[]
+  inventoryItems       InventoryItem[]
 
   @@map("stations")
 }
@@ -609,4 +615,74 @@ model Expense {
   @@index([stationId])
   @@index([date])
   @@map("expenses")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Booking {
+  id           String        @id @default(uuid())
+  stationId    String        @map("station_id")
+  customerName String        @map("customer_name")
+  mobile       String
+  vehicleNumber String       @map("vehicle_number")
+  vehicleType  String        @map("vehicle_type")
+  serviceName  String        @map("service_name")
+  scheduledAt  DateTime      @map("scheduled_at")
+  status       BookingStatus @default(PENDING)
+  notes        String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  station      Station       @relation(fields: [stationId], references: [id])
+
+  @@index([stationId])
+  @@index([scheduledAt])
+  @@map("bookings")
+}
+
+model AttendanceLog {
+  id        String   @id @default(uuid())
+  stationId String   @map("station_id")
+  staffId   String   @map("staff_id")
+  staffName String   @map("staff_name")
+  date      DateTime @default(now())
+  status    String   @default("PRESENT") // "PRESENT", "ABSENT", "HALF_DAY", "LEAVE"
+  checkIn   DateTime? @map("check_in")
+  checkOut  DateTime? @map("check_out")
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  station   Station  @relation(fields: [stationId], references: [id])
+
+  @@index([stationId, date])
+  @@index([staffId])
+  @@map("attendance_logs")
+}
+
+model InventoryItem {
+  id           String   @id @default(uuid())
+  stationId    String   @map("station_id")
+  name         String
+  sku          String?
+  category     String   @default("Supplies") // e.g. "Chemicals", "Towels", "Equipment", "Supplies"
+  quantity     Decimal  @default(0) @db.Decimal(10, 2)
+  unit         String   @default("Liters") // e.g. "Liters", "Pieces", "Kg", "Units"
+  minThreshold Decimal  @default(5) @db.Decimal(10, 2) @map("min_threshold")
+  costPerUnit  Decimal  @default(0) @db.Decimal(10, 2) @map("cost_per_unit")
+  supplier     String?
+  lastRestocked DateTime? @map("last_restocked")
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  station      Station  @relation(fields: [stationId], references: [id])
+
+  @@index([stationId])
+  @@map("inventory_items")
 }

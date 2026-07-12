@@ -15,53 +15,82 @@ import Link from "next/link";
 import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as jobCardService from "@/services/job-card-service";
+import { getStationEntitlements } from "@/lib/entitlement";
 import { VehicleSearch } from "@/components/dashboard/vehicle-search";
 import { OperationsBoard } from "@/components/dashboard/operations-board";
+import { QuickActionBar } from "@/components/dashboard/quick-action-bar";
 
 export default async function DashboardPage() {
   const session = await requireStationUser();
   const stationId = session.stationId || "";
 
-  const station = await prisma.station.findUnique({
-    where: { id: stationId },
-  });
-
-  const boardData = await jobCardService.getOperationsBoardData(stationId);
-
-  // Calculate today's revenue (Paid invoices updated today)
+  // Calculate start of day for today's revenue filtering
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const paidInvoicesToday = await prisma.invoice.findMany({
-    where: {
-      jobCard: {
-        stationId: stationId,
+  // High-performance concurrent query execution (0 sequential waterfall stalls)
+  const [
+    entitlements,
+    boardData,
+    paidInvoicesSum,
+    pendingInvoices,
+    nearRewardRecords,
+    allStationVehicles,
+    topServicesGroup,
+  ] = await Promise.all([
+    getStationEntitlements(stationId),
+    jobCardService.getOperationsBoardData(stationId),
+    prisma.invoice.aggregate({
+      _sum: { finalAmount: true },
+      where: {
+        jobCard: { stationId },
+        paymentStatus: "PAID",
+        updatedAt: { gte: startOfDay },
       },
-      paymentStatus: "PAID",
-      updatedAt: {
-        gte: startOfDay,
+    }),
+    prisma.invoice.findMany({
+      where: {
+        jobCard: { stationId, isDeleted: false },
+        paymentStatus: "PENDING",
       },
-    },
-  });
-  const revenueToday = paidInvoicesToday.reduce((sum, inv) => sum + Number(inv.finalAmount), 0);
-
-  // Calculate outstanding payments (Pending invoices)
-  const pendingInvoices = await prisma.invoice.findMany({
-    where: {
-      jobCard: {
-        stationId: stationId,
-        isDeleted: false,
+      select: {
+        finalAmount: true,
+        jobCard: { select: { vehicleId: true } },
       },
-      paymentStatus: "PENDING",
-    },
-    include: {
-      jobCard: {
-        select: {
-          vehicleId: true,
+    }),
+    prisma.vehicleOfferProgress.findMany({
+      where: {
+        offer: { stationId, isActive: true, isDeleted: false },
+        rewardEarned: false,
+      },
+      include: {
+        vehicle: true,
+        offer: true,
+      },
+    }),
+    // Lightweight subquery for dueForVisit without fetching thousands of full job cards
+    prisma.vehicle.findMany({
+      where: { stationId, isDeleted: false },
+      select: {
+        id: true,
+        jobCards: {
+          where: { isDeleted: false },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { status: true, createdAt: true },
         },
       },
-    },
-  });
+    }),
+    prisma.jobCardService.groupBy({
+      where: { jobCard: { stationId } },
+      by: ["serviceNameSnapshot"],
+      _count: { serviceNameSnapshot: true },
+      orderBy: { _count: { serviceNameSnapshot: "desc" } },
+      take: 4,
+    }),
+  ]);
+
+  const revenueToday = Number(paidInvoicesSum._sum.finalAmount || 0);
   const outstandingPayments = pendingInvoices.reduce((sum, inv) => sum + Number(inv.finalAmount), 0);
   const pendingVehiclesCount = new Set(pendingInvoices.map((inv) => inv.jobCard.vehicleId)).size;
 
@@ -71,48 +100,15 @@ export default async function DashboardPage() {
   const serviceCompletedCount = boardData.SERVICE_COMPLETED.length;
   const pendingPaymentCount = boardData.PAYMENT_PENDING.length;
 
-  // Query vehicles near reward: rewardEarned is false, and currentCount === offer.targetCount - 1
-  const nearRewardRecords = await prisma.vehicleOfferProgress.findMany({
-    where: {
-      offer: {
-        stationId: stationId,
-        isActive: true,
-        isDeleted: false,
-      },
-      rewardEarned: false,
-    },
-    include: {
-      vehicle: true,
-      offer: true,
-    },
-  });
-
   const vehiclesNearReward = nearRewardRecords.filter(
     (rec) => rec.currentCount === rec.offer.targetCount - 1
   );
   const vehiclesNearRewardCount = vehiclesNearReward.length;
 
   // Calculate due for visit threshold based on station settings
-  const dueForVisitThresholdDays = station?.dueForVisitThreshold ?? 30;
+  const dueForVisitThresholdDays = entitlements.stationMetadata?.dueForVisitThreshold ?? 30;
   const thresholdDate = new Date();
   thresholdDate.setDate(thresholdDate.getDate() - dueForVisitThresholdDays);
-
-  const allStationVehicles = await prisma.vehicle.findMany({
-    where: {
-      stationId: stationId,
-      isDeleted: false,
-    },
-    include: {
-      jobCards: {
-        where: {
-          isDeleted: false,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
-    },
-  });
 
   const dueForVisitVehicles = allStationVehicles.filter((v) => {
     // If there is any active job card in progress, they are not due for visit
@@ -130,25 +126,6 @@ export default async function DashboardPage() {
   });
 
   const dueForVisitCount = dueForVisitVehicles.length;
-
-  // Query popular services for insights card
-  const topServicesGroup = await prisma.jobCardService.groupBy({
-    where: {
-      jobCard: {
-        stationId: stationId,
-      },
-    },
-    by: ["serviceNameSnapshot"],
-    _count: {
-      serviceNameSnapshot: true,
-    },
-    orderBy: {
-      _count: {
-        serviceNameSnapshot: "desc",
-      },
-    },
-    take: 4,
-  });
 
   function serializeJobs(jobs: any[]) {
     return jobs.map((job) => ({
@@ -182,10 +159,12 @@ export default async function DashboardPage() {
     DELIVERED: serializeJobs(boardData.DELIVERED),
   };
 
-  const primaryColor = station?.primaryColor || "#0f766e";
+  const primaryColor = entitlements.stationMetadata?.primaryColor || "#0f766e";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+      <QuickActionBar canManageStaff={session.role === "OWNER"} />
+
       {/* 1. Operations Overview (Metrics Strip) */}
       <section className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         {[

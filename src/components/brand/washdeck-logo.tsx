@@ -17,3 +17,4 @@ export function WashDeckLogo({ className, priority = false }: WashDeckLogoProps)
       className={cn("h-auto w-48 object-contain mix-blend-multiply brightness-[1.15] contrast-[1.15]", className)}
     />
   );
+}

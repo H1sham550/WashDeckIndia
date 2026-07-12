@@ -66,15 +66,21 @@ export async function POST(
       createdAt: job.createdAt,
     });
 
-    // Write PDF to public folder
-    const reportsDir = path.join(process.cwd(), "public", "reports");
-    if (!fs.existsSync(reportsDir)) {
-      fs.mkdirSync(reportsDir, { recursive: true });
+    // Write PDF cleanly (using /tmp on Vercel serverless environments to prevent EROFS errors)
+    let pdfUrl = `/reports/${secureSlug}`;
+    try {
+      const reportsDir = process.env.VERCEL === "1" ? "/tmp" : path.join(process.cwd(), "public", "reports");
+      if (!fs.existsSync(reportsDir)) {
+        fs.mkdirSync(reportsDir, { recursive: true });
+      }
+      const filePath = path.join(reportsDir, `${secureSlug}.pdf`);
+      fs.writeFileSync(filePath, pdfBuffer);
+      if (process.env.VERCEL !== "1") {
+        pdfUrl = `/reports/${secureSlug}.pdf`;
+      }
+    } catch (fsError) {
+      console.warn("Could not write static PDF to disk (Vercel read-only filesystem), serving dynamic report URL:", fsError);
     }
-    const filePath = path.join(reportsDir, `${secureSlug}.pdf`);
-    fs.writeFileSync(filePath, pdfBuffer);
-
-    const pdfUrl = `/reports/${secureSlug}.pdf`;
 
     if (!report) {
       // Calculate current calendar month's report count

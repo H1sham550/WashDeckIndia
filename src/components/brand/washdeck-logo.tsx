@@ -14,7 +14,6 @@ export function WashDeckLogo({ className, priority = false }: WashDeckLogoProps)
       width={1168}
       height={368}
       priority={priority}
-      className={cn("h-auto w-48 object-contain mix-blend-multiply", className)}
+      className={cn("h-auto w-48 object-contain mix-blend-multiply brightness-[1.15] contrast-[1.15]", className)}
     />
   );
-}

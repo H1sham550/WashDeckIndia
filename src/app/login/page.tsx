@@ -15,8 +15,8 @@ export default async function LoginPage() {
       <div className="w-full max-w-md rounded-2xl border border-slate-200/60 bg-white p-8 md:p-10 shadow-xl shadow-slate-100/50">
         {/* Logo & Header */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="mb-5">
-            <WashDeckLogo className="h-14 w-auto object-contain" priority />
+          <div className="mb-4">
+            <WashDeckLogo className="h-24 w-auto object-contain" priority />
           </div>
           <h2 className="text-xl font-black text-slate-800 tracking-tight">
             Welcome Back

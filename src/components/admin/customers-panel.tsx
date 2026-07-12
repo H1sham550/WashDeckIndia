@@ -70,10 +70,15 @@ export function CustomersPanel({ stations }: CustomersPanelProps) {
   const planNames = ["ALL", ...Array.from(new Set(stations.map((s) => s.planName).filter(Boolean))) as string[]];
 
   const filtered = stations.filter((s) => {
-    const q = search.toLowerCase();
+    const q = search.toLowerCase().trim();
     const matchSearch =
       !q ||
       s.name.toLowerCase().includes(q) ||
+      s.slug.toLowerCase().includes(q) ||
+      s.id.toLowerCase().includes(q) ||
+      (s.phone ?? "").toLowerCase().includes(q) ||
+      (s.email ?? "").toLowerCase().includes(q) ||
+      (s.country ?? "").toLowerCase().includes(q) ||
       (s.owner?.email ?? "").toLowerCase().includes(q) ||
       (s.owner?.name ?? "").toLowerCase().includes(q);
     const matchStatus = statusFilter === "ALL" || s.status === statusFilter;
@@ -128,7 +133,7 @@ export function CustomersPanel({ stations }: CustomersPanelProps) {
             />
             <input
               type="text"
-              placeholder="Search by name or email…"
+              placeholder="Search stations by name, slug, owner, email, phone, country or ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2.5 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-wd-teal-300 placeholder:text-slate-400"

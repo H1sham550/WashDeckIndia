@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
       slug,
       phone,
       email,
+      address,
+      country,
+      currency,
+      timezone,
       upiId,
       ownerName,
       ownerEmail,
@@ -32,6 +36,7 @@ export async function POST(request: NextRequest) {
       logoUrl,
       subscriptionId,
       trialDays,
+      graceDays,
       status,
     } = body;
 
@@ -77,6 +82,10 @@ export async function POST(request: NextRequest) {
           slug: normalizedSlug,
           phone: phone || null,
           email: email || null,
+          address: address || null,
+          country: country || "IND",
+          currency: currency || "INR",
+          timezone: timezone || "Asia/Kolkata",
           upiId: upiId || null,
           gstNumber: gstNumber || null,
           primaryColor: brandColor || "#0f766e",
@@ -141,6 +150,8 @@ export async function POST(request: NextRequest) {
       const trialEndDate = new Date(now.getTime() + daysCount * 24 * 60 * 60 * 1000);
       const isTrialPlan = planTemplate.name.toUpperCase() === "TRIAL";
       const newStatus = isTrialPlan ? SubscriptionStatus.TRIAL : SubscriptionStatus.ACTIVE;
+      const finalGraceDays = graceDays !== undefined ? Number(graceDays) : 5;
+      const graceUntilDate = new Date(trialEndDate.getTime() + finalGraceDays * 24 * 60 * 60 * 1000);
 
       await tx.stationSubscription.create({
         data: {
@@ -148,6 +159,7 @@ export async function POST(request: NextRequest) {
           subscriptionId: planTemplate.id,
           startDate: now,
           endDate: trialEndDate,
+          graceUntil: graceUntilDate,
           status: newStatus,
         },
       });

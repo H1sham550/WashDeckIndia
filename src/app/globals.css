@@ -3,96 +3,101 @@
 @tailwind utilities;
 
 /* ============================================================
-   WASHDECK V3.1 — GLOBAL DESIGN SYSTEM
-   Primary accent: Emerald/Teal #0F766E
+   WASHDECK ENTERPRISE — DESIGN SYSTEM v4.0
+   Philosophy: Operational clarity over visual decoration.
+   Primary: Professional Blue #2563EB
+   Surface: White #FFFFFF
+   Background: #F8F9FA (Gray-50)
+   Text: Slate-800 / Slate-500
    ============================================================ */
 
 :root {
-  /* Core palette */
-  --background: 220 15% 99%;
-  --foreground: 220 40% 12%;
-  --card: 0 0% 100%;
-  --card-foreground: 220 40% 12%;
-  --muted: 220 15% 96%;
-  --muted-foreground: 220 12% 45%;
-  --accent: 217 91% 60%;
-  --accent-foreground: 0 0% 100%;
-  --primary: 220 40% 12%;
-  --primary-foreground: 0 0% 100%;
-  --border: 220 13% 91%;
+  /* ── Brand ──────────────────────────────────────────── */
+  --brand-blue: 220 91% 54%;          /* #2563EB — primary actions */
+  --brand-blue-hover: 221 83% 47%;    /* #1D4ED8 */
+  --brand-blue-light: 214 100% 97%;   /* #EFF6FF — subtle bg */
+  --brand-blue-border: 213 94% 88%;   /* #BFDBFE */
 
-  /* WashDeck Brand — Emerald/Teal */
-  --wd-teal: 173 84% 26%;          /* #0F766E */
-  --wd-teal-light: 167 85% 89%;    /* emerald-100 equivalent */
-  --wd-teal-dark: 173 84% 18%;     /* darker teal */
+  /* ── Surface ─────────────────────────────────────────── */
+  --surface: 0 0% 100%;               /* #FFFFFF — cards, panels */
+  --surface-raised: 0 0% 100%;        /* modals, dropdowns */
+  --bg: 210 17% 98%;                  /* #F8F9FA — page background */
+  --bg-subtle: 220 14% 96%;           /* #F1F5F9 — hover, inactive */
 
-  /* Animation speed tokens */
-  --anim-fast: 150ms;
-  --anim-base: 200ms;
-  --anim-slow: 250ms;
-  --anim-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  /* ── Text ────────────────────────────────────────────── */
+  --text-primary: 222 47% 11%;        /* #0F172A slate-900 */
+  --text-secondary: 215 16% 47%;      /* #64748B slate-500 */
+  --text-tertiary: 215 20% 65%;       /* #94A3B8 slate-400 */
+  --text-disabled: 215 20% 75%;       /* slate-300 */
+  --text-inverse: 0 0% 100%;          /* white on dark */
 
-  /* Spacing scale */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
+  /* ── Border ──────────────────────────────────────────── */
+  --border: 214 32% 91%;              /* #E2E8F0 slate-200 */
+  --border-strong: 215 25% 84%;       /* #CBD5E1 slate-300 */
 
-  /* Shadow system */
+  /* ── Semantic Colors ─────────────────────────────────── */
+  --success: 142 71% 45%;             /* #22C55E */
+  --success-bg: 141 84% 93%;          /* #DCFCE7 */
+  --success-border: 141 69% 82%;      /* #BBF7D0 */
+
+  --warning: 32 95% 44%;              /* #D97706 */
+  --warning-bg: 48 100% 89%;          /* #FEF3C7 */
+  --warning-border: 46 97% 77%;       /* #FDE68A */
+
+  --danger: 0 84% 60%;                /* #EF4444 */
+  --danger-bg: 0 86% 97%;             /* #FEF2F2 */
+  --danger-border: 0 94% 87%;         /* #FECACA */
+
+  --info: 199 89% 48%;                /* #0EA5E9 */
+  --info-bg: 204 100% 97%;            /* #F0F9FF */
+  --info-border: 198 93% 82%;         /* #BAE6FD */
+
+  /* ── Radius ──────────────────────────────────────────── */
+  --radius-sm: 6px;                   /* tight elements */
+  --radius: 8px;                      /* buttons, inputs */
+  --radius-md: 10px;                  /* cards */
+  --radius-lg: 12px;                  /* modals, dialogs */
+  --radius-xl: 16px;                  /* large containers */
+
+  /* ── Shadows ─────────────────────────────────────────── */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.04);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.04);
-}
 
-/* ============================================================
-   SKELETON LOADER ANIMATION
-   ============================================================ */
+  /* ── Sidebar ─────────────────────────────────────────── */
+  --sidebar-width: 224px;
+  --sidebar-collapsed: 56px;
+  --topbar-height: 48px;
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    hsl(220 15% 94%) 25%,
-    hsl(220 15% 90%) 50%,
-    hsl(220 15% 94%) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
-  border-radius: 0.375rem;
-}
-
-/* ============================================================
-   SMOOTH TRANSITIONS
-   ============================================================ */
-
-.transition-base {
-  transition: all var(--anim-base) var(--anim-ease);
-}
-
-.transition-fast {
-  transition: all var(--anim-fast) var(--anim-ease);
+  /* ── Transitions ─────────────────────────────────────── */
+  --t-fast: 100ms ease;
+  --t-base: 150ms ease;
 }
 
 /* ============================================================
    BASE RESETS
    ============================================================ */
 
-* {
+*,
+::before,
+::after {
   border-color: hsl(var(--border));
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-feature-settings: "rlig" 1, "calt" 1;
+  background: hsl(var(--bg));
+  color: hsl(var(--text-primary));
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
 button,
@@ -110,60 +115,497 @@ select {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* System-wide tactile press feedback on all buttons and nav links */
+/* Subtle press feedback — 100ms only */
+button {
+  transition: opacity var(--t-fast), background-color var(--t-fast) !important;
+}
+
+button:active {
+  opacity: 0.85;
+}
+
+/* Minimum 44px touch targets */
 button,
-.active-tap {
-  transition: transform var(--anim-fast) ease-out !important;
-}
-
-button:active,
-.active-tap:active {
-  transform: scale(0.97) !important;
+a[role="button"],
+[data-touch-target] {
+  min-height: 44px;
 }
 
 /* ============================================================
-   SCROLLBAR STYLING
+   TYPOGRAPHY SYSTEM
    ============================================================ */
 
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+.wd-page-title {
+  font-size: 1.125rem;    /* 18px */
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+  letter-spacing: -0.01em;
+  line-height: 1.4;
 }
 
-::-webkit-scrollbar-track {
+.wd-section-title {
+  font-size: 0.8125rem;   /* 13px */
+  font-weight: 600;
+  color: hsl(var(--text-primary));
+  line-height: 1.4;
+}
+
+.wd-card-title {
+  font-size: 0.75rem;     /* 12px */
+  font-weight: 500;
+  color: hsl(var(--text-primary));
+}
+
+.wd-label {
+  font-size: 0.6875rem;   /* 11px */
+  font-weight: 500;
+  color: hsl(var(--text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wd-body {
+  font-size: 0.8125rem;   /* 13px */
+  font-weight: 400;
+  color: hsl(var(--text-secondary));
+  line-height: 1.5;
+}
+
+.wd-caption {
+  font-size: 0.6875rem;   /* 11px */
+  font-weight: 400;
+  color: hsl(var(--text-tertiary));
+}
+
+/* ============================================================
+   BUTTON COMPONENTS
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: var(--radius);
+  padding: 0 14px;
+  height: 36px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--t-fast), border-color var(--t-fast), opacity var(--t-fast);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: hsl(var(--brand-blue));
+  color: hsl(var(--text-inverse));
+  border-color: hsl(var(--brand-blue));
+}
+.btn-primary:hover {
+  background: hsl(var(--brand-blue-hover));
+  border-color: hsl(var(--brand-blue-hover));
+}
+
+.btn-secondary {
+  background: hsl(var(--surface));
+  color: hsl(var(--text-primary));
+  border-color: hsl(var(--border-strong));
+}
+.btn-secondary:hover {
+  background: hsl(var(--bg-subtle));
+}
+
+.btn-ghost {
   background: transparent;
+  color: hsl(var(--text-secondary));
+  border-color: transparent;
+}
+.btn-ghost:hover {
+  background: hsl(var(--bg-subtle));
+  color: hsl(var(--text-primary));
 }
 
-::-webkit-scrollbar-thumb {
-  background: hsl(220 13% 85%);
-  border-radius: 99px;
+.btn-danger {
+  background: hsl(var(--danger));
+  color: white;
+  border-color: hsl(var(--danger));
+}
+.btn-danger:hover {
+  background: #DC2626;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(220 13% 70%);
+.btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  height: 44px;
+  padding: 0 20px;
+  font-size: 0.875rem;
 }
 
 /* ============================================================
-   ADMIN SIDEBAR LAYOUT UTILITIES
+   CARD COMPONENTS
    ============================================================ */
 
-.admin-sidebar-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  min-height: 100vh;
+.wd-card {
+  background: hsl(var(--surface));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs);
 }
 
-@media (max-width: 1023px) {
-  .admin-sidebar-layout {
-    grid-template-columns: 1fr;
+.wd-card-compact {
+  background: hsl(var(--surface));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ============================================================
+   BADGE COMPONENTS
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.badge-neutral {
+  background: hsl(var(--bg-subtle));
+  color: hsl(var(--text-secondary));
+  border-color: hsl(var(--border));
+}
+
+.badge-success {
+  background: hsl(var(--success-bg));
+  color: #15803D;
+  border-color: hsl(var(--success-border));
+}
+
+.badge-warning {
+  background: hsl(var(--warning-bg));
+  color: #92400E;
+  border-color: hsl(var(--warning-border));
+}
+
+.badge-danger {
+  background: hsl(var(--danger-bg));
+  color: #B91C1C;
+  border-color: hsl(var(--danger-border));
+}
+
+.badge-info {
+  background: hsl(var(--info-bg));
+  color: #0369A1;
+  border-color: hsl(var(--info-border));
+}
+
+.badge-blue {
+  background: hsl(var(--brand-blue-light));
+  color: #1E40AF;
+  border-color: hsl(var(--brand-blue-border));
+}
+
+/* ============================================================
+   FORM COMPONENTS
+   ============================================================ */
+
+.wd-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: hsl(var(--text-primary));
+  background: hsl(var(--surface));
+  border: 1px solid hsl(var(--border-strong));
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.wd-input::placeholder {
+  color: hsl(var(--text-tertiary));
+}
+
+.wd-input:focus {
+  border-color: hsl(var(--brand-blue));
+  box-shadow: 0 0 0 3px hsl(var(--brand-blue) / 0.12);
+}
+
+.wd-input-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 0.75rem;
+}
+
+.wd-label-text {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: hsl(var(--text-primary));
+  margin-bottom: 4px;
+}
+
+/* ============================================================
+   STATUS INDICATOR DOTS
+   ============================================================ */
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot-received  { background: #60A5FA; } /* blue-400 */
+.status-dot-progress  { background: #FBBF24; } /* amber-400 */
+.status-dot-completed { background: #A78BFA; } /* violet-400 */
+.status-dot-payment   { background: #F87171; } /* red-400 */
+.status-dot-delivered { background: #34D399; } /* emerald-400 */
+
+/* ============================================================
+   SHIMMER LOADING
+   ============================================================ */
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(220 14% 94%) 25%,
+    hsl(220 14% 91%) 50%,
+    hsl(220 14% 94%) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+/* ============================================================
+   SIDEBAR LAYOUT
+   ============================================================ */
+
+.wd-app-shell {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+  background: hsl(var(--bg));
+}
+
+.wd-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: hsl(var(--surface));
+  border-right: 1px solid hsl(var(--border));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--t-base);
+  z-index: 40;
+}
+
+.wd-sidebar.collapsed {
+  width: var(--sidebar-collapsed);
+}
+
+.wd-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.wd-topbar {
+  height: var(--topbar-height);
+  flex-shrink: 0;
+  background: hsl(var(--surface));
+  border-bottom: 1px solid hsl(var(--border));
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  z-index: 30;
+}
+
+.wd-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+@media (max-width: 767px) {
+  .wd-sidebar {
+    display: none;
+  }
+  .wd-main {
+    padding: 12px 12px 80px;   /* bottom space for mobile nav */
   }
 }
 
 /* ============================================================
-   FOCUS RING
+   SIDEBAR NAV ITEMS
+   ============================================================ */
+
+.wd-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: hsl(var(--text-secondary));
+  text-decoration: none;
+  transition: background-color var(--t-fast), color var(--t-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.wd-nav-item:hover {
+  background: hsl(var(--bg-subtle));
+  color: hsl(var(--text-primary));
+}
+
+.wd-nav-item.active {
+  background: hsl(var(--brand-blue-light));
+  color: hsl(var(--brand-blue));
+  font-weight: 500;
+}
+
+.wd-nav-section-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: hsl(var(--text-tertiary));
+  padding: 8px 12px 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ============================================================
+   TABLE STYLES
+   ============================================================ */
+
+.wd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.wd-table th {
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: hsl(var(--text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 12px;
+  background: hsl(var(--bg-subtle));
+  border-bottom: 1px solid hsl(var(--border));
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.wd-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid hsl(var(--border));
+  color: hsl(var(--text-primary));
+  vertical-align: middle;
+}
+
+.wd-table tr:last-child td {
+  border-bottom: none;
+}
+
+.wd-table tr:hover td {
+  background: hsl(var(--bg-subtle));
+}
+
+/* ============================================================
+   FOCUS RING (accessible)
    ============================================================ */
 
 :focus-visible {
-  outline: 2px solid hsl(var(--wd-teal));
+  outline: 2px solid hsl(var(--brand-blue));
   outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border-strong)); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--text-tertiary)); }
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wd-divider {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 0;
+}
+
+/* Plate number style */
+.plate {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: hsl(var(--bg-subtle));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-sm);
+  padding: 2px 7px;
+  color: hsl(var(--text-primary));
+  white-space: nowrap;
+}
+
+/* Impersonation banner */
+.impersonation-bar {
+  background: #D97706;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 16px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }

@@ -1,9 +1,10 @@
-import { LogoutButton } from "@/components/layout/logout-button";
 import { requireStationUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getStationEntitlements, getUserStations } from "@/lib/entitlement";
-import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { StationSelector } from "@/components/dashboard/station-selector";
+import { LogoutButton } from "@/components/layout/logout-button";
 
 export default async function DashboardLayout({
   children,
@@ -11,14 +12,12 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await requireStationUser();
-  
-  // High-performance batched database fetch (combines station status, subscription, plans, and metadata in 1 cached query)
+
   const [entitlements, userStations] = await Promise.all([
     getStationEntitlements(session.stationId),
     getUserStations(session.email, session.role),
   ]);
 
-  // If station is suspended, block access completely
   if (entitlements.lifecycle === "SUSPENDED") {
     redirect("/suspended" as any);
   }
@@ -30,80 +29,97 @@ export default async function DashboardLayout({
   }
 
   const isOwner = session.role === "OWNER";
-  
   const logoUrl = entitlements.features.branding ? station?.logoUrl : null;
-  const primaryColor = entitlements.features.branding ? (station?.primaryColor || "#0b2240") : "#0b2240";
+  const primaryColor = entitlements.features.branding
+    ? station?.primaryColor || "#2563EB"
+    : "#2563EB";
+
+  const planLabel = entitlements.currentPlanName
+    ? `${entitlements.currentPlanName} Plan`
+    : undefined;
 
   return (
     <div
-      className="min-h-screen flex flex-col font-sans"
-      style={
-        {
-          "--primary-color": primaryColor,
-        } as React.CSSProperties
-      }
+      className="wd-app-shell"
+      style={{ "--primary-color": primaryColor } as React.CSSProperties}
     >
+      {/* Impersonation banner */}
       {session.impersonatorId && (
-        <div className="bg-amber-600 text-white text-xs font-bold px-4 py-2.5 text-center flex items-center justify-center gap-2 select-none z-50 sticky top-0 border-b border-amber-700 shadow-sm">
-          <span>⚠️ IMPERSONATION MODE: You are viewing this station dashboard as Owner of {station?.name}</span>
+        <div className="impersonation-bar" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 60 }}>
+          ⚠️ Impersonation Mode — viewing as {station?.name}{" "}
           <a
             href="/api/auth/stop-impersonating"
-            className="underline hover:text-amber-100 transition-colors ml-2 bg-amber-700 hover:bg-amber-800 px-2 py-0.5 rounded shadow-sm"
+            style={{ textDecoration: "underline", marginLeft: 8 }}
           >
-            Switch back to Admin
+            Exit
           </a>
         </div>
       )}
-      <header className="border-b border-slate-100 bg-white sticky top-0 z-40 shadow-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
-          <div className="flex items-center gap-3">
-            {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt={station?.name}
-                className="h-10 w-10 object-contain rounded-xl border border-slate-100 shadow-sm"
-              />
-            ) : (
-              <div className="h-10 w-10 flex items-center justify-center rounded-xl text-white font-black text-base bg-gradient-to-br from-[#0b2240] via-[#0f2d57] to-[#2563eb] shadow-sm border border-blue-900/10 transition-all duration-200 active-tap hover:scale-[1.03]">
-                {station?.name?.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="flex flex-col gap-0.5 text-left">
-              <div className="flex items-center gap-2 flex-wrap">
-                <StationSelector
-                  currentStation={{
-                    id: station?.id || session.stationId,
-                    name: station?.name || "WashDeck Station",
-                    slug: station?.slug || "station",
-                  }}
-                  userStations={userStations}
+
+      {/* Desktop Sidebar */}
+      <AppSidebar
+        isOwner={isOwner}
+        features={entitlements.features}
+        stationName={station?.name || "WashDeck"}
+        logoUrl={logoUrl}
+        planName={planLabel}
+      />
+
+      {/* Main content area */}
+      <div className="wd-content-area" style={{ marginTop: session.impersonatorId ? 36 : 0 }}>
+        {/* Top bar */}
+        <header className="wd-topbar">
+          {/* Station selector + role badge */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* Mobile: show logo / station name */}
+            <div className="md:hidden flex items-center gap-2">
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt={station?.name}
+                  className="h-6 w-6 rounded object-contain"
                 />
-                <span className={`inline-flex items-center text-[8px] font-black tracking-widest px-1.5 py-0.5 rounded-md uppercase border ${
-                  isOwner 
-                    ? "bg-blue-50/60 border-blue-100/80 text-blue-600" 
-                    : "bg-slate-50 border-slate-150 text-slate-500"
-                }`}>
-                  {session.role}
-                </span>
-              </div>
-              <div className="text-[9px] text-slate-400 font-bold tracking-tight">
-                powered by <span className="text-blue-500/90">WashDeck</span>
-              </div>
+              ) : (
+                <div
+                  className="h-6 w-6 rounded flex items-center justify-center text-white text-xs font-semibold"
+                  style={{ background: "hsl(var(--brand-blue))", fontSize: 11 }}
+                >
+                  {station?.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
+
+            <StationSelector
+              currentStation={{
+                id: station?.id || session.stationId,
+                name: station?.name || "WashDeck Station",
+                slug: station?.slug || "station",
+              }}
+              userStations={userStations}
+            />
+
+            <span
+              className="badge badge-neutral hidden sm:inline-flex"
+              style={{ fontSize: 10 }}
+            >
+              {session.role}
+            </span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <DashboardNav isOwner={isOwner} features={entitlements.features} />
+
+          {/* Right actions */}
+          <div className="flex items-center gap-2">
             <LogoutButton />
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="flex-1 bg-slate-50/50 pb-20 md:pb-0">
-        {children}
-      </main>
-      <footer className="py-4 border-t bg-white text-center text-[10px] font-bold text-slate-400 tracking-wider">
-        Powered by WashDeck
-      </footer>
+        {/* Page content */}
+        <main className="wd-main">
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile bottom navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

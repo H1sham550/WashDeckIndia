@@ -119,7 +119,7 @@ export default async function DashboardLayout({
       </div>
 
       {/* Mobile bottom navigation */}
-      <MobileBottomNav />
+      <MobileBottomNav isOwner={isOwner} features={entitlements.features} />
     </div>
   );
 }

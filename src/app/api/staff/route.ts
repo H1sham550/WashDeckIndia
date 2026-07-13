@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
           stationId: session.stationId || "",
           title: "Staff Limit Reached",
           message: "You have reached your subscription staff limit. Upgrade your plan to add more users.",
-          type: "STAFF_LIMIT",
+          priority: "HIGH",
         },
       });
 
@@ -126,7 +126,6 @@ export async function POST(request: NextRequest) {
         name,
         email: normalizedEmail,
         username: normalizedUsername,
-        mobile: mobile || null,
         role,
         passwordHash: hashPassword(password),
         status: "ACTIVE",
@@ -142,7 +141,7 @@ export async function POST(request: NextRequest) {
         action: "STAFF_CREATED",
         entityType: "User",
         entityId: user.id,
-        metadataJson: { name: user.name, email: user.email, role: user.role },
+        newValue: { name: user.name, email: user.email, role: user.role },
       },
     });
 

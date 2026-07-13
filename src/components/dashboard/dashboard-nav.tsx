@@ -28,6 +28,7 @@ interface DashboardNavProps {
     analytics: boolean;
     recovery: boolean;
     finance: boolean;
+    [key: string]: boolean;
   };
 }
 

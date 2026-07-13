@@ -13,10 +13,14 @@ export default async function FinancePage() {
     redirect("/login");
   }
 
-  const [enabled, entitlements, allPlans] = await Promise.all([
+  const [enabled, entitlements, allPlans, station] = await Promise.all([
     isFeatureEnabled(session.stationId, "finance"),
     getStationEntitlements(session.stationId),
     getCachedSubscriptionPlans(),
+    prisma.station.findUnique({
+      where: { id: session.stationId },
+      include: { branding: true },
+    }),
   ]);
 
   if (!enabled) {
@@ -46,15 +50,14 @@ export default async function FinancePage() {
     redirect("/login");
   }
 
-  // Fetch all paid invoices and expenses concurrently
   const [paidInvoices, expenses] = await Promise.all([
     prisma.invoice.findMany({
       where: {
+        stationId: session.stationId,
+        status: "PAID",
         jobCard: {
-          stationId: session.stationId,
           isDeleted: false,
         },
-        paymentStatus: "PAID",
       },
       include: {
         jobCard: {
@@ -63,8 +66,9 @@ export default async function FinancePage() {
             customer: true,
           },
         },
+        payments: true,
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.expense.findMany({
       where: {
@@ -74,14 +78,13 @@ export default async function FinancePage() {
     }),
   ]);
 
-  // 3. Serialize data for Client Component
   const incomes = paidInvoices.map((inv) => ({
     id: inv.id,
     jobCardId: inv.jobCardId,
     invoiceNumber: inv.invoiceNumber,
     amount: Number(inv.finalAmount),
-    date: inv.updatedAt.toISOString(), // Income date is when the payment was completed (updatedAt)
-    paymentMethod: inv.paymentMethod || "CASH",
+    date: inv.createdAt.toISOString(),
+    paymentMethod: inv.payments[0]?.method || "CASH",
     vehicleNumber: inv.jobCard.vehicle.vehicleNumber,
     customerName: inv.jobCard.customer.name,
     type: "INCOME" as const,
@@ -97,6 +100,8 @@ export default async function FinancePage() {
     type: "EXPENSE" as const,
   }));
 
+  const b = station?.branding || ({} as any);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6">
@@ -108,7 +113,7 @@ export default async function FinancePage() {
       <FinancePanel 
         initialIncomes={incomes} 
         initialExpenses={serializedExpenses} 
-        primaryColor={station.primaryColor || "#0f766e"} 
+        primaryColor={b.primaryColor || "#0f766e"} 
       />
     </div>
   );

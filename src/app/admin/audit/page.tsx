@@ -6,14 +6,29 @@ import { formatDateTime, formatRelativeTime } from "@/lib/currency";
 export default async function AuditPage() {
   await requireRole(["SUPER_ADMIN"]);
 
-  const logs = await prisma.auditLog.findMany({
+  const rawLogs = await prisma.auditLog.findMany({
     take: 150,
     orderBy: { createdAt: "desc" },
     include: {
       station: { select: { name: true, slug: true } },
-      actor: { select: { name: true, email: true, role: true } },
     },
   });
+
+  const actorIds = Array.from(
+    new Set(rawLogs.map((l) => l.actorUserId).filter(Boolean) as string[])
+  );
+  const actors =
+    actorIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: actorIds } },
+          select: { id: true, name: true, role: true },
+        })
+      : [];
+
+  const logs = rawLogs.map((l) => ({
+    ...l,
+    actor: actors.find((a) => a.id === l.actorUserId) || null,
+  }));
 
   return (
     <div className="px-4 sm:px-6 py-6 space-y-6 max-w-6xl mx-auto">
@@ -60,7 +75,7 @@ export default async function AuditPage() {
                       </span>
                     </td>
                     <td className="py-3 px-4 text-slate-600 font-semibold">
-                      {log.entityType} <span className="text-slate-400">#{log.entityId.slice(0, 8)}</span>
+                      {log.entityType} <span className="text-slate-400">{log.entityId ? `#${log.entityId.slice(0, 8)}` : ""}</span>
                     </td>
                     <td className="py-3 px-4">
                       {log.station ? (

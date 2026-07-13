@@ -8,6 +8,7 @@ export default async function CustomersPage() {
   const stationsRaw = await prisma.station.findMany({
     where: { isDeleted: false },
     include: {
+      branding: true,
       users: {
         where: { role: "OWNER", isDeleted: false },
         select: { id: true, name: true, email: true },
@@ -38,14 +39,14 @@ export default async function CustomersPage() {
       id: s.id,
       name: s.name,
       slug: s.slug,
-      logoUrl: s.logoUrl,
+      logoUrl: s.branding?.squareLogoUrl || null,
       status: s.status,
-      phone: s.phone,
-      email: s.email,
-      address: s.address,
+      phone: s.branding?.businessPhone || null,
+      email: s.branding?.businessEmail || null,
+      address: s.branding?.businessAddress || null,
       country: (s as any).country ?? "IN",
       createdAt: s.createdAt.toISOString(),
-      owner: owner ? { id: owner.id, name: owner.name, email: owner.email } : null,
+      owner: owner ? { id: owner.id, name: owner.name, email: owner.email ?? "" } : null,
       planName: activeSub?.subscription?.name ?? null,
       subscriptionEndDate: activeSub?.endDate ? activeSub.endDate.toISOString() : null,
       subscriptionStatus: activeSub?.status ?? null,

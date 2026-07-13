@@ -1,12 +1,10 @@
 import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NotificationsPanel } from "@/components/dashboard/notifications-panel";
-import { redirect } from "next/navigation";
 
 export default async function NotificationsPage() {
   const session = await requireStationUser();
 
-  // Fetch notifications
   const notifications = await prisma.notification.findMany({
     where: {
       stationId: session.stationId,
@@ -19,7 +17,7 @@ export default async function NotificationsPage() {
     id: n.id,
     title: n.title,
     message: n.message,
-    type: n.type,
+    type: (n as any).type || n.priority || "NORMAL",
     isRead: n.isRead,
     createdAt: n.createdAt.toISOString(),
   }));

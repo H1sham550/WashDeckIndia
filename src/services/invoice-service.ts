@@ -25,7 +25,7 @@ export async function generateInvoice(
     }
 
     if (jobCard.invoice) {
-      return jobCard.invoice; // Return existing invoice if already generated
+      return jobCard.invoice;
     }
 
     // 2. Calculate pricing
@@ -39,12 +39,13 @@ export async function generateInvoice(
 
     const invoice = await tx.invoice.create({
       data: {
+        stationId,
         jobCardId: payload.jobCardId,
         invoiceNumber,
         subtotal,
         discount,
         finalAmount,
-        paymentStatus: "PENDING",
+        status: "ISSUED",
       },
     });
 
@@ -89,7 +90,7 @@ export async function payInvoiceAndDeliver(
       throw new Error("Invoice not found or unauthorized.");
     }
 
-    if (invoice.paymentStatus === "PAID") {
+    if (invoice.status === "PAID") {
       return invoice;
     }
 
@@ -97,12 +98,22 @@ export async function payInvoiceAndDeliver(
     const updatedInvoice = await tx.invoice.update({
       where: { id: invoiceId },
       data: {
-        paymentStatus: "PAID",
-        paymentMethod,
+        status: "PAID",
       },
     });
 
-    // 2. Lock job card and move to DELIVERED status
+    // 2. Create Payment record for enterprise tracking
+    await tx.payment.create({
+      data: {
+        invoiceId,
+        amount: invoice.finalAmount,
+        method: paymentMethod,
+        status: "COMPLETED",
+        gatewayName: paymentMethod === "CASH" ? "Cash Counter" : "Direct POS / Terminal"
+      }
+    });
+
+    // 3. Lock job card and move to DELIVERED status
     await tx.jobCard.update({
       where: { id: invoice.jobCardId },
       data: {
@@ -110,10 +121,10 @@ export async function payInvoiceAndDeliver(
       },
     });
 
-    // 3. Increment loyalty stamps
+    // 4. Increment loyalty stamps
     await incrementLoyaltyStamps(tx, stationId, invoice.jobCard.vehicleId, invoice.jobCardId);
 
-    // 3. Log audit trail
+    // 5. Log audit trail
     await tx.auditLog.create({
       data: {
         actorUserId: userId,

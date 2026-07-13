@@ -31,6 +31,7 @@ interface MobileBottomNavProps {
     analytics: boolean;
     recovery: boolean;
     finance: boolean;
+    [key: string]: boolean;
   };
 }
 
@@ -130,7 +131,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                         return (
                           <Link
                             key={item.href}
-                            href={item.href}
+                            href={item.href as any}
                             onClick={() => setShowMoreMenu(false)}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
                               active
@@ -163,7 +164,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
             return (
               <Link
                 key={href}
-                href={href}
+                href={href as any}
                 className="flex flex-col items-center justify-center gap-0.5 transition-colors"
                 style={{
                   color: active ? "hsl(var(--brand-blue))" : "hsl(var(--text-tertiary))",

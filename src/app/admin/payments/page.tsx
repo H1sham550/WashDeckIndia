@@ -12,7 +12,7 @@ export default async function PaymentsPage() {
     orderBy: { startDate: "desc" },
     take: 30,
     include: {
-      station: { select: { name: true, slug: true, status: true, phone: true } },
+      station: { select: { name: true, slug: true, status: true } },
       subscription: { select: { name: true, price: true } },
     },
   });
@@ -94,7 +94,7 @@ export default async function PaymentsPage() {
                       <PlanBadge plan={sub.subscription.name} size="xs" />
                     </td>
                     <td className="py-3 px-4 font-extrabold text-slate-800">
-                      {formatCurrency(sub.subscription.price, "INR")}
+                      {formatCurrency(Number(sub.subscription.price), "INR")}
                     </td>
                     <td className="py-3 px-4 text-slate-500">
                       {formatDate(sub.startDate)} → {formatDate(sub.endDate)}

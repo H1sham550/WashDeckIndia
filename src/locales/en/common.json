@@ -1,0 +1,50 @@
+{
+  "common": {
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "search": "Search anything (Vehicles, Customers, Invoices)...",
+    "loading": "Loading data...",
+    "status": "Status",
+    "actions": "Actions",
+    "branch": "Branch Code",
+    "created": "Created At"
+  },
+  "nav": {
+    "dashboard": "Command Center",
+    "jobCards": "Job Intake & Queue",
+    "vehicles": "Vehicle Directory",
+    "customers": "Customer CRM",
+    "bookings": "Appointments",
+    "invoices": "Invoices & Billing",
+    "services": "Services Menu",
+    "expenses": "Expenses",
+    "settings": "Station Settings"
+  },
+  "intake": {
+    "title": "Instant Vehicle Intake",
+    "subtitle": "Type registration to live-search vehicle directory or auto-trigger registration workflow.",
+    "vehicleNumber": "Vehicle Registration No.",
+    "searchPlaceholder": "e.g., KSA-9999-XYZ or RYD-777-KSA",
+    "foundTitle": "Vehicle Recognized",
+    "openHistory": "Open Service History",
+    "createJob": "Create Job Card Directly",
+    "notRegistered": "Vehicle not yet in directory. Proceeding to instant registration...",
+    "customerName": "Owner Full Name",
+    "customerMobile": "Owner Mobile Phone",
+    "vehicleType": "Vehicle Body Class",
+    "registerAndCreate": "Register & Open Job Card"
+  },
+  "dashboard": {
+    "title": "Operational Command Center",
+    "subtitle": "Live workflow metrics and urgent attention queue for",
+    "activeJobs": "Active Bay Jobs",
+    "pendingPayments": "Pending Payments",
+    "scheduledTodays": "Today's Bookings",
+    "completionRate": "Bay Efficiency Rate",
+    "requiresAttention": "Needs Immediate Attention",
+    "viewAll": "View All Queue"
+  }
+}

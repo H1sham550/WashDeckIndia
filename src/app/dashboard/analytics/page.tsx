@@ -1,27 +1,23 @@
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-import { TrendingUp, BarChart2, Award, CreditCard, Sparkles, Car } from "lucide-react";
-import { isFeatureEnabled } from "@/lib/feature-flags";
+import { isFeatureEnabled } from "@/lib/entitlement";
 import { getStationEntitlements, getCachedSubscriptionPlans } from "@/lib/entitlement";
 import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
+import { TrendingUp, Award, BarChart2, Sparkles, CreditCard, Car } from "lucide-react";
 
 export default async function AnalyticsPage() {
   const session = await requireRole(["OWNER"]);
-
-  if (!session.stationId) {
-    redirect("/login");
-  }
+  const stationId = session.stationId || "";
 
   const [enabled, entitlements, allPlans] = await Promise.all([
-    isFeatureEnabled(session.stationId, "analytics"),
-    getStationEntitlements(session.stationId),
+    isFeatureEnabled(stationId, "analytics"),
+    getStationEntitlements(stationId),
     getCachedSubscriptionPlans(),
   ]);
 
   if (!enabled) {
     const upgradePlans = allPlans
-      .filter(p => p.planFeatures.some((pf: any) => pf.featureKey === "ANALYTICS" && pf.enabled))
+      .filter(p => p.planFeatures.some((pf: any) => pf.featureKey === "ADVANCED_ANALYTICS" && pf.enabled))
       .map(p => ({
         id: p.id,
         name: p.name,
@@ -34,23 +30,22 @@ export default async function AnalyticsPage() {
 
     return (
       <UpgradeLock
-        featureName="Business Analytics & Advanced Insights"
+        featureName="Business Analytics"
         currentPlanName={entitlements.currentPlanName}
         availablePlans={upgradePlans}
-        stationId={session.stationId}
+        stationId={stationId}
       />
     );
   }
 
-  // Fetch paid invoices and delivered job cards concurrently
   const [paidInvoices, jobCards] = await Promise.all([
     prisma.invoice.findMany({
       where: {
+        stationId,
+        status: "PAID",
         jobCard: {
-          stationId: session.stationId,
           isDeleted: false,
         },
-        paymentStatus: "PAID",
       },
       include: {
         jobCard: {
@@ -58,11 +53,12 @@ export default async function AnalyticsPage() {
             services: true,
           },
         },
+        payments: true,
       },
     }),
     prisma.jobCard.findMany({
       where: {
-        stationId: session.stationId,
+        stationId,
         status: "DELIVERED",
         isDeleted: false,
       },
@@ -74,14 +70,47 @@ export default async function AnalyticsPage() {
     }),
   ]);
 
+  const vehiclesCount: Record<string, number> = {};
   jobCards.forEach((j) => {
-    const type = j.vehicle.vehicleType;
+    const type = j.vehicle.vehicleType || "SEDAN";
     vehiclesCount[type] = (vehiclesCount[type] || 0) + 1;
   });
 
   const topVehicles = Object.entries(vehiclesCount)
     .map(([type, count]) => ({ type, count }))
     .sort((a, b) => b.count - a.count);
+
+  let totalRevenue = 0;
+  const serviceStats: Record<string, { count: number; revenue: number }> = {};
+  const paymentMethods: Record<string, number> = {};
+
+  paidInvoices.forEach((inv) => {
+    const amt = Number(inv.finalAmount);
+    totalRevenue += amt;
+
+    const method = inv.payments[0]?.method || "CASH";
+    paymentMethods[method] = (paymentMethods[method] || 0) + amt;
+
+    inv.jobCard.services.forEach((s) => {
+      const srvAmt = Number(s.priceSnapshot);
+      if (!serviceStats[s.serviceNameSnapshot]) {
+        serviceStats[s.serviceNameSnapshot] = { count: 0, revenue: 0 };
+      }
+      serviceStats[s.serviceNameSnapshot].count += 1;
+      serviceStats[s.serviceNameSnapshot].revenue += srvAmt;
+    });
+  });
+
+  const totalPaidCount = paidInvoices.length;
+  const averageTicket = totalPaidCount > 0 ? Math.round(totalRevenue / totalPaidCount) : 0;
+
+  const topServices = Object.entries(serviceStats)
+    .map(([name, stats]) => ({
+      name,
+      count: stats.count,
+      revenue: stats.revenue,
+    }))
+    .sort((a, b) => b.revenue - a.revenue);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -92,7 +121,6 @@ export default async function AnalyticsPage() {
         </p>
       </div>
 
-      {/* Financial overview strip */}
       <section className="grid gap-3 grid-cols-1 md:grid-cols-3">
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
           <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
@@ -100,7 +128,7 @@ export default async function AnalyticsPage() {
           </div>
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Revenue (Paid)</p>
-            <p className="text-2xl font-extrabold text-slate-800 mt-1">₹{totalRevenue}</p>
+            <p className="text-2xl font-extrabold text-slate-800 mt-1">₹{totalRevenue.toLocaleString("en-IN")}</p>
           </div>
         </div>
 
@@ -110,7 +138,7 @@ export default async function AnalyticsPage() {
           </div>
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Average Ticket Size</p>
-            <p className="text-2xl font-extrabold text-slate-800 mt-1">₹{averageTicket}</p>
+            <p className="text-2xl font-extrabold text-slate-800 mt-1">₹{averageTicket.toLocaleString("en-IN")}</p>
           </div>
         </div>
 
@@ -126,9 +154,7 @@ export default async function AnalyticsPage() {
       </section>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Left Side: Services & Payment split */}
         <div className="space-y-6">
-          {/* Top Services */}
           <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
               <Sparkles size={16} className="text-amber-500" />
@@ -140,12 +166,12 @@ export default async function AnalyticsPage() {
                   <div key={idx} className="space-y-1">
                     <div className="flex justify-between text-xs font-bold text-slate-700">
                       <span>{s.name}</span>
-                      <span>{s.count} washes • ₹{s.revenue}</span>
+                      <span>{s.count} washes • ₹{s.revenue.toLocaleString("en-IN")}</span>
                     </div>
                     <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[var(--primary-color)] rounded-full"
-                        style={{ width: `${Math.min((s.count / totalPaidCount) * 100, 100)}%` }}
+                        className="h-full bg-blue-600 rounded-full"
+                        style={{ width: `${Math.min((s.count / (totalPaidCount || 1)) * 100, 100)}%` }}
                       />
                     </div>
                   </div>
@@ -156,7 +182,6 @@ export default async function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Payment Methods split */}
           <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
               <CreditCard size={16} className="text-blue-500" />
@@ -170,7 +195,7 @@ export default async function AnalyticsPage() {
                     <span className="font-bold text-slate-600">{method}</span>
                     <div className="flex items-center gap-4 shrink-0">
                       <span className="font-medium text-slate-400">{percentage}%</span>
-                      <span className="font-extrabold text-slate-800 w-20 text-right">₹{amount}</span>
+                      <span className="font-extrabold text-slate-800 w-20 text-right">₹{amount.toLocaleString("en-IN")}</span>
                     </div>
                   </div>
                 );
@@ -179,33 +204,30 @@ export default async function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Right Side: Vehicle volume split */}
-        <div className="space-y-6">
-          <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
-              <Car size={16} className="text-teal-600" />
-              Volume by Vehicle Type
-            </h3>
-            <div className="space-y-3">
-              {topVehicles.length > 0 ? (
-                topVehicles.map((v, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold text-slate-700">
-                      <span className="capitalize">{v.type.toLowerCase()}</span>
-                      <span>{v.count} jobs</span>
-                    </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-slate-700 rounded-full"
-                        style={{ width: `${Math.min((v.count / totalPaidCount) * 100, 100)}%` }}
-                      />
-                    </div>
+        <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4 h-fit">
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
+            <Car size={16} className="text-emerald-500" />
+            Vehicle Type Distribution
+          </h3>
+          <div className="space-y-3">
+            {topVehicles.length > 0 ? (
+              topVehicles.map((v, idx) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between text-xs font-bold text-slate-700">
+                    <span>{v.type}</span>
+                    <span>{v.count} vehicles ({Math.round((v.count / (jobCards.length || 1)) * 100)}%)</span>
                   </div>
-                ))
-              ) : (
-                <p className="text-xs text-slate-400 italic py-4">No vehicle wash volume logged yet.</p>
-              )}
-            </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-600 rounded-full"
+                      style={{ width: `${Math.min((v.count / (jobCards.length || 1)) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-slate-400 italic py-4">No delivered vehicles recorded yet.</p>
+            )}
           </div>
         </div>
       </div>

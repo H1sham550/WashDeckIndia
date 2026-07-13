@@ -8,16 +8,22 @@ export default async function OnboardingPage() {
 
   const station = await prisma.station.findUnique({
     where: { id: session.stationId || "" },
+    include: {
+      branding: true,
+      settings: true,
+    },
   });
 
   if (!station) {
     redirect("/login");
   }
 
-  // If onboarding is already completed, they shouldn't be here
-  if (station.onboardingStatus === "COMPLETED") {
+  if (station.status === "ACTIVE") {
     redirect("/dashboard");
   }
+
+  const b = station.branding || ({} as any);
+  const s = station.settings || ({} as any);
 
   return (
     <main className="min-h-screen bg-slate-50/50 py-12 px-4 md:px-8">
@@ -25,16 +31,16 @@ export default async function OnboardingPage() {
         initialStation={{
           id: station.id,
           name: station.name,
-          phone: station.phone || "",
-          email: station.email || "",
-          address: station.address || "",
-          gstNumber: station.gstNumber || "",
-          logoUrl: station.logoUrl || "",
-          bannerUrl: station.bannerUrl || "",
-          primaryColor: station.primaryColor || "#0f766e",
-          upiId: station.upiId || "",
-          vipSpendThreshold: Number(station.vipSpendThreshold) || 10000,
-          vipVisitThreshold: station.vipVisitThreshold || 5,
+          phone: b.businessPhone || "",
+          email: b.businessEmail || "",
+          address: b.businessAddress || "",
+          gstNumber: "",
+          logoUrl: b.squareLogoUrl || "",
+          bannerUrl: b.bookingCoverUrl || "",
+          primaryColor: b.primaryColor || "#0f766e",
+          upiId: "",
+          vipSpendThreshold: Number(s.vipSpendThreshold) || 10000,
+          vipVisitThreshold: s.vipVisitThreshold || 5,
         }}
       />
     </main>

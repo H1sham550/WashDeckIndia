@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
             vehicle: true,
           },
         },
+        payments: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -96,8 +97,8 @@ export async function GET(request: NextRequest) {
       subtotal: inv.subtotal,
       discount: inv.discount,
       finalAmount: inv.finalAmount,
-      paymentStatus: inv.paymentStatus,
-      paymentMethod: inv.paymentMethod,
+      paymentStatus: inv.status,
+      paymentMethod: inv.payments[0]?.method || "CASH",
       createdAt: inv.createdAt,
       vehicleNumber: inv.jobCard.vehicle.vehicleNumber,
     }));

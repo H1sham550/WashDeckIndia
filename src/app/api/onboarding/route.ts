@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { hashPassword } from "@/lib/crypto";
-import { OnboardingStatus } from "@prisma/client";
+import { StationStatus } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     if (step === 1) {
       // Step 1: Business Profile Details
-      const { name, phone, email, address, gstNumber } = body;
+      const { name, phone, email, address } = body;
       if (!name) {
         return NextResponse.json({ ok: false, error: "Business/Station Name is required." }, { status: 400 });
       }
@@ -36,11 +36,22 @@ export async function POST(request: NextRequest) {
         where: { id: stationId },
         data: {
           name,
-          phone: phone || null,
-          email: email || null,
-          address: address || null,
-          gstNumber: gstNumber || null,
-          onboardingStatus: OnboardingStatus.IN_PROGRESS,
+          status: StationStatus.TRIAL,
+        },
+      });
+
+      await prisma.stationBranding.upsert({
+        where: { stationId },
+        create: {
+          stationId,
+          businessPhone: phone || null,
+          businessEmail: email || null,
+          businessAddress: address || null,
+        },
+        update: {
+          businessPhone: phone || null,
+          businessEmail: email || null,
+          businessAddress: address || null,
         },
       });
 
@@ -49,13 +60,19 @@ export async function POST(request: NextRequest) {
 
     if (step === 2) {
       // Step 2: Branding (Logo, Banner, Brand Color)
-      const { logoUrl, bannerUrl, primaryColor } = body;
+      const { logoUrl, primaryColor } = body;
 
-      await prisma.station.update({
-        where: { id: stationId },
-        data: {
-          logoUrl: logoUrl || null,
-          bannerUrl: bannerUrl || null,
+      await prisma.stationBranding.upsert({
+        where: { stationId },
+        create: {
+          stationId,
+          squareLogoUrl: logoUrl || null,
+          bookingCoverUrl: logoUrl || null,
+          primaryColor: primaryColor || "#0f766e",
+        },
+        update: {
+          squareLogoUrl: logoUrl || null,
+          bookingCoverUrl: logoUrl || null,
           primaryColor: primaryColor || "#0f766e",
         },
       });
@@ -67,10 +84,14 @@ export async function POST(request: NextRequest) {
       // Step 3: Payments / UPI Configuration
       const { upiId } = body;
 
-      await prisma.station.update({
-        where: { id: stationId },
-        data: {
-          upiId: upiId || null,
+      await prisma.stationSettings.upsert({
+        where: { stationId },
+        create: {
+          stationId,
+          notificationPreferencesJson: { upiId: upiId || null },
+        },
+        update: {
+          notificationPreferencesJson: { upiId: upiId || null },
         },
       });
 
@@ -83,15 +104,6 @@ export async function POST(request: NextRequest) {
       if (!services || !Array.isArray(services) || services.length === 0) {
         return NextResponse.json({ ok: false, error: "At least one service must be defined." }, { status: 400 });
       }
-
-      // Check if services already exist for this station; delete them first to allow clean overwrite if user hits "back" and "next"
-      await prisma.serviceTemplateItem.deleteMany({
-        where: {
-          service: {
-            stationId,
-          },
-        },
-      });
 
       await prisma.servicePrice.deleteMany({
         where: {
@@ -107,7 +119,6 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Create new services and prices
       await prisma.$transaction(
         services.map((service: any) =>
           prisma.service.create({
@@ -133,16 +144,24 @@ export async function POST(request: NextRequest) {
       // Step 5: Loyalty System Configuration
       const { vipSpendThreshold, vipVisitThreshold, offer } = body;
 
-      await prisma.station.update({
-        where: { id: stationId },
-        data: {
-          vipSpendThreshold: vipSpendThreshold !== undefined ? Number(vipSpendThreshold) : 10000.00,
-          vipVisitThreshold: vipVisitThreshold !== undefined ? Number(vipVisitThreshold) : 5,
+      await prisma.stationSettings.upsert({
+        where: { stationId },
+        create: {
+          stationId,
+          queueDisplayPreferencesJson: {
+            vipSpendThreshold: vipSpendThreshold !== undefined ? Number(vipSpendThreshold) : 10000.00,
+            vipVisitThreshold: vipVisitThreshold !== undefined ? Number(vipVisitThreshold) : 5,
+          },
+        },
+        update: {
+          queueDisplayPreferencesJson: {
+            vipSpendThreshold: vipSpendThreshold !== undefined ? Number(vipSpendThreshold) : 10000.00,
+            vipVisitThreshold: vipVisitThreshold !== undefined ? Number(vipVisitThreshold) : 5,
+          },
         },
       });
 
       if (offer) {
-        // Find existing offers for this station first
         const existingOffers = await prisma.offer.findMany({
           where: { stationId },
           select: { id: true },
@@ -150,7 +169,6 @@ export async function POST(request: NextRequest) {
         const offerIds = existingOffers.map((o) => o.id);
 
         if (offerIds.length > 0) {
-          // Delete child records referencing these offers
           await prisma.vehicleOfferProgress.deleteMany({
             where: { offerId: { in: offerIds } },
           });
@@ -159,7 +177,6 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Clear existing loyalty offers first to allow overwrite
         await prisma.offer.deleteMany({
           where: { stationId },
         });
@@ -220,7 +237,6 @@ export async function POST(request: NextRequest) {
             name: staff.name,
             email: normalizedEmail,
             username: normalizedUsername,
-            mobile: staff.mobile || null,
             passwordHash: hashPassword(staff.password),
             role: "STAFF",
             status: "ACTIVE",
@@ -237,11 +253,10 @@ export async function POST(request: NextRequest) {
       await prisma.station.update({
         where: { id: stationId },
         data: {
-          onboardingStatus: OnboardingStatus.COMPLETED,
+          status: StationStatus.ACTIVE,
         },
       });
 
-      // Create Audit Log for onboarding completion
       await prisma.auditLog.create({
         data: {
           actorUserId: session.id,

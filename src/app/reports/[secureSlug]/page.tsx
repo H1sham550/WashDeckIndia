@@ -16,7 +16,12 @@ export default async function PublicReportPage({ params }: PageProps) {
     include: {
       jobCard: {
         include: {
-          station: true,
+          station: {
+            include: {
+              branding: true,
+              settings: true
+            }
+          },
           vehicle: true,
           customer: true,
           services: true,
@@ -32,7 +37,6 @@ export default async function PublicReportPage({ params }: PageProps) {
     notFound();
   }
 
-  // Check if reports feature is enabled for this station
   const reportsEnabled = await isFeatureEnabled(report.jobCard.stationId, "reports");
   if (!reportsEnabled) {
     return (
@@ -47,22 +51,24 @@ export default async function PublicReportPage({ params }: PageProps) {
     );
   }
 
-  // Check report expiration
+  const job = report.jobCard;
+  const station = job.station;
+  const b = station.branding || ({} as any);
+  const s = station.settings || ({} as any);
+
   if (report.expiresAt && new Date() > report.expiresAt) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4 bg-slate-50 font-sans">
         <div className="bg-white border rounded-xl p-8 max-w-md text-center shadow-sm">
           <h2 className="text-xl font-bold text-rose-600">This report has expired.</h2>
           <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-            For privacy and data retention policies, this service report has expired. Reports expire {report.jobCard.station.reportExpiryDays} days after generation.
+            For privacy and data retention policies, this service report has expired. Reports expire 30 days after generation.
           </p>
         </div>
       </main>
     );
   }
 
-  const job = report.jobCard;
-  const station = job.station;
   const beforePhotos = job.photos.filter((p) => p.type === "BEFORE").map((p) => p.url);
   const afterPhotos = job.photos.filter((p) => p.type === "AFTER").map((p) => p.url);
   const subtotal = job.services.reduce((sum, s) => sum + Number(s.priceSnapshot), 0);
@@ -72,13 +78,13 @@ export default async function PublicReportPage({ params }: PageProps) {
       className="min-h-screen bg-slate-50 py-8 px-4 font-sans"
       style={
         {
-          "--primary-color": station.primaryColor || "#0f766e",
+          "--primary-color": b.primaryColor || "#0f766e",
         } as React.CSSProperties
       }
     >
       <div className="mx-auto max-w-3xl bg-white border rounded-2xl shadow-md overflow-hidden print:border-0 print:shadow-none print:rounded-none">
         
-        {/* Print & Download Action (Hidden in Print Mode) */}
+        {/* Print & Download Action */}
         <div className="bg-slate-50 border-b px-6 py-3 flex justify-between items-center print:hidden">
           <span className="text-xs font-bold text-slate-500">Public Service Report</span>
           <div className="flex gap-2">
@@ -105,9 +111,9 @@ export default async function PublicReportPage({ params }: PageProps) {
         {/* Station Header Branding */}
         <header className="px-8 py-6 bg-[var(--primary-color)]/5 border-b flex justify-between items-center">
           <div className="flex items-center gap-3">
-            {station.logoUrl ? (
+            {b.squareLogoUrl ? (
               <img
-                src={station.logoUrl}
+                src={b.squareLogoUrl}
                 alt={station.name}
                 className="h-12 w-12 object-contain rounded-lg bg-white p-1 border"
               />
@@ -118,8 +124,8 @@ export default async function PublicReportPage({ params }: PageProps) {
             )}
             <div>
               <h1 className="text-lg font-bold text-slate-800">{station.name}</h1>
-              {station.address && (
-                <p className="text-xs text-slate-400 font-medium mt-0.5">{station.address}</p>
+              {b.businessAddress && (
+                <p className="text-xs text-slate-400 font-medium mt-0.5">{b.businessAddress}</p>
               )}
             </div>
           </div>
@@ -128,128 +134,133 @@ export default async function PublicReportPage({ params }: PageProps) {
               <ShieldCheck size={12} className="text-emerald-600" />
               Verified Report
             </span>
+            <p className="text-xs font-mono text-slate-400 mt-1">Ref: {secureSlug.slice(0, 8).toUpperCase()}</p>
           </div>
         </header>
 
-        {/* Details & Comparisons */}
-        <div className="p-8 space-y-6">
-          
-          {/* Info cards */}
-          <section className="grid gap-4 sm:grid-cols-2">
-            <div className="border rounded-xl p-4 bg-slate-50/50">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Vehicle Details</h3>
-              <div className="flex items-center gap-3 text-sm">
-                <Car className="text-[var(--primary-color)]" size={18} />
-                <div>
-                  <p className="font-extrabold text-slate-800 tracking-wide uppercase">
-                    {job.vehicle.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
-                  </p>
-                  <p className="text-xs text-slate-500 font-semibold uppercase mt-0.5">
-                    {job.vehicle.vehicleType} • {job.vehicle.brand} {job.vehicle.model}
-                  </p>
-                </div>
-              </div>
+        {/* Vehicle & Customer Overview Card */}
+        <div className="p-8 border-b bg-slate-50/50">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Registration</span>
+              <span className="text-base font-extrabold text-slate-800 font-mono mt-1 block">
+                {job.vehicle.vehicleNumber}
+              </span>
             </div>
-
-            <div className="border rounded-xl p-4 bg-slate-50/50">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Customer Info</h3>
-              <div className="flex items-center gap-3 text-sm">
-                <User className="text-[var(--primary-color)]" size={18} />
-                <div>
-                  <p className="font-bold text-slate-800">{job.customer.name}</p>
-                  <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                    {job.customer.mobile.slice(0, -4)}XXXX
-                  </p>
-                </div>
-              </div>
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Vehicle</span>
+              <span className="text-sm font-bold text-slate-700 mt-1 block">
+                {job.vehicle.brand && job.vehicle.model
+                  ? `${job.vehicle.brand} ${job.vehicle.model}`
+                  : job.vehicle.vehicleType}
+              </span>
             </div>
-          </section>
-
-          {/* Services rendered */}
-          <section className="space-y-3">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b pb-2">Services Rendered</h3>
-            <div className="divide-y text-sm">
-              {job.services.map((s) => (
-                <div key={s.id} className="flex justify-between py-2 items-center">
-                  <div className="flex items-center gap-2 font-bold text-slate-800">
-                    <Check size={15} className="text-emerald-500 shrink-0" />
-                    {s.serviceNameSnapshot}
-                  </div>
-                  <span className="font-extrabold text-slate-800">₹{Number(s.priceSnapshot)}</span>
-                </div>
-              ))}
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Customer</span>
+              <span className="text-sm font-bold text-slate-700 mt-1 block truncate">
+                {job.customer.name}
+              </span>
             </div>
-          </section>
-
-          {/* Inspection comments */}
-          {job.inspection && (
-            <section className="space-y-2">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b pb-2">Intake Observations</h3>
-              <p className="text-sm text-slate-700 bg-slate-50 border rounded-xl p-4 leading-relaxed font-medium">
-                {job.inspection.notes}
-              </p>
-            </section>
-          )}
-
-          {/* Photo comparisons */}
-          {(beforePhotos.length > 0 || afterPhotos.length > 0) && (
-            <section className="space-y-4">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b pb-2">Intake & Delivery Photos</h3>
-              
-              <div className="space-y-4">
-                {beforePhotos.length > 0 && (
-                  <div>
-                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Before Servicing</h4>
-                    <div className="grid gap-2 grid-cols-2 sm:grid-cols-4">
-                      {beforePhotos.map((url, idx) => (
-                        <div key={idx} className="h-20 border rounded-lg overflow-hidden bg-slate-50">
-                          <img src={url} alt="Before" className="object-cover h-full w-full" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {afterPhotos.length > 0 && (
-                  <div>
-                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">After Servicing</h4>
-                    <div className="grid gap-2 grid-cols-2 sm:grid-cols-4">
-                      {afterPhotos.map((url, idx) => (
-                        <div key={idx} className="h-20 border rounded-lg overflow-hidden bg-slate-50">
-                          <img src={url} alt="After" className="object-cover h-full w-full" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* Invoice Summary */}
-          {job.invoice && (
-            <section className="border-t pt-6 flex justify-between items-center">
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Invoice Number</p>
-                <p className="text-sm font-bold text-slate-700 mt-1">{job.invoice.invoiceNumber}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Final Amount Paid</p>
-                <p className="text-2xl font-extrabold text-[var(--primary-color)] mt-0.5">
-                  ₹{Number(job.invoice.finalAmount)}
-                </p>
-              </div>
-            </section>
-          )}
-
+            <div>
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Date</span>
+              <span className="text-sm font-bold text-slate-700 mt-1 block">
+                {new Date(report.createdAt).toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Footer */}
-        <footer className="bg-slate-50 px-8 py-4 border-t text-center text-[10px] text-slate-400 font-medium">
-          Generated automatically by WashDeck. Expiry:{" "}
-          {new Date(report.expiresAt!).toLocaleDateString("en-IN")}.
-        </footer>
+        {/* Digital Inspection Snapshot */}
+        {job.inspection && (
+          <div className="p-8 border-b">
+            <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3">
+              Initial Inspection & Condition
+            </h2>
+            <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4 text-sm text-amber-900 font-medium">
+              {job.inspection.notes}
+            </div>
+          </div>
+        )}
 
+        {/* Services Executed */}
+        <div className="p-8 border-b">
+          <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-4">
+            Services Rendered
+          </h2>
+          <div className="space-y-3">
+            {job.services.map((service, index) => (
+              <div
+                key={index}
+                className="flex justify-between items-center py-2.5 px-4 bg-slate-50 rounded-xl border border-slate-100"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                    <Check size={14} strokeWidth={3} />
+                  </div>
+                  <span className="text-sm font-bold text-slate-700">{service.serviceNameSnapshot}</span>
+                </div>
+                <span className="text-sm font-mono font-bold text-slate-600">
+                  ₹{Number(service.priceSnapshot).toLocaleString("en-IN")}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t flex justify-end items-center gap-6 text-sm font-bold">
+            <span className="text-slate-400">Total Valuation</span>
+            <span className="text-base font-extrabold font-mono text-[var(--primary-color)]">
+              ₹{subtotal.toLocaleString("en-IN")}
+            </span>
+          </div>
+        </div>
+
+        {/* Photo Documentation Grid */}
+        {(beforePhotos.length > 0 || afterPhotos.length > 0) && (
+          <div className="p-8 border-b space-y-6">
+            <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+              Photographic Proof of Work
+            </h2>
+
+            {beforePhotos.length > 0 && (
+              <div>
+                <span className="text-xs font-bold text-slate-500 mb-3 block">Before Treatment Snapshot</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {beforePhotos.map((url, i) => (
+                    <div key={i} className="aspect-video bg-slate-100 rounded-lg overflow-hidden border">
+                      <img src={url} alt={`Before ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {afterPhotos.length > 0 && (
+              <div>
+                <span className="text-xs font-bold text-slate-500 mb-3 block">After Treatment Snapshot</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {afterPhotos.map((url, i) => (
+                    <div key={i} className="aspect-video bg-slate-100 rounded-lg overflow-hidden border shadow-sm">
+                      <img src={url} alt={`After ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer Guarantee */}
+        <footer className="p-8 bg-slate-50 text-center space-y-2">
+          <p className="text-xs font-bold text-slate-600">
+            Certified & Documented by {station.name} Operations Team.
+          </p>
+          <p className="text-[11px] text-slate-400">
+            This digital service report serves as verifiable proof of treatment and condition upon release.
+          </p>
+        </footer>
       </div>
     </div>
   );

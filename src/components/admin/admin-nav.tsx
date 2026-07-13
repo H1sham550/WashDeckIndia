@@ -15,7 +15,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: any;
+  exact?: boolean;
+};
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/admin",              label: "Dashboard",     icon: LayoutDashboard, exact: true },
   { href: "/admin/customers",    label: "Customers",     icon: Users },
   { href: "/admin/subscriptions",label: "Subscriptions", icon: Package },
@@ -24,9 +31,8 @@ const NAV_ITEMS = [
   { href: "/admin/analytics",    label: "Analytics",     icon: BarChart3 },
   { href: "/admin/audit",        label: "Audit Logs",    icon: ScrollText },
   { href: "/admin/settings",     label: "Settings",      icon: Settings },
-] as const;
+];
 
-// Mobile shows only the most important 5 items (rest in overflow)
 const MOBILE_ITEMS = NAV_ITEMS.slice(0, 5);
 
 interface AdminNavProps {
@@ -41,7 +47,6 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  // ── Mobile bottom bar ──────────────────────────────────────────
   if (mobile) {
     return (
       <nav className="flex items-stretch justify-around h-16 px-1">
@@ -50,7 +55,7 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
           return (
             <Link
               key={href}
-              href={href}
+              href={href as any}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 flex-1 rounded-xl transition-all duration-150 active-tap px-1",
                 active
@@ -73,7 +78,6 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
     );
   }
 
-  // ── Desktop sidebar nav ────────────────────────────────────────
   return (
     <nav className="space-y-0.5">
       <p className="px-3 mb-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
@@ -84,23 +88,24 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
         return (
           <Link
             key={href}
-            href={href}
+            href={href as any}
             className={cn(
               "group flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 active-tap",
               active
-                ? "bg-wd-teal-50 text-wd-teal-800 font-bold shadow-sm border border-wd-teal-100"
+                ? "bg-gradient-to-r from-wd-teal-500 to-wd-teal-600 text-white shadow-sm font-bold"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             )}
           >
             <Icon
-              size={16}
-              strokeWidth={active ? 2.2 : 1.8}
-              className={cn("flex-shrink-0", active ? "text-wd-teal-700" : "text-slate-400 group-hover:text-slate-600")}
+              size={18}
+              strokeWidth={active ? 2.3 : 1.8}
+              className={cn(
+                "flex-shrink-0 transition-transform duration-150",
+                active ? "text-white scale-105" : "text-slate-400 group-hover:text-slate-600"
+              )}
             />
             <span className="flex-1 truncate">{label}</span>
-            {active && (
-              <ChevronRight size={12} className="text-wd-teal-400 flex-shrink-0" />
-            )}
+            {active && <ChevronRight size={14} className="text-white/80" />}
           </Link>
         );
       })}

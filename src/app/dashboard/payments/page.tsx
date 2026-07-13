@@ -8,11 +8,11 @@ export default async function PaymentsPage() {
 
   const unpaidInvoices = await prisma.invoice.findMany({
     where: {
+      stationId: session.stationId,
+      status: "ISSUED",
       jobCard: {
-        stationId: session.stationId,
         isDeleted: false,
       },
-      paymentStatus: "PENDING",
     },
     include: {
       jobCard: {
@@ -22,12 +22,17 @@ export default async function PaymentsPage() {
           services: true,
         },
       },
+      payments: true,
     },
     orderBy: { createdAt: "desc" },
   });
 
   const station = await prisma.station.findUnique({
     where: { id: session.stationId || "" },
+    include: {
+      branding: true,
+      settings: true,
+    },
   });
 
   if (!station) {
@@ -40,7 +45,7 @@ export default async function PaymentsPage() {
     subtotal: Number(inv.subtotal),
     discount: Number(inv.discount),
     finalAmount: Number(inv.finalAmount),
-    paymentStatus: inv.paymentStatus,
+    paymentStatus: inv.status === "PAID" ? "PAID" : "PENDING",
     createdAt: inv.createdAt.toISOString(),
     jobCard: {
       id: inv.jobCard.id,
@@ -56,9 +61,9 @@ export default async function PaymentsPage() {
         name: inv.jobCard.customer.name,
         mobile: inv.jobCard.customer.mobile,
       },
-      services: inv.jobCard.services.map((s) => ({
-        serviceNameSnapshot: s.serviceNameSnapshot,
-        priceSnapshot: Number(s.priceSnapshot),
+      services: inv.jobCard.services.map((srv: any) => ({
+        serviceNameSnapshot: srv.serviceNameSnapshot,
+        priceSnapshot: Number(srv.priceSnapshot),
       })),
     },
   }));
@@ -74,7 +79,7 @@ export default async function PaymentsPage() {
       <PaymentsPanel
         initialInvoices={serializedInvoices}
         station={{
-          upiId: station.upiId || "",
+          upiId: "",
           name: station.name,
         }}
       />

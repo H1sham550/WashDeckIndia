@@ -39,7 +39,6 @@ export async function POST(request: Request) {
         OR: [
           { email: { equals: identity, mode: "insensitive" } },
           { username: { equals: identity, mode: "insensitive" } },
-          { mobile: identity },
         ],
         isDeleted: false,
         status: "ACTIVE",
@@ -64,10 +63,10 @@ export async function POST(request: Request) {
 
     await createSession({
       id: user.id,
-      stationId: user.stationId,
+      stationId: user.stationId || "",
       role: user.role,
       name: user.name,
-      email: user.email,
+      email: user.email || "",
       isTempPassword: user.isTempPassword,
     });
 

@@ -31,6 +31,7 @@ interface AppSidebarProps {
     analytics: boolean;
     recovery: boolean;
     finance: boolean;
+    [key: string]: boolean;
   };
   stationName: string;
   logoUrl?: string | null;
@@ -168,7 +169,7 @@ export function AppSidebar({
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={item.href as any}
                     className={`wd-nav-item ${active ? "active" : ""}`}
                     title={collapsed ? item.label : undefined}
                   >

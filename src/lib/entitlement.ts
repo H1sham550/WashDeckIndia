@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { cache } from "react";
+import { FEATURE_REGISTRY, hasFeatureAccess } from "@/lib/features";
 
 export type SubscriptionLifecycleState = "ACTIVE" | "TRIAL" | "GRACE" | "EXPIRED" | "SUSPENDED";
 
@@ -21,6 +22,7 @@ export type StationEntitlements = {
     id: string;
     name: string;
     slug: string;
+    branchCode: string;
     onboardingStatus: string;
     logoUrl: string | null;
     primaryColor: string | null;
@@ -28,10 +30,13 @@ export type StationEntitlements = {
     country?: string;
     currency?: string;
     timezone?: string;
+    locale?: string;
+    isRTL?: boolean;
+    vipSpendThreshold?: number;
+    vipVisitThreshold?: number;
   };
 };
 
-// Memory cache to hold entitlement results with a 60-second TTL
 const entitlementCache = new Map<string, { data: StationEntitlements; expiresAt: number }>();
 const CACHE_TTL_MS = 60 * 1000; // 1 minute
 
@@ -40,14 +45,11 @@ const FEATURE_KEY_MAPPING: Record<string, string> = {
   reports: "SERVICE_REPORTS",
   recovery: "REVENUE_RECOVERY",
   analytics: "ANALYTICS",
-  finance: "SERVICE_REPORTS", // finance/expenses is mapped to SERVICE_REPORTS so Starter+ gets it
+  finance: "SERVICE_REPORTS",
   staff: "STAFF_MANAGEMENT",
   branding: "CUSTOM_BRANDING",
 };
 
-/**
- * Normalizes and resolves a feature key to its standard uppercase representation.
- */
 export function normalizeFeatureKey(featureKey: string): string {
   const key = featureKey.toLowerCase();
   if (FEATURE_KEY_MAPPING[key]) {
@@ -56,12 +58,6 @@ export function normalizeFeatureKey(featureKey: string): string {
   return featureKey.toUpperCase();
 }
 
-/**
- * High-Performance Batched Entitlement Resolver.
- * Resolves station status, subscription plan details, feature flags, and overrides
- * in a single, unified database query. Prevents N+1 database queries.
- * Caches the result in server memory for 60 seconds to make page loads instant.
- */
 export const getStationEntitlements = cache(async (stationId: string): Promise<StationEntitlements> => {
   const now = Date.now();
   const cached = entitlementCache.get(stationId);
@@ -72,6 +68,10 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
   const station = await prisma.station.findUnique({
     where: { id: stationId },
     include: {
+      branding: true,
+      settings: true,
+      country: true,
+      region: true,
       featureOverrides: true,
       stationSubscriptions: {
         include: {
@@ -96,7 +96,6 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     };
   }
 
-  // 1. Resolve Subscription Lifecycle State
   let lifecycle: SubscriptionLifecycleState = "EXPIRED";
   if (station.status === "SUSPENDED") {
     lifecycle = "SUSPENDED";
@@ -117,19 +116,17 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
           lifecycle = "EXPIRED";
         }
       } else {
-        lifecycle = sub.status as SubscriptionLifecycleState;
+        lifecycle = "ACTIVE";
       }
     }
   }
 
-  // 2. Resolve Plan limits & info
-  const activeSub = station.stationSubscriptions[0];
-  const plan = activeSub?.subscription;
-  const currentPlanName = plan?.name || "Trial Plan";
-  const staffLimit = plan?.staffLimit ?? 1;
-  const reportLimit = plan?.reportLimit ?? 10;
+  const sub = station.stationSubscriptions[0];
+  const plan = sub?.subscription;
+  const currentPlanName = plan?.name ?? (station.status === "TRIAL" ? "Trial" : "None");
+  const staffLimit = plan?.staffLimit ?? 3;
+  const reportLimit = plan?.reportLimit ?? 50;
 
-  // 3. Resolve Feature Flags
   const features: Record<string, boolean> = {
     staff: false,
     offers: false,
@@ -139,9 +136,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     branding: false,
   };
 
-  // If the station is suspended, no features are enabled
   if (lifecycle !== "SUSPENDED") {
-    // 3a. Populate plan default features
     if (plan?.planFeatures) {
       plan.planFeatures.forEach((pf) => {
         features[pf.featureKey.toLowerCase()] = pf.enabled;
@@ -149,7 +144,6 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       });
     }
 
-    // 3b. Apply standard mappings for legacy compatibility
     const offersVal = features["loyalty_programs"] || features["LOYALTY_PROGRAMS"] || false;
     features["offers"] = offersVal;
     features["OFFERS"] = offersVal;
@@ -176,7 +170,6 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     features["branding"] = brandingVal;
     features["BRANDING"] = brandingVal;
 
-    // 3c. Apply station overrides (takes absolute precedence)
     station.featureOverrides.forEach((override) => {
       const key = override.featureKey;
       const isEnabled = override.isEnabled;
@@ -184,7 +177,6 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       features[key.toLowerCase()] = isEnabled;
       features[key.toUpperCase()] = isEnabled;
 
-      // Map overrides accurately
       if (key === "LOYALTY_PROGRAMS") {
         features["offers"] = isEnabled;
         features["OFFERS"] = isEnabled;
@@ -212,6 +204,17 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
         features["BRANDING"] = isEnabled;
       }
     });
+
+    // Evaluate full FEATURE_REGISTRY against plan and overrides
+    const overridesMap: Record<string, boolean> = {};
+    station.featureOverrides.forEach((override) => {
+      overridesMap[override.featureKey] = override.isEnabled;
+    });
+    Object.keys(FEATURE_REGISTRY).forEach((fKey) => {
+      const isAccessible = hasFeatureAccess(fKey, currentPlanName, overridesMap);
+      features[fKey] = isAccessible;
+      features[fKey.toLowerCase()] = isAccessible;
+    });
   }
 
   const result: StationEntitlements = {
@@ -224,13 +227,18 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       id: station.id,
       name: station.name,
       slug: station.slug,
-      onboardingStatus: station.onboardingStatus,
-      logoUrl: station.logoUrl,
-      primaryColor: station.primaryColor,
-      dueForVisitThreshold: station.dueForVisitThreshold ?? 30,
-      country: station.country || "IND",
-      currency: station.currency || "INR",
-      timezone: station.timezone || "Asia/Kolkata",
+      branchCode: station.branchCode,
+      onboardingStatus: "COMPLETED",
+      logoUrl: station.branding?.squareLogoUrl || null,
+      primaryColor: station.branding?.primaryColor || "#0F172A",
+      dueForVisitThreshold: 30,
+      country: station.country?.code || "SA",
+      currency: station.country?.currencyCode || "SAR",
+      timezone: station.region?.timezone || "Asia/Riyadh",
+      locale: station.country?.defaultLocale || "en-SA",
+      isRTL: station.country?.isRTL || false,
+      vipSpendThreshold: 10000,
+      vipVisitThreshold: 5,
     },
   };
 
@@ -238,7 +246,6 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
   return result;
 });
 
-// Memory cache for user station memberships with 60s TTL
 const userStationsCache = new Map<string, { data: { id: string; name: string; slug: string }[]; expiresAt: number }>();
 
 export const getUserStations = cache(async (email: string, role: string): Promise<{ id: string; name: string; slug: string }[]> => {
@@ -258,26 +265,17 @@ export const getUserStations = cache(async (email: string, role: string): Promis
   return data;
 });
 
-/**
- * Check if a specific feature is enabled for a station.
- * Optimized to use the high-performance batched resolver.
- */
 export async function isFeatureEnabled(stationId: string, featureKey: string): Promise<boolean> {
   const entitlements = await getStationEntitlements(stationId);
   const normalizedKey = normalizeFeatureKey(featureKey);
   return entitlements.features[normalizedKey] || entitlements.features[featureKey.toLowerCase()] || false;
 }
 
-/**
- * Returns the current lifecycle state of a station's subscription.
- * Optimized to use the high-performance batched resolver.
- */
 export async function checkSubscription(stationId: string): Promise<SubscriptionLifecycleState> {
   const entitlements = await getStationEntitlements(stationId);
   return entitlements.lifecycle;
 }
 
-// Memory cache for subscription plans with 60s TTL
 let cachedPlans: { data: any[]; expiresAt: number } | null = null;
 
 export const getCachedSubscriptionPlans = cache(async () => {

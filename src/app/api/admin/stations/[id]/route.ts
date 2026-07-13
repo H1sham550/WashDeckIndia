@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { StationStatus, SubscriptionStatus } from "@prisma/client";
+import { StationStatus } from "@prisma/client";
 
 export async function PATCH(
   request: NextRequest,
@@ -61,15 +61,17 @@ export async function PATCH(
       }
       dataToUpdate.status = status as StationStatus;
 
-      // Log status change in SubscriptionAuditLog
+      // Log status change in AuditLog
       if (status !== station.status) {
-        await prisma.subscriptionAuditLog.create({
+        await prisma.auditLog.create({
           data: {
+            actorUserId: session.id,
             stationId,
             action: `STATION_STATUS_${status.toUpperCase()}`,
-            previousValue: station.status,
-            newValue: status,
-            performedBy: session.name || session.email,
+            entityType: "Station",
+            entityId: stationId,
+            previousValue: { status: station.status },
+            newValue: { status },
           },
         });
       }
@@ -95,7 +97,7 @@ export async function PATCH(
       const activeSubBefore = await prisma.stationSubscription.findFirst({
         where: {
           stationId,
-          status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE, SubscriptionStatus.TRIAL] },
+          status: { in: ["ACTIVE", "GRACE", "TRIAL"] },
         },
         include: { subscription: true },
       });
@@ -105,15 +107,15 @@ export async function PATCH(
       await prisma.stationSubscription.updateMany({
         where: {
           stationId,
-          status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE, SubscriptionStatus.TRIAL] },
+          status: { in: ["ACTIVE", "GRACE", "TRIAL"] },
         },
-        data: { status: SubscriptionStatus.EXPIRED },
+        data: { status: "EXPIRED" },
       });
 
       const now = new Date();
       const endDate = new Date(now.getTime() + plan.durationDays * 24 * 60 * 60 * 1000);
       const isTrialPlan = plan.name.toUpperCase() === "TRIAL";
-      const newStatus = isTrialPlan ? SubscriptionStatus.TRIAL : SubscriptionStatus.ACTIVE;
+      const newStatus = isTrialPlan ? "TRIAL" : "ACTIVE";
 
       await prisma.stationSubscription.create({
         data: {
@@ -126,13 +128,14 @@ export async function PATCH(
       });
 
       // Log subscription assignment
-      await prisma.subscriptionAuditLog.create({
+      await prisma.auditLog.create({
         data: {
+          actorUserId: session.id,
           stationId,
           action: "PLAN_ASSIGNED",
-          previousValue: oldPlanName,
-          newValue: plan.name,
-          performedBy: session.name || session.email,
+          entityType: "StationSubscription",
+          previousValue: { plan: oldPlanName },
+          newValue: { plan: plan.name },
         },
       });
 
@@ -161,7 +164,7 @@ export async function PATCH(
       const activeSub = await prisma.stationSubscription.findFirst({
         where: {
           stationId,
-          status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE, SubscriptionStatus.TRIAL] },
+          status: { in: ["ACTIVE", "GRACE", "TRIAL"] },
         },
         orderBy: { endDate: "desc" },
       });
@@ -177,18 +180,19 @@ export async function PATCH(
           where: { id: activeSub.id },
           data: {
             endDate: newEndDate,
-            status: activeSub.status === SubscriptionStatus.TRIAL ? SubscriptionStatus.TRIAL : SubscriptionStatus.ACTIVE,
+            status: activeSub.status === "TRIAL" ? "TRIAL" : "ACTIVE",
           },
         });
 
         // Log extension
-        await prisma.subscriptionAuditLog.create({
+        await prisma.auditLog.create({
           data: {
+            actorUserId: session.id,
             stationId,
             action: "SUBSCRIPTION_EXTENDED",
-            previousValue: activeSub.endDate.toISOString(),
-            newValue: newEndDate.toISOString(),
-            performedBy: session.name || session.email,
+            entityType: "StationSubscription",
+            previousValue: { endDate: activeSub.endDate.toISOString() },
+            newValue: { endDate: newEndDate.toISOString() },
           },
         });
       } else {
@@ -199,18 +203,19 @@ export async function PATCH(
             subscriptionId: subTemplate.id,
             startDate: now,
             endDate: newEndDate,
-            status: SubscriptionStatus.ACTIVE,
+            status: "ACTIVE",
           },
         });
 
         // Log extension new
-        await prisma.subscriptionAuditLog.create({
+        await prisma.auditLog.create({
           data: {
+            actorUserId: session.id,
             stationId,
             action: "SUBSCRIPTION_EXTENDED_NEW",
-            previousValue: "None",
-            newValue: newEndDate.toISOString(),
-            performedBy: session.name || session.email,
+            entityType: "StationSubscription",
+            previousValue: { endDate: null },
+            newValue: { endDate: newEndDate.toISOString() },
           },
         });
       }
@@ -229,7 +234,7 @@ export async function PATCH(
       const activeSub = await prisma.stationSubscription.findFirst({
         where: {
           stationId,
-          status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE, SubscriptionStatus.TRIAL] },
+          status: { in: ["ACTIVE", "GRACE", "TRIAL"] },
         },
         orderBy: { endDate: "desc" },
       });
@@ -237,7 +242,7 @@ export async function PATCH(
       if (activeSub) {
         const newGraceDate = graceUntil ? new Date(graceUntil) : null;
         const previousGraceDate = activeSub.graceUntil ? activeSub.graceUntil.toISOString() : "None";
-        const newStatus = graceUntil && new Date(graceUntil) > new Date() ? SubscriptionStatus.GRACE : activeSub.status;
+        const newStatus = graceUntil && new Date(graceUntil) > new Date() ? "GRACE" : activeSub.status;
 
         await prisma.stationSubscription.update({
           where: { id: activeSub.id },
@@ -248,13 +253,14 @@ export async function PATCH(
         });
 
         // Log grace period update
-        await prisma.subscriptionAuditLog.create({
+        await prisma.auditLog.create({
           data: {
+            actorUserId: session.id,
             stationId,
             action: "GRACE_PERIOD_UPDATED",
-            previousValue: previousGraceDate,
-            newValue: newGraceDate ? newGraceDate.toISOString() : "None",
-            performedBy: session.name || session.email,
+            entityType: "StationSubscription",
+            previousValue: { graceUntil: previousGraceDate },
+            newValue: { graceUntil: newGraceDate ? newGraceDate.toISOString() : null },
           },
         });
       }

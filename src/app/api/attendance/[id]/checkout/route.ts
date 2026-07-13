@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -12,10 +12,11 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { checkOut } = await req.json();
 
     const updated = await prisma.attendanceLog.updateMany({
-      where: { id: params.id, stationId: session.stationId },
+      where: { id, stationId: session.stationId },
       data: { checkOut: checkOut ? new Date(checkOut) : new Date() },
     });
 

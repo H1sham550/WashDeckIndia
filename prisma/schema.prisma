@@ -8,227 +8,27 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ── ENUMS ─────────────────────────────────────────────────────────
+
 enum UserRole {
   SUPER_ADMIN
   OWNER
   STAFF
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
-enum StationStatus {
-  ACTIVE
-  TRIAL
-  EXPIRED
-  SUSPENDED
-}
-
-enum SubscriptionStatus {
-  TRIAL
-  ACTIVE
-  GRACE
-  EXPIRED
-  SUSPENDED
-}
-
-enum OnboardingStatus {
-  NOT_STARTED
-  IN_PROGRESS
-  COMPLETED
-}
-
-model Station {
-  id           String   @id @default(uuid())
-  name         String
-  slug         String   @unique
-  logoUrl      String?  @map("logo_url")
-  bannerUrl    String?  @map("banner_url")
-  primaryColor String?  @map("primary_color")
-  phone        String?
-  email        String?
-  address      String?
-  country      String   @default("IND")
-  currency     String   @default("INR")
-  timezone     String   @default("Asia/Kolkata")
-  upiId        String?  @map("upi_id")
-  gstNumber    String?  @map("gst_number")
-  status               StationStatus @default(TRIAL)
-  onboardingStatus     OnboardingStatus @default(NOT_STARTED) @map("onboarding_status")
-  vipSpendThreshold    Decimal       @default(10000.00) @db.Decimal(10, 2) @map("vip_spend_threshold")
-  vipVisitThreshold    Int           @default(5) @map("vip_visit_threshold")
-  defaultEta           Int           @default(120) @map("default_eta")
-  reportExpiryDays     Int           @default(30) @map("report_expiry_days")
-  lostCustomerThresholdDays Int       @default(60) @map("lost_customer_threshold_days")
-  dueForVisitThreshold Int           @default(30) @map("due_for_visit_threshold")
-  serviceCompletedTemplate String?   @map("service_completed_template")
-  paymentReminderTemplate String?     @map("payment_reminder_template")
-  dueForVisitReminderTemplate String? @map("due_for_visit_reminder_template")
-  rewardEligibleTemplate String?     @map("reward_eligible_template")
-  isDeleted            Boolean  @default(false) @map("is_deleted")
-  deletedAt            DateTime? @map("deleted_at")
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @updatedAt @map("updated_at")
-
-  users                User[]
-  auditLogs            AuditLog[]
-  stationSubscriptions StationSubscription[]
-  featureOverrides     StationFeatureOverride[]
-  subscriptionAuditLogs SubscriptionAuditLog[]
-  customers            Customer[]
-  vehicles             Vehicle[]
-  services             Service[]
-  offers               Offer[]
-  jobCards             JobCard[]
-  notifications        Notification[]
-  expenses             Expense[]
-  bookings             Booking[]
-  attendanceLogs       AttendanceLog[]
-  inventoryItems       InventoryItem[]
-
-  @@map("stations")
-}
-
-model User {
-  id        String     @id @default(uuid())
-  stationId String?    @map("station_id")
-  name         String
-  email        String?
-  username     String?
-  mobile       String?
-  passwordHash String     @default("") @map("password_hash")
-  role         UserRole
-  status       UserStatus @default(ACTIVE)
-  isTempPassword Boolean    @default(false) @map("is_temp_password")
-  lastLogin    DateTime?  @map("last_login")
-  isDeleted    Boolean    @default(false) @map("is_deleted")
-  deletedAt    DateTime?  @map("deleted_at")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-
-  station      Station?      @relation(fields: [stationId], references: [id])
-  otpTokens    OtpToken[]
-  auditLogs    AuditLog[]    @relation("AuditActor")
-  vehicleNotes VehicleNote[]
-  jobCards     JobCard[]
-
-  @@unique([stationId, email])
-  @@unique([stationId, username])
-  @@index([stationId])
-  @@map("users")
-}
-
-model OtpToken {
-  id        String    @id @default(uuid())
-  userId    String    @map("user_id")
-  email     String
-  tokenHash String    @map("token_hash")
-  expiresAt DateTime  @map("expires_at")
-  consumedAt DateTime? @map("consumed_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([email])
-  @@index([expiresAt])
-  @@map("otp_tokens")
-}
-
-model SubscriptionPlan {
-  id            String   @id @default(uuid())
-  name          String
-  price         Decimal  @db.Decimal(10, 2)
-  durationDays  Int      @map("duration_days")
-  staffLimit    Int      @default(1) @map("staff_limit")
-  reportLimit   Int      @default(10) @map("report_limit")
-  description   String?
-  trialDays     Int      @default(0) @map("trial_days")
-  isRecommended Boolean  @default(false) @map("is_recommended")
-  isActive      Boolean  @default(true) @map("is_active")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  planFeatures         PlanFeature[]
-  stationSubscriptions StationSubscription[]
-
-  @@map("subscription_plans")
-}
-
-model PlanFeature {
-  id         String   @id @default(uuid())
-  planId     String   @map("plan_id")
-  featureKey String   @map("feature_key")
-  enabled    Boolean  @default(true)
-
-  plan       SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
-
-  @@unique([planId, featureKey])
-  @@map("plan_features")
-}
-
-model StationSubscription {
-  id             String             @id @default(uuid())
-  stationId      String             @map("station_id")
-  subscriptionId String             @map("plan_id")
-  startDate      DateTime           @map("starts_at")
-  endDate        DateTime           @map("expires_at")
-  graceUntil     DateTime?          @map("grace_until")
-  status         SubscriptionStatus @default(ACTIVE)
-  createdAt      DateTime           @default(now()) @map("created_at")
-
-  station      Station          @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  subscription SubscriptionPlan @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-
-  @@index([stationId])
-  @@map("station_subscriptions")
-}
-
-model StationFeatureOverride {
-  id         String   @id @default(uuid())
-  stationId  String   @map("station_id")
-  featureKey String   @map("feature_key")
-  isEnabled  Boolean  @default(true) @map("is_enabled")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
-
-  @@unique([stationId, featureKey])
-  @@map("station_feature_overrides")
-}
-
-model SubscriptionAuditLog {
-  id            String   @id @default(uuid())
-  stationId     String   @map("station_id")
-  action        String
-  previousValue String?  @map("previous_value")
-  newValue      String?  @map("new_value")
-  performedBy   String?  @map("performed_by")
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
-
-  @@map("subscription_audit_logs")
-}
-
-model AuditLog {
-  id          String   @id @default(uuid())
-  actorUserId String?  @map("actor_user_id")
-  stationId   String?  @map("station_id")
-  action      String
-  entityType  String   @map("entity_type")
-  entityId    String?  @map("entity_id")
-  metadataJson Json?   @map("metadata_json")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  actor  User?    @relation("AuditActor", fields: [actorUserId], references: [id])
-  station Station? @relation(fields: [stationId], references: [id])
-
-  @@index([stationId])
-  @@index([actorUserId])
-  @@map("audit_logs")
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  CANCELLED
+  REFUNDED
 }
 
 enum JobStatus {
@@ -240,9 +40,18 @@ enum JobStatus {
   CANCELLED
 }
 
-enum PaymentStatus {
+enum StationStatus {
+  TRIAL
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum BookingStatus {
   PENDING
-  PAID
+  CONFIRMED
+  CONVERTED
+  CANCELLED
 }
 
 enum PaymentMethod {
@@ -250,6 +59,14 @@ enum PaymentMethod {
   UPI
   CARD
   BANK
+  ONLINE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
 enum VehicleType {
@@ -275,324 +92,6 @@ enum NoteType {
   VIP
 }
 
-model Customer {
-  id        String    @id @default(uuid())
-  stationId String    @map("station_id")
-  name      String
-  mobile    String
-  email     String?
-  isDeleted Boolean   @default(false) @map("is_deleted")
-  deletedAt DateTime? @map("deleted_at")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-
-  station   Station   @relation(fields: [stationId], references: [id])
-  contacts  VehicleContact[]
-  jobCards  JobCard[]
-
-  @@unique([stationId, mobile])
-  @@index([stationId])
-  @@map("customers")
-}
-
-model Vehicle {
-  id            String    @id @default(uuid())
-  stationId     String    @map("station_id")
-  vehicleNumber String    @map("vehicle_number")
-  vehicleType   VehicleType @map("vehicle_type")
-  brand         String?
-  model         String?
-  color         String?
-  tags          String[]  @default([])
-  isDeleted     Boolean   @default(false) @map("is_deleted")
-  deletedAt     DateTime? @map("deleted_at")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-
-  station       Station   @relation(fields: [stationId], references: [id])
-  contacts      VehicleContact[]
-  notes         VehicleNote[]
-  jobCards      JobCard[]
-  offerProgress VehicleOfferProgress[]
-  offerVehicles OfferVehicle[]
-
-  @@unique([stationId, vehicleNumber])
-  @@index([stationId])
-  @@index([vehicleNumber])
-  @@map("vehicles")
-}
-
-model VehicleContact {
-  id         String   @id @default(uuid())
-  vehicleId  String   @map("vehicle_id")
-  customerId String   @map("customer_id")
-  isPrimary  Boolean  @default(false) @map("is_primary")
-  label      String?  @default("Owner")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  vehicle    Vehicle  @relation(fields: [vehicleId], references: [id])
-  customer   Customer @relation(fields: [customerId], references: [id])
-
-  @@unique([vehicleId, customerId])
-  @@index([vehicleId])
-  @@index([customerId])
-  @@map("vehicle_contacts")
-}
-
-model VehicleNote {
-  id        String   @id @default(uuid())
-  vehicleId String   @map("vehicle_id")
-  authorId  String   @map("author_id")
-  type      NoteType @default(GENERAL)
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
-  author    User     @relation(fields: [authorId], references: [id])
-
-  @@index([vehicleId])
-  @@map("vehicle_notes")
-}
-
-model Service {
-  id          String   @id @default(uuid())
-  stationId   String   @map("station_id")
-  name        String
-  description String?
-  isDeleted   Boolean  @default(false) @map("is_deleted")
-  deletedAt   DateTime? @map("deleted_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  station     Station  @relation(fields: [stationId], references: [id])
-  prices      ServicePrice[]
-  templateItems ServiceTemplateItem[]
-
-  @@index([stationId])
-  @@map("services")
-}
-
-model ServicePrice {
-  id          String      @id @default(uuid())
-  serviceId   String      @map("service_id")
-  vehicleType VehicleType @map("vehicle_type")
-  price       Decimal     @db.Decimal(10, 2)
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-
-  service     Service     @relation(fields: [serviceId], references: [id])
-
-  @@unique([serviceId, vehicleType])
-  @@index([serviceId])
-  @@map("service_prices")
-}
-
-model ServiceTemplate {
-  id          String   @id @default(uuid())
-  stationId   String   @map("station_id")
-  name        String
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  items       ServiceTemplateItem[]
-
-  @@index([stationId])
-  @@map("service_templates")
-}
-
-model ServiceTemplateItem {
-  id         String   @id @default(uuid())
-  templateId String   @map("template_id")
-  serviceId  String   @map("service_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  template   ServiceTemplate @relation(fields: [templateId], references: [id])
-  service    Service         @relation(fields: [serviceId], references: [id])
-
-  @@unique([templateId, serviceId])
-  @@map("service_template_items")
-}
-
-model JobCard {
-  id                     String    @id @default(uuid())
-  stationId              String    @map("station_id")
-  vehicleId              String    @map("vehicle_id")
-  customerId             String    @map("customer_id")
-  creatorId              String    @map("creator_id")
-  status                 JobStatus @default(RECEIVED)
-  cancellationReason     String?   @map("cancellation_reason")
-  cancellationNotes      String?   @map("cancellation_notes")
-  expectedCompletionTime DateTime? @map("expected_completion_time")
-  isDeleted              Boolean   @default(false) @map("is_deleted")
-  deletedAt              DateTime? @map("deleted_at")
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @updatedAt @map("updated_at")
-
-  vehicle                Vehicle   @relation(fields: [vehicleId], references: [id])
-  customer               Customer  @relation(fields: [customerId], references: [id])
-  creator                User      @relation(fields: [creatorId], references: [id])
-  services               JobCardService[]
-  inspection             Inspection?
-  photos                 JobPhoto[]
-  invoice                Invoice?
-  report                 ServiceReport?
-
-  station                Station   @relation(fields: [stationId], references: [id])
-
-  @@index([stationId])
-  @@index([status])
-  @@index([createdAt])
-  @@index([vehicleId])
-  @@map("job_cards")
-}
-
-model JobCardService {
-  id                  String   @id @default(uuid())
-  jobCardId           String   @map("job_card_id")
-  serviceId           String   @map("service_id")
-  serviceNameSnapshot String   @map("service_name_snapshot")
-  priceSnapshot       Decimal  @db.Decimal(10, 2) @map("price_snapshot")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
-
-  jobCard             JobCard  @relation(fields: [jobCardId], references: [id])
-
-  @@map("job_card_services")
-}
-
-model Inspection {
-  id         String   @id @default(uuid())
-  jobCardId  String   @unique @map("job_card_id")
-  notes      String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  jobCard    JobCard  @relation(fields: [jobCardId], references: [id])
-
-  @@map("inspections")
-}
-
-model JobPhoto {
-  id        String   @id @default(uuid())
-  jobCardId String   @map("job_card_id")
-  url       String
-  type      String   // "BEFORE" or "AFTER"
-  createdAt DateTime @default(now()) @map("created_at")
-
-  jobCard   JobCard  @relation(fields: [jobCardId], references: [id])
-
-  @@map("job_photos")
-}
-
-model Invoice {
-  id            String        @id @default(uuid())
-  jobCardId     String        @unique @map("job_card_id")
-  invoiceNumber String        @unique @map("invoice_number")
-  subtotal      Decimal       @db.Decimal(10, 2)
-  discount      Decimal       @db.Decimal(10, 2) @default(0)
-  finalAmount   Decimal       @db.Decimal(10, 2) @map("final_amount")
-  paymentStatus PaymentStatus @default(PENDING) @map("payment_status")
-  paymentMethod PaymentMethod? @map("payment_method")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
-
-  jobCard       JobCard       @relation(fields: [jobCardId], references: [id])
-
-  @@index([paymentStatus])
-  @@index([createdAt])
-  @@map("invoices")
-}
-
-model ServiceReport {
-  id         String   @id @default(uuid())
-  jobCardId  String   @unique @map("job_card_id")
-  secureSlug String   @unique @map("secure_slug")
-  pdfUrl     String?  @map("pdf_url")
-  expiresAt  DateTime? @map("expires_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  jobCard    JobCard  @relation(fields: [jobCardId], references: [id])
-
-  @@map("service_reports")
-}
-
-model Offer {
-  id                String      @id @default(uuid())
-  stationId         String      @map("station_id")
-  name              String
-  description       String?
-  type              OfferType
-  targetCount       Int         @map("target_count")
-  rewardDescription String      @map("reward_description")
-  isActive          Boolean     @default(true) @map("is_active")
-  rulesJson         Json?       @map("rules_json")
-  isDeleted         Boolean     @default(false) @map("is_deleted")
-  deletedAt         DateTime?   @map("deleted_at")
-  createdAt         DateTime    @default(now()) @map("created_at")
-  updatedAt         DateTime    @updatedAt @map("updated_at")
-
-  station           Station     @relation(fields: [stationId], references: [id])
-  offerVehicles     OfferVehicle[]
-  progressRecords   VehicleOfferProgress[]
-
-  @@index([stationId])
-  @@index([isActive])
-  @@map("offers")
-}
-
-model OfferVehicle {
-  id        String   @id @default(uuid())
-  offerId   String   @map("offer_id")
-  vehicleId String   @map("vehicle_id")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  offer     Offer    @relation(fields: [offerId], references: [id])
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
-
-  @@unique([offerId, vehicleId])
-  @@map("offer_vehicles")
-}
-
-model VehicleOfferProgress {
-  id             String    @id @default(uuid())
-  vehicleId      String    @map("vehicle_id")
-  offerId        String    @map("offer_id")
-  currentCount   Int       @default(0) @map("current_count")
-  rewardEarned   Boolean   @default(false) @map("reward_earned")
-  rewardRedeemed Boolean   @default(false) @map("reward_redeemed")
-  redeemedAt     DateTime? @map("redeemed_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  vehicle        Vehicle   @relation(fields: [vehicleId], references: [id])
-  offer          Offer     @relation(fields: [offerId], references: [id])
-
-  @@unique([vehicleId, offerId])
-  @@index([vehicleId])
-  @@map("vehicle_offer_progress")
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  stationId String   @map("station_id")
-  title     String
-  message   String
-  type      String   // e.g. "REWARD_ELIGIBLE", "DUE_FOR_VISIT", "SUBSCRIPTION_EXPIRY", "STAFF_LIMIT", "PAYMENT_PENDING"
-  isRead    Boolean  @default(false) @map("is_read")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  station   Station  @relation(fields: [stationId], references: [id])
-
-  @@index([stationId])
-  @@map("notifications")
-}
-
 enum ExpenseCategory {
   SUPPLIES
   UTILITIES
@@ -603,66 +102,682 @@ enum ExpenseCategory {
   OTHER
 }
 
-model Expense {
-  id          String          @id @default(uuid())
-  stationId   String          @map("station_id")
-  title       String
-  category    ExpenseCategory
-  amount      Decimal         @db.Decimal(10, 2)
-  date        DateTime        @default(now())
-  notes       String?
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
+// ── GLOBAL CONFIGURATION ──────────────────────────────────────────
 
-  station     Station         @relation(fields: [stationId], references: [id])
+model Organization {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  stations  Station[]
+  auditLogs AuditLog[]
+
+  @@map("organizations")
+}
+
+model Country {
+  id                        String    @id @default(uuid())
+  code                      String    @unique // e.g. "SA"
+  name                      String
+  currencyCode              String
+  currencyFormat            String
+  phonePrefix               String
+  defaultLocale             String
+  supportedLocales          String[]
+  isRTL                     Boolean   @default(false)
+  dateFormat                String
+  timeFormat                String
+  decimalSeparator          String    @default(".")
+  thousandsSeparator        String    @default(",")
+  measurementSystem         String    @default("metric")
+  vehicleRegistrationFormat String?
+  currencySymbolPosition    String    @default("left")
+  firstDayOfWeek            Int       @default(1)
+  weekendDays               Int[]     @default([0, 6])
+  isDeleted                 Boolean   @default(false)
+  deletedAt                 DateTime?
+
+  regions  Region[]
+  stations Station[]
+
+  @@map("countries")
+}
+
+model Region {
+  id        String    @id @default(uuid())
+  countryId String
+  name      String
+  timezone  String
+  taxName   String
+  taxRate   Decimal   @db.Decimal(5, 2)
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  country  Country   @relation(fields: [countryId], references: [id])
+  stations Station[]
+
+  @@index([countryId])
+  @@map("regions")
+}
+
+model BusinessTemplate {
+  id                  String @id @default(uuid())
+  name                String
+  defaultServicesJson Json
+  defaultSettingsJson Json
+
+  stations Station[]
+
+  @@map("business_templates")
+}
+
+// ── TENANT ─────────────────────────────────────────────────────────
+
+model Station {
+  id                 String        @id @default(uuid())
+  organizationId     String?
+  countryId          String
+  regionId           String
+  businessTemplateId String?
+  branchCode         String        @unique // e.g. "RYD001"
+  name               String
+  slug               String        @unique
+  status             StationStatus @default(TRIAL)
+  isDeleted          Boolean       @default(false)
+  deletedAt          DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  organization     Organization?     @relation(fields: [organizationId], references: [id])
+  country          Country           @relation(fields: [countryId], references: [id])
+  region           Region            @relation(fields: [regionId], references: [id])
+  businessTemplate BusinessTemplate? @relation(fields: [businessTemplateId], references: [id])
+
+  branding StationBranding?
+  settings StationSettings?
+
+  users                User[]
+  customers            Customer[]
+  vehicles             Vehicle[]
+  jobCards             JobCard[]
+  bookings             Booking[]
+  invoices             Invoice[]
+  auditLogs            AuditLog[]
+  notifications        Notification[]
+  services             Service[]
+  offers               Offer[]
+  expenses             Expense[]
+  attendanceLogs       AttendanceLog[]
+  inventoryItems       InventoryItem[]
+  stationSubscriptions StationSubscription[]
+  featureOverrides     StationFeatureOverride[]
+
+  @@index([organizationId])
+  @@index([countryId])
+  @@index([regionId])
+  @@index([status])
+  @@map("stations")
+}
+
+model StationBranding {
+  id                  String  @id @default(uuid())
+  stationId           String  @unique
+  squareLogoUrl       String?
+  horizontalLogoUrl   String?
+  invoiceLogoUrl      String?
+  emailLogoUrl        String?
+  faviconUrl          String?
+  bookingCoverUrl     String?
+  primaryColor        String?
+  themeMode           String? @default("light")
+  defaultInvoiceTheme String? @default("standard")
+  businessPhone       String?
+  businessEmail       String?
+  businessAddress     String?
+  websiteUrl          String?
+  bookingDomain       String?
+  customDomain        String?
+  emailSenderName     String?
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@map("station_branding")
+}
+
+model StationSettings {
+  id                          String  @id @default(uuid())
+  stationId                   String  @unique
+  queueDisplayPreferencesJson Json?
+  defaultDashboardLayout      String?
+  bookingLeadTime             Int?
+  maxDailyBookings            Int?
+  autoJobNumberFormat         String?
+  invoicePrefix               String  @default("INV-")
+  defaultCurrencyOverride     String?
+  timezoneOverride            String?
+  cameraQualityPreference     String?
+  imageCompressionQuality     Int?
+  businessHoursJson           Json?
+  workingDays                 Int[]   @default([1, 2, 3, 4, 5, 6])
+  photoRequirementsJson       Json?
+  offlineModeSettingsJson     Json?
+  notificationPreferencesJson Json?
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@map("station_settings")
+}
+
+// ── SUBSCRIPTION & FEATURE REGISTRY ──────────────────────────────
+
+model SubscriptionPlan {
+  id            String   @id @default(uuid())
+  name          String
+  price         Decimal  @db.Decimal(10, 2)
+  durationDays  Int
+  staffLimit    Int      @default(1)
+  reportLimit   Int      @default(10)
+  description   String?
+  trialDays     Int      @default(0)
+  isRecommended Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  planFeatures         PlanFeature[]
+  stationSubscriptions StationSubscription[]
+
+  @@map("subscription_plans")
+}
+
+model PlanFeature {
+  id         String  @id @default(uuid())
+  planId     String
+  featureKey String
+  enabled    Boolean @default(true)
+
+  plan SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, featureKey])
+  @@map("plan_features")
+}
+
+model StationSubscription {
+  id             String    @id @default(uuid())
+  stationId      String
+  subscriptionId String    @map("plan_id")
+  startDate      DateTime  @map("starts_at")
+  endDate        DateTime  @map("expires_at")
+  graceUntil     DateTime? @map("grace_until")
+  status         String    @default("ACTIVE")
+  createdAt      DateTime  @default(now())
+
+  station      Station          @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  subscription SubscriptionPlan @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([stationId])
+  @@map("station_subscriptions")
+}
+
+model StationFeatureOverride {
+  id         String   @id @default(uuid())
+  stationId  String
+  featureKey String
+  isEnabled  Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@unique([stationId, featureKey])
+  @@map("station_feature_overrides")
+}
+
+// ── CORE OPERATIONS ────────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(uuid())
+  stationId      String?
+  role           UserRole
+  name           String
+  email          String?
+  username       String?
+  passwordHash   String
+  status         String    @default("ACTIVE")
+  isTempPassword Boolean   @default(false)
+  lastLogin      DateTime?
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  station         Station?      @relation(fields: [stationId], references: [id])
+  jobCards        JobCard[]     @relation("JobCreator")
+  jobCardBypasses JobCard[]     @relation("JobPhotoBypasser")
+  vehicleNotes    VehicleNote[]
+  otpTokens       OtpToken[]
+
+  @@unique([stationId, email])
+  @@unique([stationId, username])
+  @@index([stationId])
+  @@map("users")
+}
+
+model OtpToken {
+  id         String    @id @default(uuid())
+  userId     String
+  email      String
+  tokenHash  String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([email])
+  @@index([expiresAt])
+  @@map("otp_tokens")
+}
+
+model Customer {
+  id        String    @id @default(uuid())
+  stationId String
+  name      String
+  mobile    String
+  email     String?
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  station  Station          @relation(fields: [stationId], references: [id])
+  jobCards JobCard[]
+  contacts VehicleContact[]
+
+  @@unique([stationId, mobile])
+  @@index([stationId, createdAt])
+  @@map("customers")
+}
+
+model Vehicle {
+  id            String      @id @default(uuid())
+  stationId     String
+  vehicleNumber String
+  vehicleType   VehicleType @default(SEDAN)
+  brand         String?
+  model         String?
+  color         String?
+  tags          String[]    @default([])
+  isDeleted     Boolean     @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  station       Station                @relation(fields: [stationId], references: [id])
+  jobCards      JobCard[]
+  contacts      VehicleContact[]
+  notes         VehicleNote[]
+  offerProgress VehicleOfferProgress[]
+  offerVehicles OfferVehicle[]
+
+  @@unique([stationId, vehicleNumber])
+  @@index([stationId, vehicleNumber])
+  @@index([vehicleNumber])
+  @@map("vehicles")
+}
+
+model VehicleContact {
+  id         String   @id @default(uuid())
+  vehicleId  String
+  customerId String
+  isPrimary  Boolean  @default(false)
+  label      String?  @default("Owner")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  vehicle  Vehicle  @relation(fields: [vehicleId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([vehicleId, customerId])
+  @@index([vehicleId])
+  @@index([customerId])
+  @@map("vehicle_contacts")
+}
+
+model VehicleNote {
+  id        String   @id @default(uuid())
+  vehicleId String
+  authorId  String
+  type      NoteType @default(GENERAL)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@index([vehicleId])
+  @@map("vehicle_notes")
+}
+
+model Service {
+  id          String    @id @default(uuid())
+  stationId   String
+  name        String
+  description String?
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  station       Station               @relation(fields: [stationId], references: [id])
+  prices        ServicePrice[]
+  templateItems ServiceTemplateItem[]
+
+  @@index([stationId])
+  @@map("services")
+}
+
+model ServicePrice {
+  id          String      @id @default(uuid())
+  serviceId   String
+  vehicleType VehicleType
+  price       Decimal     @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@unique([serviceId, vehicleType])
+  @@index([serviceId])
+  @@map("service_prices")
+}
+
+model ServiceTemplate {
+  id          String   @id @default(uuid())
+  stationId   String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items ServiceTemplateItem[]
+
+  @@index([stationId])
+  @@map("service_templates")
+}
+
+model ServiceTemplateItem {
+  id         String   @id @default(uuid())
+  templateId String
+  serviceId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  template ServiceTemplate @relation(fields: [templateId], references: [id])
+  service  Service         @relation(fields: [serviceId], references: [id])
+
+  @@unique([templateId, serviceId])
+  @@map("service_template_items")
+}
+
+model Booking {
+  id                   String        @id @default(uuid())
+  stationId            String
+  customerName         String
+  mobile               String
+  vehicleNumber        String
+  vehicleType          String?       @default("SEDAN")
+  serviceName          String?
+  scheduledAt          DateTime
+  status               BookingStatus @default(PENDING)
+  convertedToJobCardId String? // Prevent duplicates
+  notes                String?
+  isDeleted            Boolean       @default(false)
+  deletedAt            DateTime?
+  createdAt            DateTime      @default(now())
+
+  station Station @relation(fields: [stationId], references: [id])
+
+  @@index([stationId, scheduledAt, status])
+  @@map("bookings")
+}
+
+model JobCard {
+  id                     String    @id @default(uuid())
+  stationId              String
+  vehicleId              String
+  customerId             String
+  creatorId              String
+  status                 JobStatus @default(RECEIVED)
+  cancellationReason     String?
+  cancellationNotes      String?
+  expectedCompletionTime DateTime?
+  photoBypassReason      String?
+  photoBypassedById      String?
+  isDeleted              Boolean   @default(false)
+  deletedAt              DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  station         Station          @relation(fields: [stationId], references: [id])
+  vehicle         Vehicle          @relation(fields: [vehicleId], references: [id])
+  customer        Customer         @relation(fields: [customerId], references: [id])
+  creator         User             @relation("JobCreator", fields: [creatorId], references: [id])
+  photoBypassedBy User?            @relation("JobPhotoBypasser", fields: [photoBypassedById], references: [id])
+  services        JobCardService[]
+  inspection      Inspection?
+  photos          JobPhoto[]
+  invoice         Invoice?
+  report          ServiceReport?
+
+  @@index([stationId, status, createdAt])
+  @@index([vehicleId])
+  @@index([customerId])
+  @@map("job_cards")
+}
+
+model JobCardService {
+  id                  String   @id @default(uuid())
+  jobCardId           String
+  serviceId           String
+  serviceNameSnapshot String
+  priceSnapshot       Decimal  @db.Decimal(10, 2)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  jobCard JobCard @relation(fields: [jobCardId], references: [id])
+
+  @@map("job_card_services")
+}
+
+model Inspection {
+  id        String   @id @default(uuid())
+  jobCardId String   @unique
+  notes     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  jobCard JobCard @relation(fields: [jobCardId], references: [id])
+
+  @@map("inspections")
+}
+
+model JobPhoto {
+  id        String   @id @default(uuid())
+  jobCardId String
+  url       String
+  type      String // "FRONT", "REAR", "LEFT", "RIGHT", "INTERIOR", "OTHER"
+  createdAt DateTime @default(now())
+
+  jobCard JobCard @relation(fields: [jobCardId], references: [id])
+
+  @@map("job_photos")
+}
+
+model Invoice {
+  id            String        @id @default(uuid())
+  stationId     String
+  jobCardId     String        @unique
+  invoiceNumber String        @unique
+  subtotal      Decimal       @db.Decimal(10, 2)
+  discount      Decimal       @default(0) @db.Decimal(10, 2)
+  finalAmount   Decimal       @db.Decimal(10, 2)
+  status        InvoiceStatus @default(DRAFT)
+  isDeleted     Boolean       @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime      @default(now())
+
+  station  Station   @relation(fields: [stationId], references: [id])
+  jobCard  JobCard   @relation(fields: [jobCardId], references: [id])
+  payments Payment[]
+
+  @@index([stationId, status, createdAt])
+  @@map("invoices")
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  invoiceId        String
+  amount           Decimal       @db.Decimal(10, 2)
+  method           PaymentMethod
+  status           PaymentStatus @default(PENDING)
+  gatewayName      String? // e.g. "Stripe", "Razorpay"
+  transactionRef   String? // Gateway Transaction ID
+  gatewayResponse  Json? // Full response from gateway
+  refundStatus     String? // e.g. "PARTIAL", "FULL"
+  paymentTimestamp DateTime      @default(now())
+  isDeleted        Boolean       @default(false)
+  deletedAt        DateTime?
+  createdAt        DateTime      @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@index([status])
+  @@map("payments")
+}
+
+model ServiceReport {
+  id         String    @id @default(uuid())
+  jobCardId  String    @unique
+  secureSlug String    @unique
+  pdfUrl     String?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  jobCard JobCard @relation(fields: [jobCardId], references: [id])
+
+  @@map("service_reports")
+}
+
+model Offer {
+  id                String    @id @default(uuid())
+  stationId         String
+  name              String
+  description       String?
+  type              OfferType
+  targetCount       Int
+  rewardDescription String
+  isActive          Boolean   @default(true)
+  rulesJson         Json?
+  isDeleted         Boolean   @default(false)
+  deletedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  station         Station                @relation(fields: [stationId], references: [id])
+  offerVehicles   OfferVehicle[]
+  progressRecords VehicleOfferProgress[]
+
+  @@index([stationId])
+  @@index([isActive])
+  @@map("offers")
+}
+
+model OfferVehicle {
+  id        String   @id @default(uuid())
+  offerId   String
+  vehicleId String
+  createdAt DateTime @default(now())
+
+  offer   Offer   @relation(fields: [offerId], references: [id])
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@unique([offerId, vehicleId])
+  @@map("offer_vehicles")
+}
+
+model VehicleOfferProgress {
+  id             String    @id @default(uuid())
+  vehicleId      String
+  offerId        String
+  currentCount   Int       @default(0)
+  rewardEarned   Boolean   @default(false)
+  rewardRedeemed Boolean   @default(false)
+  redeemedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  offer   Offer   @relation(fields: [offerId], references: [id])
+
+  @@unique([vehicleId, offerId])
+  @@index([vehicleId])
+  @@map("vehicle_offer_progress")
+}
+
+model Notification {
+  id        String               @id @default(uuid())
+  stationId String
+  title     String
+  message   String
+  priority  NotificationPriority @default(LOW)
+  isRead    Boolean              @default(false)
+  createdAt DateTime             @default(now())
+
+  station Station @relation(fields: [stationId], references: [id])
+
+  @@index([stationId, isRead, createdAt])
+  @@map("notifications")
+}
+
+model Expense {
+  id        String          @id @default(uuid())
+  stationId String
+  title     String
+  category  ExpenseCategory
+  amount    Decimal         @db.Decimal(10, 2)
+  date      DateTime        @default(now())
+  notes     String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  station Station @relation(fields: [stationId], references: [id])
 
   @@index([stationId])
   @@index([date])
   @@map("expenses")
 }
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-model Booking {
-  id           String        @id @default(uuid())
-  stationId    String        @map("station_id")
-  customerName String        @map("customer_name")
-  mobile       String
-  vehicleNumber String       @map("vehicle_number")
-  vehicleType  String        @map("vehicle_type")
-  serviceName  String        @map("service_name")
-  scheduledAt  DateTime      @map("scheduled_at")
-  status       BookingStatus @default(PENDING)
-  notes        String?
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-
-  station      Station       @relation(fields: [stationId], references: [id])
-
-  @@index([stationId])
-  @@index([scheduledAt])
-  @@map("bookings")
-}
-
 model AttendanceLog {
-  id        String   @id @default(uuid())
-  stationId String   @map("station_id")
-  staffId   String   @map("staff_id")
-  staffName String   @map("staff_name")
-  date      DateTime @default(now())
-  status    String   @default("PRESENT") // "PRESENT", "ABSENT", "HALF_DAY", "LEAVE"
-  checkIn   DateTime? @map("check_in")
-  checkOut  DateTime? @map("check_out")
+  id        String    @id @default(uuid())
+  stationId String
+  staffId   String
+  staffName String
+  date      DateTime  @default(now())
+  status    String    @default("PRESENT") // "PRESENT", "ABSENT", "HALF_DAY", "LEAVE"
+  checkIn   DateTime?
+  checkOut  DateTime?
   notes     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  station   Station  @relation(fields: [stationId], references: [id])
+  station Station @relation(fields: [stationId], references: [id])
 
   @@index([stationId, date])
   @@index([staffId])
@@ -670,23 +785,49 @@ model AttendanceLog {
 }
 
 model InventoryItem {
-  id           String   @id @default(uuid())
-  stationId    String   @map("station_id")
-  name         String
-  sku          String?
-  category     String   @default("Supplies") // e.g. "Chemicals", "Towels", "Equipment", "Supplies"
-  quantity     Decimal  @default(0) @db.Decimal(10, 2)
-  unit         String   @default("Liters") // e.g. "Liters", "Pieces", "Kg", "Units"
-  minThreshold Decimal  @default(5) @db.Decimal(10, 2) @map("min_threshold")
-  costPerUnit  Decimal  @default(0) @db.Decimal(10, 2) @map("cost_per_unit")
-  supplier     String?
-  lastRestocked DateTime? @map("last_restocked")
-  isDeleted    Boolean  @default(false) @map("is_deleted")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id            String    @id @default(uuid())
+  stationId     String
+  name          String
+  sku           String?
+  category      String    @default("Supplies")
+  quantity      Decimal   @default(0) @db.Decimal(10, 2)
+  unit          String    @default("Liters")
+  minThreshold  Decimal   @default(5) @db.Decimal(10, 2)
+  costPerUnit   Decimal   @default(0) @db.Decimal(10, 2)
+  supplier      String?
+  lastRestocked DateTime?
+  isDeleted     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  station      Station  @relation(fields: [stationId], references: [id])
+  station Station @relation(fields: [stationId], references: [id])
 
   @@index([stationId])
   @@map("inventory_items")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  organizationId String?
+  stationId      String?
+  actorUserId    String?
+  action         String
+  entityType     String
+  entityId       String?
+  previousValue  Json?
+  newValue       Json?
+  reason         String?
+  ipAddress      String?
+  userAgent      String?
+  browser        String?
+  device         String?
+  createdAt      DateTime @default(now())
+
+  station      Station?      @relation(fields: [stationId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([stationId, createdAt])
+  @@index([actorUserId])
+  @@map("audit_logs")
 }

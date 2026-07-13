@@ -18,6 +18,10 @@ export default async function JobDetailsPage({ params }: PageProps) {
       jobCardService.getJobCardDetails(session.stationId, id),
       prisma.station.findUnique({
         where: { id: session.stationId || "" },
+        include: {
+          branding: true,
+          settings: true,
+        },
       }),
     ]);
   } catch (error) {
@@ -29,17 +33,19 @@ export default async function JobDetailsPage({ params }: PageProps) {
     redirect("/login");
   }
 
-  // Helper serialize function
+  const b = station.branding || ({} as any);
+  const s = station.settings || ({} as any);
+
   const serializedJob = {
     ...job,
     createdAt: job.createdAt.toISOString(),
     updatedAt: job.updatedAt.toISOString(),
     expectedCompletionTime: job.expectedCompletionTime ? job.expectedCompletionTime.toISOString() : null,
-    services: job.services.map((s) => ({
-      ...s,
-      priceSnapshot: Number(s.priceSnapshot),
-      createdAt: s.createdAt.toISOString(),
-      updatedAt: s.updatedAt.toISOString(),
+    services: job.services.map((srv) => ({
+      ...srv,
+      priceSnapshot: Number(srv.priceSnapshot),
+      createdAt: srv.createdAt.toISOString(),
+      updatedAt: srv.updatedAt.toISOString(),
     })),
     invoice: job.invoice
       ? {
@@ -47,8 +53,10 @@ export default async function JobDetailsPage({ params }: PageProps) {
           subtotal: Number(job.invoice.subtotal),
           discount: Number(job.invoice.discount),
           finalAmount: Number(job.invoice.finalAmount),
+          paymentStatus: job.invoice.status === "PAID" ? "PAID" : "PENDING",
+          paymentMethod: (job.invoice as any).payments?.[0]?.method || null,
           createdAt: job.invoice.createdAt.toISOString(),
-          updatedAt: job.invoice.updatedAt.toISOString(),
+          updatedAt: job.invoice.createdAt.toISOString(),
         }
       : null,
   };
@@ -59,11 +67,11 @@ export default async function JobDetailsPage({ params }: PageProps) {
         job={serializedJob}
         station={{
           name: station.name,
-          logoUrl: station.logoUrl || "",
-          upiId: station.upiId || "",
-          primaryColor: station.primaryColor || "#0f766e",
-          serviceCompletedTemplate: station.serviceCompletedTemplate || "",
-          paymentReminderTemplate: station.paymentReminderTemplate || "",
+          logoUrl: b.squareLogoUrl || "",
+          upiId: "",
+          primaryColor: b.primaryColor || "#0f766e",
+          serviceCompletedTemplate: "Hi {customerName}, your vehicle {vehicleNumber} has been serviced successfully. Invoice & report: {reportUrl}",
+          paymentReminderTemplate: "Hi {customerName}, friendly reminder that payment of {amount} is pending for vehicle {vehicleNumber}.",
         }}
       />
     </div>

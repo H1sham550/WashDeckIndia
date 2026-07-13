@@ -1,38 +1,43 @@
-import React from "react";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { PublicBookingWizard } from "@/components/public/public-booking-wizard";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-
-type PageProps = { params: Promise<{ slug: string }> };
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const station = await prisma.station.findFirst({
     where: { OR: [{ slug }, { id: slug }], isDeleted: false },
-    select: { name: true, address: true },
+    select: { name: true },
   });
+
   return {
-    title: station
-      ? `Book Appointment | ${station.name}`
-      : "Book Appointment | WashDeck",
-    description: station
-      ? `Schedule a car wash or detailing appointment at ${station.name}.`
-      : "Book your service appointment online.",
+    title: station ? `Book Appointment | ${station.name}` : "Book Appointment | WashDeck",
   };
 }
 
-export default async function PublicBookingPage({ params }: PageProps) {
+export default async function PublicBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   const station = await prisma.station.findFirst({
     where: { OR: [{ slug }, { id: slug }], isDeleted: false },
-    select: { id: true, name: true, slug: true, logoUrl: true, phone: true, address: true, primaryColor: true },
+    include: {
+      branding: true,
+    },
   });
 
   if (!station) return notFound();
+
+  const b = station.branding || ({} as any);
+
+  const stationData = {
+    id: station.id,
+    name: station.name,
+    slug: station.slug,
+    logoUrl: b.squareLogoUrl || null,
+    phone: b.businessPhone || null,
+    address: b.businessAddress || null,
+    primaryColor: b.primaryColor || "#0f766e",
+  };
 
   const rawServices = await prisma.service.findMany({
     where: { stationId: station.id, isDeleted: false },
@@ -52,7 +57,7 @@ export default async function PublicBookingPage({ params }: PageProps) {
 
   return (
     <div style={{ minHeight: "100dvh", background: "white" }}>
-      <PublicBookingWizard station={station} services={services} />
+      <PublicBookingWizard station={stationData} services={services} />
     </div>
   );
 }

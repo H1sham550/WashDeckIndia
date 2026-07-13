@@ -59,24 +59,13 @@ export async function POST(
           action: "FEATURE_OVERRIDE_UPDATED",
           entityType: "StationFeatureOverride",
           entityId: override.id,
-          metadataJson: {
+          newValue: {
             station_id: stationId,
             feature_key: featureKey,
             old_value: oldValue,
             new_value: String(isEnabled),
             updated_by: session.name,
           },
-        },
-      });
-
-      // Specialized Subscription/Feature Audit Log
-      await tx.subscriptionAuditLog.create({
-        data: {
-          stationId,
-          action: `FEATURE_OVERRIDE_${featureKey.toUpperCase()}`,
-          previousValue: oldValue,
-          newValue: String(isEnabled),
-          performedBy: session.name || session.email,
         },
       });
 

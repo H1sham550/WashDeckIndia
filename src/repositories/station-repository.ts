@@ -6,6 +6,12 @@ export async function getStationById(id: string) {
       id,
       isDeleted: false,
     },
+    include: {
+      branding: true,
+      settings: true,
+      country: true,
+      region: true
+    }
   });
 }
 
@@ -15,6 +21,12 @@ export async function getStationBySlug(slug: string) {
       slug,
       isDeleted: false,
     },
+    include: {
+      branding: true,
+      settings: true,
+      country: true,
+      region: true
+    }
   });
 }
 
@@ -38,11 +50,52 @@ export type UpdateStationInput = {
   paymentReminderTemplate?: string | null;
   dueForVisitReminderTemplate?: string | null;
   rewardEligibleTemplate?: string | null;
+  locale?: string;
+  currency?: string;
 };
 
 export async function updateStationBranding(id: string, data: UpdateStationInput) {
-  return prisma.station.update({
+  const st = await prisma.station.findUnique({ where: { id }, select: { countryId: true } });
+  await prisma.station.update({
     where: { id },
-    data,
+    data: { name: data.name }
   });
+
+  if (st?.countryId && (data.locale || data.currency)) {
+    await prisma.country.update({
+      where: { id: st.countryId },
+      data: {
+        ...(data.locale
+          ? {
+              defaultLocale: data.locale,
+              isRTL: data.locale.startsWith("ar"),
+            }
+          : {}),
+        ...(data.currency ? { currencyCode: data.currency } : {}),
+      },
+    });
+  }
+
+  await prisma.stationBranding.upsert({
+    where: { stationId: id },
+    create: {
+      stationId: id,
+      squareLogoUrl: data.logoUrl || null,
+      bookingCoverUrl: data.bannerUrl || null,
+      primaryColor: data.primaryColor || "#0F172A",
+      businessPhone: data.phone || null,
+      businessEmail: data.email || null,
+      businessAddress: data.address || null
+    },
+    update: {
+      squareLogoUrl: data.logoUrl !== undefined ? data.logoUrl : undefined,
+      bookingCoverUrl: data.bannerUrl !== undefined ? data.bannerUrl : undefined,
+      primaryColor: data.primaryColor !== undefined ? (data.primaryColor || "#0F172A") : undefined,
+      businessPhone: data.phone !== undefined ? data.phone : undefined,
+      businessEmail: data.email !== undefined ? data.email : undefined,
+      businessAddress: data.address !== undefined ? data.address : undefined
+    }
+  });
+
+  return getStationById(id);
 }

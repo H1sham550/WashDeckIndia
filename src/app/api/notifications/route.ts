@@ -13,12 +13,12 @@ export async function GET(request: NextRequest) {
     const unpaidCount = await prisma.invoice.count({
       where: {
         jobCard: { stationId, isDeleted: false },
-        paymentStatus: "PENDING",
+        status: "ISSUED",
       },
     });
     if (unpaidCount > 0) {
       const exists = await prisma.notification.findFirst({
-        where: { stationId, type: "PAYMENT_PENDING", isRead: false },
+        where: { stationId, title: "Outstanding Payments Pending", isRead: false },
       });
       if (!exists) {
         await prisma.notification.create({
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
             stationId,
             title: "Outstanding Payments Pending",
             message: `Checkout payment is pending for ${unpaidCount} vehicles.`,
-            type: "PAYMENT_PENDING",
+            priority: "MEDIUM",
           },
         });
       }
@@ -39,8 +39,9 @@ export async function GET(request: NextRequest) {
     const station = await prisma.station.findUnique({
       where: { id: stationId },
       include: {
+        settings: true,
         stationSubscriptions: {
-          where: { status: { in: ["ACTIVE", "GRACE", "TRIAL"] } },
+          where: { status: { in: ["ACTIVE", "GRACE"] } },
           include: { subscription: true },
           orderBy: { endDate: "desc" },
           take: 1,
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
     const allowedStaff = station?.stationSubscriptions[0]?.subscription.staffLimit ?? 5;
     if (staffCount >= allowedStaff) {
       const exists = await prisma.notification.findFirst({
-        where: { stationId, type: "STAFF_LIMIT", isRead: false },
+        where: { stationId, title: "Staff Limit Reached", isRead: false },
       });
       if (!exists) {
         await prisma.notification.create({
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
             stationId,
             title: "Staff Limit Reached",
             message: `You have reached your limit of ${allowedStaff} staff users. Upgrade your subscription to add more.`,
-            type: "STAFF_LIMIT",
+            priority: "HIGH",
           },
         });
       }
@@ -76,10 +77,11 @@ export async function GET(request: NextRequest) {
 
     for (const prog of nearRewardProgress) {
       if (prog.currentCount === prog.offer.targetCount - 1) {
+        const titleText = `Reward Near: ${prog.vehicle.vehicleNumber.toUpperCase()}`;
         const exists = await prisma.notification.findFirst({
           where: {
             stationId,
-            type: `REWARD_NEAR_${prog.vehicle.id}_${prog.offer.id}`,
+            title: titleText,
             isRead: false,
           },
         });
@@ -87,9 +89,9 @@ export async function GET(request: NextRequest) {
           await prisma.notification.create({
             data: {
               stationId,
-              title: "Vehicle Near Reward",
+              title: titleText,
               message: `Vehicle ${prog.vehicle.vehicleNumber.toUpperCase()} is at ${prog.currentCount}/${prog.offer.targetCount} stamps for "${prog.offer.name}". 1 more visit required!`,
-              type: `REWARD_NEAR_${prog.vehicle.id}_${prog.offer.id}`,
+              priority: "LOW",
             },
           });
         }
@@ -107,10 +109,11 @@ export async function GET(request: NextRequest) {
     });
 
     for (const prog of earnedProgress) {
+      const titleText = `Reward Eligible: ${prog.vehicle.vehicleNumber.toUpperCase()}`;
       const exists = await prisma.notification.findFirst({
         where: {
           stationId,
-          type: `REWARD_ELIGIBLE_${prog.vehicle.id}_${prog.offer.id}`,
+          title: titleText,
           isRead: false,
         },
       });
@@ -118,9 +121,9 @@ export async function GET(request: NextRequest) {
         await prisma.notification.create({
           data: {
             stationId,
-            title: "Customer Eligible for Reward",
+            title: titleText,
             message: `Vehicle ${prog.vehicle.vehicleNumber.toUpperCase()} has unlocked the reward: "${prog.offer.rewardDescription}". Redeem on next visit!`,
-            type: `REWARD_ELIGIBLE_${prog.vehicle.id}_${prog.offer.id}`,
+            priority: "HIGH",
           },
         });
       }
@@ -132,7 +135,7 @@ export async function GET(request: NextRequest) {
       const daysLeft = Math.ceil((new Date(sub.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
       if (daysLeft <= 7 && daysLeft > 0) {
         const exists = await prisma.notification.findFirst({
-          where: { stationId, type: "SUBSCRIPTION_EXPIRY", isRead: false },
+          where: { stationId, title: "Subscription Expiring Soon", isRead: false },
         });
         if (!exists) {
           await prisma.notification.create({
@@ -140,7 +143,7 @@ export async function GET(request: NextRequest) {
               stationId,
               title: "Subscription Expiring Soon",
               message: `Your WashDeck station subscription plan expires in ${daysLeft} days. Renew to avoid lockout.`,
-              type: "SUBSCRIPTION_EXPIRY",
+              priority: "CRITICAL",
             },
           });
         }
@@ -160,8 +163,9 @@ export async function GET(request: NextRequest) {
     });
 
     const now = new Date();
-    const dueThresholdDays = station?.dueForVisitThreshold ?? 30;
-    const lostThresholdDays = station?.lostCustomerThresholdDays ?? 60;
+    const prefs: any = station?.settings?.queueDisplayPreferencesJson || {};
+    const dueThresholdDays = Number(prefs?.dueForVisitThreshold) || 30;
+    const lostThresholdDays = Number(prefs?.lostCustomerThresholdDays) || 60;
     const dueVehiclesCount = vehicles.filter((v) => {
       if (v.jobCards.length === 0) return false;
       const lastVisitDate = new Date(v.jobCards[0].createdAt);
@@ -171,7 +175,7 @@ export async function GET(request: NextRequest) {
 
     if (dueVehiclesCount > 0) {
       const exists = await prisma.notification.findFirst({
-        where: { stationId, type: "VEHICLES_DUE_VISIT", isRead: false },
+        where: { stationId, title: "Vehicles Due For Detailing", isRead: false },
       });
       if (!exists) {
         await prisma.notification.create({
@@ -179,7 +183,7 @@ export async function GET(request: NextRequest) {
             stationId,
             title: "Vehicles Due For Detailing",
             message: `${dueVehiclesCount} regular vehicles are due for their next service visit.`,
-            type: "VEHICLES_DUE_VISIT",
+            priority: "LOW",
           },
         });
       }

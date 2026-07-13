@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
           action: "Offer Created",
           entityType: "Offer",
           entityId: createdOffer.id,
-          metadataJson: { name: createdOffer.name, type: createdOffer.type },
+          newValue: { name: createdOffer.name, type: createdOffer.type },
         },
       });
 

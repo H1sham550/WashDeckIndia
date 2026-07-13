@@ -27,6 +27,8 @@ const updateBrandingSchema = z.object({
   paymentReminderTemplate: z.string().nullable().optional(),
   dueForVisitReminderTemplate: z.string().nullable().optional(),
   rewardEligibleTemplate: z.string().nullable().optional(),
+  locale: z.string().optional(),
+  currency: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {

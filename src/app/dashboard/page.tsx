@@ -41,14 +41,14 @@ export default async function DashboardPage() {
       _sum: { finalAmount: true },
       where: {
         jobCard: { stationId },
-        paymentStatus: "PAID",
-        updatedAt: { gte: startOfDay },
+        status: "PAID",
+        createdAt: { gte: startOfDay },
       },
     }),
     prisma.invoice.findMany({
       where: {
         jobCard: { stationId, isDeleted: false },
-        paymentStatus: "PENDING",
+        status: "ISSUED",
       },
       select: { finalAmount: true },
     }),
@@ -79,12 +79,12 @@ export default async function DashboardPage() {
         vehicle: { select: { vehicleNumber: true } },
         customer: { select: { name: true } },
         services: { select: { serviceNameSnapshot: true, priceSnapshot: true } },
-        invoice: { select: { finalAmount: true, paymentStatus: true } },
+        invoice: { select: { finalAmount: true, status: true } },
       },
     }),
   ]);
 
-  const revenueToday = Number(paidInvoicesSum._sum.finalAmount || 0);
+  const revenueToday = Number(paidInvoicesSum._sum?.finalAmount || 0);
   const outstandingAmount = pendingInvoices.reduce(
     (sum, inv) => sum + Number(inv.finalAmount),
     0
@@ -327,7 +327,7 @@ export default async function DashboardPage() {
               ].map(({ href, label, icon: Icon, primary }) => (
                 <Link
                   key={href}
-                  href={href}
+                  href={href as any}
                   className={`flex items-center gap-2.5 px-3 py-2 rounded text-sm transition-colors ${
                     primary
                       ? "bg-blue-600 text-white hover:bg-blue-700 font-medium"
@@ -394,7 +394,7 @@ export default async function DashboardPage() {
                       {job.invoice && (
                         <span
                           className="text-xs font-medium"
-                          style={{ color: job.invoice.paymentStatus === "PAID" ? "hsl(var(--success))" : "hsl(var(--danger))" }}
+                          style={{ color: job.invoice.status === "PAID" ? "hsl(var(--success))" : "hsl(var(--danger))" }}
                         >
                           {formatCurrency(Number(job.invoice.finalAmount))}
                         </span>

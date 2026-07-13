@@ -98,7 +98,7 @@ export function CommandPalette({ stations = [] }: CommandPaletteProps) {
   const handleSelect = (href: string) => {
     setOpen(false);
     startTransition(() => {
-      router.push(href);
+      router.push(href as any);
     });
   };
 

@@ -39,7 +39,7 @@ export function QuickActionBar({ canManageStaff = false }: QuickActionBarProps) 
         </Link>
 
         <Link
-          href="/dashboard/reports"
+          href={"/dashboard/reports" as any}
           className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors active-tap"
         >
           <FileSpreadsheet size={14} className="text-slate-500" />

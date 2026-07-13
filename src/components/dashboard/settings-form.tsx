@@ -18,7 +18,8 @@ import {
   Clock,
   Calendar,
   AlertTriangle,
-  Gift
+  Gift,
+  Globe
 } from "lucide-react";
 
 type SettingsFormProps = {
@@ -42,12 +43,14 @@ type SettingsFormProps = {
     paymentReminderTemplate: string;
     dueForVisitReminderTemplate: string;
     rewardEligibleTemplate: string;
+    locale?: string;
+    currency?: string;
   };
 };
 
 export function SettingsForm({ station }: SettingsFormProps) {
   const [formData, setFormData] = useState(station);
-  const [activeTab, setActiveTab] = useState<"branding" | "operations" | "communication">("branding");
+  const [activeTab, setActiveTab] = useState<"branding" | "operations" | "communication" | "localization">("branding");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -182,6 +185,20 @@ export function SettingsForm({ station }: SettingsFormProps) {
         >
           <MessageSquare size={16} style={{ color: activeTab === "communication" ? formData.primaryColor : undefined }} />
           WhatsApp Templates
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("localization")}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-lg transition-all ${
+            activeTab === "localization"
+              ? "bg-white shadow-sm text-slate-800 border-b-2"
+              : "text-slate-500 hover:text-slate-800 hover:bg-white/40"
+          }`}
+          style={activeTab === "localization" ? { borderBottomColor: formData.primaryColor } : {}}
+        >
+          <Globe size={16} style={{ color: activeTab === "localization" ? formData.primaryColor : undefined }} />
+          Localization & i18n
         </button>
       </div>
 
@@ -575,6 +592,72 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     className="w-full border rounded-md px-3 py-2 text-sm outline-none focus:border-[var(--primary-color)] font-mono text-xs bg-slate-50/50"
                   />
                   <p className="text-[10px] text-slate-400">Sent when a vehicle completes stamps requirements and unlocks a loyalty reward discount.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LOCALIZATION & i18n TAB */}
+        {activeTab === "localization" && (
+          <div className="space-y-6">
+            <div className="bg-white border rounded-xl p-6 shadow-sm space-y-6">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 border-b pb-3">
+                <Globe size={20} style={{ color: formData.primaryColor }} />
+                Regional Localization & Language Settings
+              </h3>
+              <p className="text-xs text-slate-500">
+                Configure station language and number formatting. Selecting Arabic will automatically mirror all operator interfaces (sidebar, tables, queue boards, and invoices) to Right-To-Left (RTL) layout.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Default Station Language
+                  </label>
+                  <select
+                    value={formData.locale || "en-SA"}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, locale: e.target.value }))}
+                    className="w-full border rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-800 bg-slate-50/70 outline-none focus:border-[var(--primary-color)] transition"
+                  >
+                    <option value="en-SA">English (en-SA) — LTR</option>
+                    <option value="ar-SA">العربية (ar-SA) — RTL (Auto-mirroring)</option>
+                    <option value="en-AE">English (en-AE) — LTR</option>
+                    <option value="ar-AE">العربية (ar-AE) — RTL (Auto-mirroring)</option>
+                  </select>
+                  <p className="text-[11px] text-slate-400">
+                    Determines UI language dictionaries, booking intake forms, and automated PDF invoice headers.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Base Currency Code
+                  </label>
+                  <select
+                    value={formData.currency || "SAR"}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, currency: e.target.value }))}
+                    className="w-full border rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-800 bg-slate-50/70 outline-none focus:border-[var(--primary-color)] transition"
+                  >
+                    <option value="SAR">Saudi Riyal (SAR / ر.س)</option>
+                    <option value="AED">UAE Dirham (AED / د.إ)</option>
+                    <option value="BHD">Bahraini Dinar (BHD)</option>
+                    <option value="INR">Indian Rupee (INR / ₹)</option>
+                    <option value="USD">US Dollar (USD / $)</option>
+                  </select>
+                  <p className="text-[11px] text-slate-400">
+                    Formatted dynamically via native Intl currency standards across POS checkouts and financial reports.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50/60 border border-blue-200/80 rounded-xl p-4 flex items-start gap-3 mt-4">
+                <Globe size={18} className="text-blue-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-blue-900 space-y-1">
+                  <p className="font-bold">Enterprise i18n Architecture Status: LTR / RTL Active</p>
+                  <p className="text-blue-700">
+                    Static translation dictionaries (`/src/locales/en` and `/src/locales/ar`) ensure zero-latency renders with no runtime AI translation dependencies.
+                  </p>
                 </div>
               </div>
             </div>

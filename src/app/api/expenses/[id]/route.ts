@@ -55,7 +55,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         action: "FINANCE_EXPENSE_UPDATED",
         entityType: "Expense",
         entityId: expense.id,
-        metadataJson: { 
+        newValue: { 
           title: expense.title, 
           category: expense.category, 
           amount: Number(expense.amount),
@@ -101,7 +101,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         action: "FINANCE_EXPENSE_DELETED",
         entityType: "Expense",
         entityId: id,
-        metadataJson: { title: existing.title, category: existing.category, amount: Number(existing.amount) },
+        newValue: { title: existing.title, category: existing.category, amount: Number(existing.amount) },
       },
     });
 

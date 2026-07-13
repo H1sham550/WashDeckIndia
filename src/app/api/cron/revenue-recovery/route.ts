@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getRecoveryDashboardData } from "@/services/recovery-service";
-import { StationStatus, SubscriptionStatus } from "@prisma/client";
+import { StationStatus } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       include: {
         stationSubscriptions: {
           where: {
-            status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.GRACE] },
+            status: { in: ["ACTIVE", "GRACE"] },
           },
         },
       },
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       if (expiredSubIds.length > 0) {
         await prisma.stationSubscription.updateMany({
           where: { id: { in: expiredSubIds } },
-          data: { status: SubscriptionStatus.EXPIRED },
+          data: { status: "EXPIRED" },
         });
         console.log(`[Cron] Station "${station.name}" expired subscriptions:`, expiredSubIds);
       }

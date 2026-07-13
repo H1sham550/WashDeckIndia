@@ -42,10 +42,10 @@ export async function POST(
     // 4. Create impersonation session cookie
     await createSession({
       id: owner.id,
-      stationId: owner.stationId,
+      stationId: owner.stationId || "",
       role: owner.role,
       name: owner.name,
-      email: owner.email,
+      email: owner.email || "",
       impersonatorId: session.id, // Store the admin's ID for switching back
     });
 

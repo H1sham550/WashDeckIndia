@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -12,6 +12,7 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { delta } = await req.json();
     const numDelta = Number(delta);
     if (isNaN(numDelta)) {
@@ -20,7 +21,7 @@ export async function PUT(
 
     // Fetch existing quantity
     const existing = await prisma.inventoryItem.findFirst({
-      where: { id: params.id, stationId: session.stationId },
+      where: { id, stationId: session.stationId },
     });
 
     if (!existing) {

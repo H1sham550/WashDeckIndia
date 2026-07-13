@@ -9,11 +9,15 @@ import {
   BarChart3,
   CreditCard,
   ArrowRight,
+  Store,
+  Activity,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrencyCompact, formatRelativeTime } from "@/lib/currency";
+import { formatCurrencyCompact, formatRelativeTime, formatDateTime } from "@/lib/currency";
+import { StatusBadge } from "@/components/ui/badge";
 
 export default async function AdminPage() {
   // 1. Enforce SUPER_ADMIN validation
@@ -44,14 +48,24 @@ export default async function AdminPage() {
   });
 
   // 4. Fetch the global audit logs
-  const auditLogs = await prisma.auditLog.findMany({
+  const rawAuditLogs = await prisma.auditLog.findMany({
     take: 5,
     orderBy: { createdAt: "desc" },
-    include: {
-      station: { select: { name: true } },
-      actor: { select: { name: true, role: true } },
-    },
   });
+
+  const actorIds = Array.from(new Set(rawAuditLogs.map(l => l.actorUserId).filter(Boolean) as string[]));
+  const stationIds = Array.from(new Set(rawAuditLogs.map(l => l.stationId).filter(Boolean) as string[]));
+
+  const [actors, logStations] = await Promise.all([
+    actorIds.length > 0 ? prisma.user.findMany({ where: { id: { in: actorIds } }, select: { id: true, name: true, role: true } }) : [],
+    stationIds.length > 0 ? prisma.station.findMany({ where: { id: { in: stationIds } }, select: { id: true, name: true } }) : [],
+  ]);
+
+  const auditLogs = rawAuditLogs.map(l => ({
+    ...l,
+    actor: actors.find(a => a.id === l.actorUserId) || null,
+    station: logStations.find(s => s.id === l.stationId) || null,
+  }));
 
   // 5. Calculate platform-wide metrics
   const activeStations = stations.filter((s) => s.status === "ACTIVE").length;
@@ -59,6 +73,10 @@ export default async function AdminPage() {
   const suspendedStations = stations.filter((s) => s.status === "SUSPENDED").length;
 
   const totalJobsCount = await prisma.jobCard.count({
+    where: { isDeleted: false },
+  });
+
+  const totalUsersCount = await prisma.user.count({
     where: { isDeleted: false },
   });
 
@@ -72,166 +90,275 @@ export default async function AdminPage() {
     if (!activeSub) return false;
     const endDate = new Date(activeSub.endDate);
     return endDate >= now && endDate <= thirtyDaysFromNow;
-  }).length;
-
-  // MRR: sum of plan prices for ACTIVE stations
-  let mrr = 0;
-  for (const station of stations) {
-    if (station.status === "ACTIVE") {
-      const activeSub = station.stationSubscriptions.find(
-        (sub) => sub.status === "ACTIVE"
-      );
-      if (activeSub) {
-        mrr += Number(activeSub.subscription?.price ?? 0);
-      }
-    }
-  }
-
-  // Current date string
-  const today = new Date().toLocaleDateString("en-IN", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "Asia/Kolkata",
   });
 
-  void plans; // plans fetched for completeness, used in metrics
-
   return (
-    <div className="px-4 sm:px-6 py-6 space-y-6 max-w-6xl mx-auto">
-      {/* ── Page Header ─────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-          Platform Overview
-        </h1>
-        <p className="text-xs text-slate-400 font-medium mt-0.5">{today}</p>
+    <div className="px-4 sm:px-6 py-6 space-y-6 max-w-7xl mx-auto">
+      {/* ── Page Header ────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Platform Overview
+          </h1>
+          <p className="text-xs font-medium text-slate-500 mt-0.5">
+            Super Admin command center · {activeStations} active stations
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href={"/admin/stations/new" as any}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm shadow-slate-900/10"
+          >
+            + Create Station
+          </Link>
+        </div>
       </div>
 
-      {/* ── 6-Metric Grid ───────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {/* Active Stations */}
-        <MetricCard
-          label="Active Stations"
-          value={activeStations.toString()}
-          icon={Building2}
-          color="green"
-          sub={`of ${stations.length} total`}
+      {/* ── KPI Cards ──────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <KpiCard
+          label="Total Stations"
+          value={stations.length}
+          subtext={`${activeStations} active · ${trialStations} trial`}
+          icon={Store}
+          accent="teal"
         />
-        {/* MRR */}
-        <MetricCard
-          label="MRR"
-          value={formatCurrencyCompact(mrr, "INR")}
-          icon={TrendingUp}
-          color="teal"
-          sub="monthly recurring"
+        <KpiCard
+          label="Active Users"
+          value={totalUsersCount}
+          subtext="Station owners & staff"
+          icon={Users}
+          accent="emerald"
         />
-        {/* Active Trials */}
-        <MetricCard
-          label="Active Trials"
-          value={trialStations.toString()}
-          icon={Sparkles}
-          color="blue"
-          sub="in trial period"
+        <KpiCard
+          label="Job Cards Handled"
+          value={totalJobsCount}
+          subtext="All time across all stations"
+          icon={Activity}
+          accent="violet"
         />
-        {/* Pending Renewals */}
-        <MetricCard
-          label="Pending Renewals"
-          value={pendingRenewals.toString()}
-          icon={Clock}
-          color="amber"
-          sub="expiring in 30d"
-        />
-        {/* Suspended */}
-        <MetricCard
-          label="Suspended"
-          value={suspendedStations.toString()}
-          icon={XCircle}
-          color="red"
-          sub="access restricted"
-        />
-        {/* Total Jobs */}
-        <MetricCard
-          label="Total Jobs"
-          value={totalJobsCount.toLocaleString()}
-          icon={Car}
-          color="slate"
-          sub="platform-wide"
+        <KpiCard
+          label="Subscription Plans"
+          value={plans.length}
+          subtext="Available pricing tiers"
+          icon={CreditCard}
+          accent="amber"
         />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* ── Recent Audit Activity ──────────────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-slate-800">
-              Recent Activity
-            </h2>
+      {/* ── Main Layout: Stations + System Info ────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Stations Table Preview */}
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-slate-800">
+                Recent Stations
+              </h2>
+              <p className="text-[11px] font-medium text-slate-400 mt-0.5">
+                Latest station onboarding activity
+              </p>
+            </div>
             <Link
-              href="/admin/audit"
-              className="text-xs font-semibold text-wd-teal-700 hover:text-wd-teal-800 flex items-center gap-1"
+              href={"/admin/stations" as any}
+              className="text-xs font-bold text-wd-teal-700 hover:text-wd-teal-800 transition-colors"
             >
-              View all <ArrowRight size={12} />
+              View All →
             </Link>
           </div>
-          <div className="space-y-3">
-            {auditLogs.length === 0 && (
-              <p className="text-xs text-slate-400 py-4 text-center">
-                No activity yet
-              </p>
-            )}
-            {auditLogs.map((log) => (
-              <div
-                key={log.id}
-                className="flex items-start gap-3 py-2 border-b border-slate-50 last:border-0"
-              >
-                <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-[10px] font-black text-slate-500 uppercase">
-                  {(log.actor?.name ?? "SYS").slice(0, 2)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-slate-700 truncate">
-                    <span className="text-wd-teal-700">
-                      {log.actor?.name ?? "System"}
-                    </span>{" "}
-                    · {log.action}
-                  </p>
-                  <p className="text-[10px] text-slate-400 truncate">
-                    {log.station?.name ?? "Platform"} ·{" "}
-                    {log.entityType}
-                  </p>
-                </div>
-                <span className="text-[10px] text-slate-400 flex-shrink-0 mt-0.5">
-                  {formatRelativeTime(log.createdAt)}
-                </span>
+
+          <div className="overflow-x-auto flex-1">
+            {stations.length === 0 ? (
+              <div className="p-8 text-center text-xs font-medium text-slate-400">
+                No stations found. Create the first one above.
               </div>
-            ))}
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider bg-slate-50/50">
+                    <th className="py-3 px-4">Station</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Plan</th>
+                    <th className="py-3 px-4">Owner</th>
+                    <th className="py-3 px-4">Created</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs">
+                  {stations.slice(0, 8).map((station) => {
+                    const activeSub =
+                      station.stationSubscriptions.find(
+                        (sub) => sub.status === "ACTIVE"
+                      ) ?? station.stationSubscriptions[0];
+                    const owner = station.users[0];
+
+                    return (
+                      <tr
+                        key={station.id}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="py-3 px-4">
+                          <Link
+                            href={(`/admin/stations/${station.id}`) as any}
+                            className="font-bold text-slate-800 hover:text-wd-teal-700 transition-colors"
+                          >
+                            {station.name}
+                          </Link>
+                          <p className="text-[10px] font-semibold text-slate-400">
+                            @{station.slug}
+                          </p>
+                        </td>
+                        <td className="py-3 px-4">
+                          <StatusBadge status={station.status} size="xs" />
+                        </td>
+                        <td className="py-3 px-4 font-semibold text-slate-700">
+                          {activeSub?.subscription?.name ?? "Trial"}
+                        </td>
+                        <td className="py-3 px-4">
+                          {owner ? (
+                            <div>
+                              <p className="font-semibold text-slate-700">
+                                {owner.name}
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {owner.email}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-slate-400 italic">
+                              No owner assigned
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-slate-400 text-[11px]">
+                          {formatDateTime(station.createdAt)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
-        {/* ── Quick Links ────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <h2 className="text-sm font-bold text-slate-800 mb-4">
-            Quick Navigate
-          </h2>
-          <div className="space-y-2">
-            <QuickLink
-              href="/admin/customers"
-              icon={Users}
-              label="Customers"
-              sub="Manage all tenant stations"
-            />
-            <QuickLink
-              href="/admin/analytics"
-              icon={BarChart3}
-              label="Analytics"
-              sub="MRR, ARR, growth charts"
-            />
-            <QuickLink
-              href="/admin/payments"
-              icon={CreditCard}
-              label="Payments"
-              sub="Manual payment workflow"
-            />
+        {/* Right Col: Quick Status & Audit Logs */}
+        <div className="space-y-6">
+          {/* ── Pending Renewals Alert Box ──────────────────────── */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <h2 className="text-sm font-bold text-slate-800 mb-1 flex items-center gap-2">
+              <AlertTriangle size={16} className="text-amber-500" />
+              Pending Renewals ({pendingRenewals.length})
+            </h2>
+            <p className="text-[11px] font-medium text-slate-400 mb-3">
+              Stations expiring in the next 30 days
+            </p>
+            {pendingRenewals.length === 0 ? (
+              <p className="text-xs text-slate-400 italic py-2">
+                All subscriptions are up to date.
+              </p>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {pendingRenewals.map((station) => {
+                  const activeSub = station.stationSubscriptions.find(
+                    (sub) => sub.status === "ACTIVE"
+                  );
+                  return (
+                    <div
+                      key={station.id}
+                      className="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/50 border border-amber-100 text-xs"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-slate-800 truncate">
+                          {station.name}
+                        </p>
+                        <p className="text-[10px] font-semibold text-amber-700">
+                          Expires{" "}
+                          {activeSub?.endDate
+                            ? formatDateTime(activeSub.endDate)
+                            : "Soon"}
+                        </p>
+                      </div>
+                      <Link
+                        href={(`/admin/stations/${station.id}`) as any}
+                        className="text-[11px] font-bold text-slate-800 hover:text-amber-900 ml-2"
+                      >
+                        Manage →
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ── Global Audit Log Preview ─────────────────────────── */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <h2 className="text-sm font-bold text-slate-800 mb-1">
+              Recent System Activity
+            </h2>
+            <p className="text-[11px] font-medium text-slate-400 mb-3">
+              Latest actions across stations
+            </p>
+
+            <div className="space-y-3">
+              {auditLogs.length === 0 && (
+                <p className="text-xs text-slate-400 italic py-2">
+                  No activity yet
+                </p>
+              )}
+              {auditLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="flex items-start gap-3 py-2 border-b border-slate-50 last:border-0"
+                >
+                  <div className="h-7 w-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-[10px] font-black text-slate-500 uppercase">
+                    {(log.actor?.name ?? "SYS").slice(0, 2)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-slate-700 truncate">
+                      <span className="text-wd-teal-700">
+                        {log.actor?.name ?? "System"}
+                      </span>{" "}
+                      · {log.action}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">
+                      {log.station?.name ?? "Platform"} ·{" "}
+                      {log.entityType}
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-slate-400 flex-shrink-0 mt-0.5">
+                    {formatRelativeTime(log.createdAt)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Quick Links ────────────────────────────────────────── */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <h2 className="text-sm font-bold text-slate-800 mb-4">
+              Quick Navigate
+            </h2>
+            <div className="space-y-2">
+              <QuickLink
+                href="/admin/customers"
+                icon={Users}
+                label="Customers"
+                sub="Manage all tenant stations"
+              />
+              <QuickLink
+                href="/admin/analytics"
+                icon={BarChart3}
+                label="Analytics"
+                sub="MRR, ARR, growth charts"
+              />
+              <QuickLink
+                href="/admin/payments"
+                icon={CreditCard}
+                label="Payments"
+                sub="Manual payment workflow"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -307,13 +434,43 @@ function MetricCard({
   );
 }
 
+function KpiCard({
+  label,
+  value,
+  subtext,
+  icon,
+  accent,
+}: {
+  label: string;
+  value: number | string;
+  subtext: string;
+  icon: LucideIcon;
+  accent: string;
+}) {
+  const colorMap: Record<string, MetricColor> = {
+    violet: "blue",
+    emerald: "green",
+    teal: "teal",
+    amber: "amber",
+  };
+  return (
+    <MetricCard
+      label={label}
+      value={value.toString()}
+      icon={icon}
+      color={colorMap[accent] || "slate"}
+      sub={subtext}
+    />
+  );
+}
+
 function QuickLink({
   href,
   icon: Icon,
   label,
   sub,
 }: {
-  href: string;
+  href: any;
   icon: LucideIcon;
   label: string;
   sub: string;

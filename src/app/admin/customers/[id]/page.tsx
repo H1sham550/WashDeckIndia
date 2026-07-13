@@ -71,14 +71,27 @@ export default async function CustomerDetailPage({
   const { label: expiryLabel, colorClass: expiryColor } = getDaysRemainingLabel(remDays);
 
   // Fetch audit history scoped to this station
-  const auditLogs = await prisma.auditLog.findMany({
+  const rawAuditLogs = await prisma.auditLog.findMany({
     where: { stationId: id },
     orderBy: { createdAt: "desc" },
     take: 20,
-    include: {
-      actor: { select: { name: true, role: true } },
-    },
   });
+
+  const actorIds = Array.from(
+    new Set(rawAuditLogs.map((l) => l.actorUserId).filter(Boolean) as string[])
+  );
+  const actors =
+    actorIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: actorIds } },
+          select: { id: true, name: true, role: true },
+        })
+      : [];
+
+  const auditLogs = rawAuditLogs.map((l) => ({
+    ...l,
+    actor: actors.find((a) => a.id === l.actorUserId) || null,
+  }));
 
   // Calculate some basic customer metrics
   const totalJobsCount = await prisma.jobCard.count({
@@ -87,11 +100,12 @@ export default async function CustomerDetailPage({
 
   const totalRevenueResult = await prisma.invoice.aggregate({
     where: {
-      jobCard: { stationId: id },
-      paymentStatus: "PAID",
+      stationId: id,
+      status: "PAID",
     },
     _sum: { finalAmount: true },
   });
+  const totalRevenue = Number(totalRevenueResult._sum.finalAmount ?? 0);
   return (
     <div className="px-4 sm:px-6 py-6 max-w-7xl mx-auto">
       <Customer360View

@@ -67,7 +67,7 @@ export default async function SubscriptionsPage() {
                 <div className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50">
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-black text-slate-900 tracking-tight">
-                      {formatCurrency(plan.price, "INR")}
+                      {formatCurrency(Number(plan.price), "INR")}
                     </span>
                     <span className="text-xs font-bold text-slate-400">/{plan.durationDays} days</span>
                   </div>

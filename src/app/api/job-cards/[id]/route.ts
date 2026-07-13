@@ -81,24 +81,26 @@ export async function GET(
       return NextResponse.json({ ok: false, error: "Job card not found." }, { status: 404 });
     }
 
-    const timeline = await prisma.auditLog.findMany({
+    const rawTimeline = await prisma.auditLog.findMany({
       where: {
         entityType: "JobCard",
         entityId: id,
-      },
-      include: {
-        actor: {
-          select: {
-            id: true,
-            name: true,
-            role: true,
-          },
-        },
       },
       orderBy: {
         createdAt: "asc",
       },
     });
+
+    const actorIds = Array.from(new Set(rawTimeline.map(t => t.actorUserId).filter(Boolean) as string[]));
+    const actors = await prisma.user.findMany({
+      where: { id: { in: actorIds } },
+      select: { id: true, name: true, role: true },
+    });
+
+    const timeline = rawTimeline.map(t => ({
+      ...t,
+      actor: actors.find(a => a.id === t.actorUserId) || null,
+    }));
 
     return NextResponse.json({ ok: true, jobCard, timeline });
   } catch (error: any) {

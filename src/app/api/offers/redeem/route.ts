@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
           action: "Loyalty Reward Redeemed",
           entityType: "VehicleOfferProgress",
           entityId: progressId,
-          metadataJson: {
+          newValue: {
             vehicleNumber: progress.vehicle.vehicleNumber,
             offerName: progress.offer.name,
           },
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
           stationId: stationId,
           title: "Loyalty Reward Redeemed",
           message: `Reward "${progress.offer.rewardDescription}" redeemed for vehicle ${progress.vehicle.vehicleNumber}.`,
-          type: "REWARD_REDEEMED",
+          priority: "MEDIUM",
         },
       });
     });

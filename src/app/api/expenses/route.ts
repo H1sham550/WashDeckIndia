@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         action: "FINANCE_EXPENSE_CREATED",
         entityType: "Expense",
         entityId: expense.id,
-        metadataJson: { title: expense.title, category: expense.category, amount: Number(expense.amount) },
+        newValue: { title: expense.title, category: expense.category, amount: Number(expense.amount) },
       },
     });
 

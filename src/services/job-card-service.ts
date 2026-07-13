@@ -18,23 +18,19 @@ export async function createJobCard(
   creatorId: string,
   payload: CreateJobCardPayload
 ) {
-  // Check subscription status guard
   await checkStationStatus(stationId);
 
-  // 1. Fetch vehicle and verify station bounds
   const vehicle = await vehicleRepository.getVehicleById(payload.vehicleId);
   if (!vehicle || vehicle.stationId !== stationId) {
     throw new Error("Vehicle not found or unauthorized.");
   }
 
-  // 2. Determine primary customer
   const primaryContact = vehicle.contacts.find((c) => c.isPrimary) || vehicle.contacts[0];
   if (!primaryContact) {
     throw new Error("Vehicle is not linked to any customer contact.");
   }
   const customerId = primaryContact.customerId;
 
-  // 3. Resolve service pricing snapshots for the vehicle's type
   const services = await prisma.service.findMany({
     where: {
       id: { in: payload.serviceIds },
@@ -64,7 +60,6 @@ export async function createJobCard(
     };
   });
 
-  // 4. Create Job Card in database
   const jobCard = await jobCardRepository.createJobCard({
     stationId,
     vehicleId: vehicle.id,
@@ -76,7 +71,6 @@ export async function createJobCard(
     beforePhotos: payload.beforePhotos,
   });
 
-  // 5. Log audit trail
   await prisma.auditLog.create({
     data: {
       actorUserId: creatorId,
@@ -84,7 +78,7 @@ export async function createJobCard(
       action: "Job Created",
       entityType: "JobCard",
       entityId: jobCard.id,
-      metadataJson: { vehicleNumber: vehicle.vehicleNumber },
+      newValue: { vehicleNumber: vehicle.vehicleNumber },
     },
   });
 
@@ -106,7 +100,6 @@ export async function updateStatus(
   status: JobStatus,
   cancellationData?: { reason: string; notes?: string }
 ) {
-  // Check subscription status guard
   await checkStationStatus(stationId);
 
   const job = await jobCardRepository.getJobCardById(id);
@@ -120,7 +113,6 @@ export async function updateStatus(
 
   const updatedJob = await jobCardRepository.updateJobCardStatus(id, status, cancellationData);
 
-  // Log audit trail
   await prisma.auditLog.create({
     data: {
       actorUserId: userId,
@@ -140,7 +132,6 @@ export async function getOperationsBoardData(stationId: string) {
     jobCardRepository.getDeliveredJobCardsByStationToday(stationId),
   ]);
 
-  // Group by Kanban columns
   return {
     RECEIVED: activeJobs.filter((j) => j.status === "RECEIVED"),
     IN_PROGRESS: activeJobs.filter((j) => j.status === "IN_PROGRESS"),

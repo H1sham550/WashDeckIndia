@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, StationStatus, VehicleType, JobStatus, PaymentStatus, PaymentMethod, OfferType } from "@prisma/client";
+import { PrismaClient, UserRole, StationStatus, BookingStatus, PaymentMethod, PaymentStatus, JobStatus, InvoiceStatus, NotificationPriority } from "@prisma/client";
 import { scryptSync, randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
@@ -11,519 +11,549 @@ function hashPassword(password) {
 
 async function main() {
   console.log("Cleaning up database...");
+  await prisma.payment.deleteMany();
+  await prisma.invoice.deleteMany();
   await prisma.jobCardService.deleteMany();
   await prisma.jobPhoto.deleteMany();
   await prisma.inspection.deleteMany();
-  await prisma.invoice.deleteMany();
   await prisma.serviceReport.deleteMany();
   await prisma.jobCard.deleteMany();
-  await prisma.vehicleOfferProgress.deleteMany();
-  await prisma.offerVehicle.deleteMany();
-  await prisma.offer.deleteMany();
-  await prisma.vehicleContact.deleteMany();
-  await prisma.vehicleNote.deleteMany();
+  await prisma.booking.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.auditLog.deleteMany();
   await prisma.vehicle.deleteMany();
   await prisma.customer.deleteMany();
-  await prisma.servicePrice.deleteMany();
-  await prisma.serviceTemplateItem.deleteMany();
-  await prisma.serviceTemplate.deleteMany();
   await prisma.service.deleteMany();
-  await prisma.stationSubscription.deleteMany();
-  await prisma.subscriptionPlan.deleteMany();
-  await prisma.planFeature.deleteMany();
-  await prisma.stationFeatureOverride.deleteMany();
-  await prisma.subscriptionAuditLog.deleteMany();
-  await prisma.expense.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.otpToken.deleteMany();
-  await prisma.auditLog.deleteMany();
+  await prisma.stationBranding.deleteMany();
+  await prisma.stationSettings.deleteMany();
   await prisma.user.deleteMany();
   await prisma.station.deleteMany();
+  await prisma.region.deleteMany();
+  await prisma.country.deleteMany();
+  await prisma.businessTemplate.deleteMany();
+  await prisma.organization.deleteMany();
+  await prisma.subscriptionPlan.deleteMany();
 
-  console.log("Seeding database...");
+  console.log("Seeding Database...");
   const defaultPasswordHash = hashPassword("WashDeck123");
 
-  // Seeding Subscription Plans
-  console.log("Seeding Subscription Plans...");
+  // 1. Subscription Plans
+  console.log("Creating Subscription Plans...");
   const plans = [
     {
-      name: "Trial",
-      description: "14-day free trial to test WashDeck's core features",
-      price: 0,
-      durationDays: 14,
+      name: "Starter",
+      description: "Ideal for growing detailing studios and quick wash centers",
+      price: 499.00,
+      durationDays: 30,
       trialDays: 14,
       staffLimit: 3,
-      reportLimit: 30,
-      isRecommended: false,
-      isActive: true,
-      features: ["LOYALTY_PROGRAMS", "SERVICE_REPORTS", "WHATSAPP_SHARING", "PHOTO_DOCUMENTATION"]
-    },
-    {
-      name: "Starter",
-      description: "Perfect for small single-owner car washes",
-      price: 999,
-      durationDays: 30,
-      trialDays: 0,
-      staffLimit: 1,
       reportLimit: 50,
       isRecommended: false,
-      isActive: true,
-      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING"]
-    },
-    {
-      name: "Growth",
-      description: "For growing car washes with multiple staff members",
-      price: 2999,
-      durationDays: 30,
-      trialDays: 0,
-      staffLimit: 5,
-      reportLimit: 200,
-      isRecommended: true,
-      isActive: true,
-      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING", "LOYALTY_PROGRAMS", "PHOTO_DOCUMENTATION", "STAFF_MANAGEMENT", "CUSTOM_BRANDING"]
+      isActive: true
     },
     {
       name: "Professional",
-      description: "For high-volume washes requiring advanced analytics and tools",
-      price: 5999,
+      description: "Advanced enterprise workflows, custom branding & high volume processing",
+      price: 1499.00,
       durationDays: 30,
-      trialDays: 0,
-      staffLimit: 20,
-      reportLimit: 1000,
-      isRecommended: false,
-      isActive: true,
-      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING", "LOYALTY_PROGRAMS", "PHOTO_DOCUMENTATION", "STAFF_MANAGEMENT", "CUSTOM_BRANDING", "ANALYTICS", "REVENUE_RECOVERY"]
+      trialDays: 14,
+      staffLimit: 10,
+      reportLimit: 500,
+      isRecommended: true,
+      isActive: true
     },
     {
       name: "Enterprise",
-      description: "Unlimited capacity and premium custom integrations",
-      price: 14999,
+      description: "Multi-branch capabilities, dedicated SLA & white-label portals",
+      price: 3999.00,
       durationDays: 30,
-      trialDays: 0,
-      staffLimit: 9999,
-      reportLimit: 99999,
+      trialDays: 30,
+      staffLimit: 50,
+      reportLimit: 5000,
       isRecommended: false,
-      isActive: true,
-      features: ["SERVICE_REPORTS", "WHATSAPP_SHARING", "LOYALTY_PROGRAMS", "PHOTO_DOCUMENTATION", "STAFF_MANAGEMENT", "CUSTOM_BRANDING", "ANALYTICS", "REVENUE_RECOVERY", "MULTI_BRANCH", "API_ACCESS"]
+      isActive: true
     }
   ];
 
-  const dbPlans = {};
-  for (const p of plans) {
-    const plan = await prisma.subscriptionPlan.create({
-      data: {
-        name: p.name,
-        description: p.description,
-        price: p.price,
-        durationDays: p.durationDays,
-        trialDays: p.trialDays,
-        staffLimit: p.staffLimit,
-        reportLimit: p.reportLimit,
-        isRecommended: p.isRecommended,
-        isActive: p.isActive,
+  for (const plan of plans) {
+    await prisma.subscriptionPlan.create({ data: plan });
+  }
+
+  // 2. Countries & Regions
+  console.log("Creating Countries & Regions (Saudi Arabia, India, UAE)...");
+  const saudiArabia = await prisma.country.create({
+    data: {
+      code: "SA",
+      name: "Saudi Arabia",
+      currencyCode: "SAR",
+      currencyFormat: "ar-SA",
+      phonePrefix: "+966",
+      defaultLocale: "ar-SA",
+      supportedLocales: ["en-SA", "ar-SA"],
+      isRTL: true,
+      dateFormat: "YYYY-MM-DD",
+      timeFormat: "24h",
+      decimalSeparator: ".",
+      thousandsSeparator: ",",
+      measurementSystem: "metric",
+      currencySymbolPosition: "right",
+      firstDayOfWeek: 0,
+      weekendDays: [5, 6],
+      regions: {
+        create: [
+          { name: "Riyadh Province", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 },
+          { name: "Makkah Province (Jeddah)", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 },
+          { name: "Eastern Province (Dammam)", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 }
+        ]
       }
-    });
-    dbPlans[p.name.toUpperCase()] = plan;
+    },
+    include: { regions: true }
+  });
 
-    for (const fKey of p.features) {
-      await prisma.planFeature.create({
-        data: {
-          planId: plan.id,
-          featureKey: fKey,
-          enabled: true
+  const india = await prisma.country.create({
+    data: {
+      code: "IN",
+      name: "India",
+      currencyCode: "INR",
+      currencyFormat: "en-IN",
+      phonePrefix: "+91",
+      defaultLocale: "en-IN",
+      supportedLocales: ["en-IN"],
+      isRTL: false,
+      dateFormat: "DD/MM/YYYY",
+      timeFormat: "12h",
+      decimalSeparator: ".",
+      thousandsSeparator: ",",
+      measurementSystem: "metric",
+      currencySymbolPosition: "left",
+      firstDayOfWeek: 1,
+      weekendDays: [0],
+      regions: {
+        create: [
+          { name: "Kerala", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
+          { name: "Karnataka (Bangalore)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
+          { name: "Maharashtra (Mumbai)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 }
+        ]
+      }
+    },
+    include: { regions: true }
+  });
+
+  const uae = await prisma.country.create({
+    data: {
+      code: "AE",
+      name: "United Arab Emirates",
+      currencyCode: "AED",
+      currencyFormat: "en-AE",
+      phonePrefix: "+971",
+      defaultLocale: "en-AE",
+      supportedLocales: ["en-AE", "ar-AE"],
+      isRTL: false,
+      dateFormat: "DD/MM/YYYY",
+      timeFormat: "24h",
+      decimalSeparator: ".",
+      thousandsSeparator: ",",
+      measurementSystem: "metric",
+      currencySymbolPosition: "left",
+      firstDayOfWeek: 1,
+      weekendDays: [5, 6],
+      regions: {
+        create: [
+          { name: "Dubai", timezone: "Asia/Dubai", taxName: "VAT", taxRate: 5.00 },
+          { name: "Abu Dhabi", timezone: "Asia/Dubai", taxName: "VAT", taxRate: 5.00 }
+        ]
+      }
+    },
+    include: { regions: true }
+  });
+
+  // 3. Business Templates
+  console.log("Creating Business Templates...");
+  const detailingStudioTemplate = await prisma.businessTemplate.create({
+    data: {
+      name: "Premium Detailing Studio",
+      defaultServicesJson: [
+        { name: "Graphene 9H Ceramic Coating (5 Yr Warranty)", price: 2500, description: "Multi-layer extreme gloss and scratch protection" },
+        { name: "Paint Protection Film (PPF) - Full Body TPU", price: 8500, description: "Self-healing ultra-clear protective shield" },
+        { name: "Interior Deep Steam Sanitization & Leather Conditioning", price: 450, description: "Deep extraction and antimicrobial treatment" },
+        { name: "Stage 2 Dual Action Paint Correction & Polishing", price: 800, description: "Removes 85%+ swirl marks and oxidation" }
+      ],
+      defaultSettingsJson: {
+        autoJobNumberFormat: "DET-{YY}{MM}-{000}",
+        invoicePrefix: "DET-INV-",
+        bookingIntervalMinutes: 60,
+        photoRequirements: ["FRONT", "REAR", "LEFT", "RIGHT", "INTERIOR_DASH", "INTERIOR_SEATS"]
+      }
+    }
+  });
+
+  const expressWashTemplate = await prisma.businessTemplate.create({
+    data: {
+      name: "Express Auto Wash Center",
+      defaultServicesJson: [
+        { name: "Express Foam Exterior Wash + Tire Dressing", price: 45, description: "High-pressure touchless pre-wash and pH neutral foam" },
+        { name: "Full Body Wash + Interior Vacuum & Dashboard Wipe", price: 75, description: "Comprehensive inside-out cleaning" },
+        { name: "Underbody High-Pressure Degreasing", price: 30, description: "Removes road grime and salt buildup" }
+      ],
+      defaultSettingsJson: {
+        autoJobNumberFormat: "WSH-{YY}{MM}-{000}",
+        invoicePrefix: "WSH-INV-",
+        bookingIntervalMinutes: 30,
+        photoRequirements: ["FRONT", "REAR", "LEFT", "RIGHT"]
+      }
+    }
+  });
+
+  // 4. Organizations
+  console.log("Creating Enterprise Organization & Stations...");
+  const org = await prisma.organization.create({
+    data: {
+      name: "Al-Rajhi Premium Auto Group",
+      slug: "alrajhi-auto-group"
+    }
+  });
+
+  // Riyadh Flagship Studio (Saudi Arabia)
+  const riyadhRegion = saudiArabia.regions.find(r => r.name.includes("Riyadh"));
+  const stationRiyadh = await prisma.station.create({
+    data: {
+      organizationId: org.id,
+      countryId: saudiArabia.id,
+      regionId: riyadhRegion.id,
+      businessTemplateId: detailingStudioTemplate.id,
+      branchCode: "RYD001",
+      name: "Apex Luxury Detailing Studio - Riyadh",
+      slug: "apex-riyadh",
+      status: StationStatus.ACTIVE,
+      branding: {
+        create: {
+          squareLogoUrl: "/images/logo-square.png",
+          horizontalLogoUrl: "/images/logo-horizontal.png",
+          primaryColor: "#0F172A",
+          themeMode: "dark",
+          businessPhone: "+966 50 123 4567",
+          businessEmail: "riyadh@apexdetailing.sa",
+          businessAddress: "King Fahd Road, Olaya District, Riyadh 12211",
+          websiteUrl: "https://apexdetailing.sa"
         }
-      });
+      },
+      settings: {
+        create: {
+          autoJobNumberFormat: "RYD-{YY}{MM}-{000}",
+          invoicePrefix: "RYD-INV-",
+          bookingLeadTime: 120,
+          maxDailyBookings: 15,
+          businessHoursJson: {
+            mon: { open: "09:00", close: "21:00" },
+            tue: { open: "09:00", close: "21:00" },
+            wed: { open: "09:00", close: "21:00" },
+            thu: { open: "09:00", close: "21:00" },
+            sat: { open: "10:00", close: "22:00" },
+            sun: { open: "09:00", close: "21:00" }
+          },
+          workingDays: [0, 1, 2, 3, 4, 6],
+          photoRequirementsJson: ["FRONT", "REAR", "LEFT", "RIGHT", "INTERIOR_DASH", "ODOMETER"]
+        }
+      }
     }
-  }
-
-  // 1. Seed Station
-  const station = await prisma.station.upsert({
-    where: { slug: "sparkle-shine" },
-    update: {
-      vipSpendThreshold: 10000,
-      vipVisitThreshold: 5,
-      status: StationStatus.ACTIVE,
-    },
-    create: {
-      name: "Sparkle Shine Car Wash",
-      slug: "sparkle-shine",
-      email: "owner@example.com",
-      phone: "+910000000000",
-      primaryColor: "#0f766e",
-      upiId: "sparkle@upi",
-      status: StationStatus.ACTIVE,
-      vipSpendThreshold: 10000,
-      vipVisitThreshold: 5,
-    },
   });
 
-  // Seed active station subscription for Sparkle Shine (Enterprise Plan - Unlocks All Features)
-  const enterprisePlan = dbPlans["ENTERPRISE"];
-  const now = new Date();
-  const enterpriseEndDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
-  await prisma.stationSubscription.create({
+  // Kochi Express Wash (India)
+  const kochiRegion = india.regions.find(r => r.name.includes("Kerala"));
+  const stationKochi = await prisma.station.create({
     data: {
-      stationId: station.id,
-      subscriptionId: enterprisePlan.id,
-      startDate: now,
-      endDate: enterpriseEndDate,
-      status: "ACTIVE",
+      organizationId: org.id,
+      countryId: india.id,
+      regionId: kochiRegion.id,
+      businessTemplateId: expressWashTemplate.id,
+      branchCode: "KOC001",
+      name: "WashDeck Express - Kochi Marine Drive",
+      slug: "washdeck-kochi",
+      status: StationStatus.ACTIVE,
+      branding: {
+        create: {
+          primaryColor: "#2563EB",
+          themeMode: "light",
+          businessPhone: "+91 98460 12345",
+          businessEmail: "kochi@washdeck.in",
+          businessAddress: "Marine Drive Walkway, Ernakulam, Kochi 682031"
+        }
+      },
+      settings: {
+        create: {
+          autoJobNumberFormat: "KOC-{YY}{MM}-{000}",
+          invoicePrefix: "KOC-INV-"
+        }
+      }
     }
   });
 
-  // 2. Seed Users
-  const superAdmin = await prisma.user.upsert({
-    where: { email: "admin@washdeck.local" },
-    update: {
-      passwordHash: defaultPasswordHash,
-    },
-    create: {
-      name: "WashDeck Super Admin",
-      email: "admin@washdeck.local",
-      passwordHash: defaultPasswordHash,
+  // 5. Users
+  console.log("Creating Super Admin, Owners & Staff...");
+  // Super Admin
+  await prisma.user.create({
+    data: {
       role: UserRole.SUPER_ADMIN,
-    },
-  });
-
-  const owner = await prisma.user.upsert({
-    where: { email: "owner@example.com" },
-    update: {
+      name: "System Super Admin",
+      email: "admin@washdeck.com",
       passwordHash: defaultPasswordHash,
-    },
-    create: {
-      stationId: station.id,
-      name: "Station Owner",
-      email: "owner@example.com",
-      mobile: "+910000000000",
-      passwordHash: defaultPasswordHash,
-      role: UserRole.OWNER,
-    },
-  });
-
-  const staff = await prisma.user.upsert({
-    where: { email: "staff@example.com" },
-    update: {
-      passwordHash: defaultPasswordHash,
-    },
-    create: {
-      stationId: station.id,
-      name: "Front Desk Staff",
-      email: "staff@example.com",
-      mobile: "+910000000001",
-      passwordHash: defaultPasswordHash,
-      role: UserRole.STAFF,
-    },
-  });
-
-  // 3. Seed Services & Service Prices
-  const servicesData = [
-    {
-      name: "Foam Wash",
-      description: "Exterior foam wash with pressure wash and tire cleaning.",
-      prices: {
-        [VehicleType.BIKE]: 150,
-        [VehicleType.HATCHBACK]: 350,
-        [VehicleType.SEDAN]: 450,
-        [VehicleType.SUV]: 550,
-        [VehicleType.LUXURY]: 750,
-      },
-    },
-    {
-      name: "Interior Detailing",
-      description: "Deep vacuuming, dashboard polish, upholstery shampoo.",
-      prices: {
-        [VehicleType.BIKE]: 300,
-        [VehicleType.HATCHBACK]: 1200,
-        [VehicleType.SEDAN]: 1500,
-        [VehicleType.SUV]: 1800,
-        [VehicleType.LUXURY]: 2500,
-      },
-    },
-    {
-      name: "Ceramic Coating",
-      description: "Premium 9H ceramic coating with multi-year paint protection.",
-      prices: {
-        [VehicleType.BIKE]: 5000,
-        [VehicleType.HATCHBACK]: 15000,
-        [VehicleType.SEDAN]: 20000,
-        [VehicleType.SUV]: 25000,
-        [VehicleType.LUXURY]: 35000,
-      },
-    },
-    {
-      name: "Full Spa Wash",
-      description: "Foam wash, interior dressing, engine bay dressing, vacuuming.",
-      prices: {
-        [VehicleType.BIKE]: 500,
-        [VehicleType.HATCHBACK]: 800,
-        [VehicleType.SEDAN]: 1000,
-        [VehicleType.SUV]: 1200,
-        [VehicleType.LUXURY]: 1800,
-      },
-    },
-  ];
-
-  const dbServices = [];
-
-  for (const s of servicesData) {
-    const service = await prisma.service.create({
-      data: {
-        stationId: station.id,
-        name: s.name,
-        description: s.description,
-      },
-    });
-
-    dbServices.push(service);
-
-    for (const [vehicleType, price] of Object.entries(s.prices)) {
-      await prisma.servicePrice.create({
-        data: {
-          serviceId: service.id,
-          vehicleType: vehicleType,
-          price: price,
-        },
-      });
+      status: "ACTIVE"
     }
-  }
-
-  // 4. Seed Customers & Vehicles
-  const customer1 = await prisma.customer.create({
-    data: {
-      stationId: station.id,
-      name: "Amit Kumar",
-      mobile: "9876543210",
-      email: "amit@example.com",
-    },
   });
 
-  const vehicle1 = await prisma.vehicle.create({
+  // Riyadh Station Owner & Staff
+  const riyadhOwner = await prisma.user.create({
     data: {
-      stationId: station.id,
-      vehicleNumber: "KA03HA1234",
-      vehicleType: VehicleType.SUV,
-      brand: "Hyundai",
-      model: "Creta",
-      color: "White",
-    },
+      stationId: stationRiyadh.id,
+      role: UserRole.OWNER,
+      name: "Tariq Al-Mansoor",
+      email: "tariq@apexdetailing.sa",
+      passwordHash: defaultPasswordHash,
+      status: "ACTIVE"
+    }
   });
 
-  await prisma.vehicleContact.create({
+  const riyadhStaff = await prisma.user.create({
     data: {
-      vehicleId: vehicle1.id,
-      customerId: customer1.id,
-      isPrimary: true,
-    },
+      stationId: stationRiyadh.id,
+      role: UserRole.STAFF,
+      name: "Zayn Abbas",
+      username: "zayn_ryd",
+      passwordHash: defaultPasswordHash,
+      status: "ACTIVE"
+    }
   });
 
-  const customer2 = await prisma.customer.create({
+  // Kochi Station Owner & Staff
+  await prisma.user.create({
     data: {
-      stationId: station.id,
-      name: "Rahul Sharma",
-      mobile: "9876543211",
-      email: "rahul@example.com",
-    },
+      stationId: stationKochi.id,
+      role: UserRole.OWNER,
+      name: "Athul Krishna",
+      email: "athul@washdeck.in",
+      passwordHash: defaultPasswordHash,
+      status: "ACTIVE"
+    }
   });
 
-  const vehicle2 = await prisma.vehicle.create({
+  // 6. Services for Riyadh Station
+  console.log("Creating Services for Riyadh Station...");
+  const serviceCeramic = await prisma.service.create({
     data: {
-      stationId: station.id,
-      vehicleNumber: "DL01A5678",
-      vehicleType: VehicleType.SEDAN,
-      brand: "Honda",
-      model: "City",
-      color: "Silver",
-    },
+      stationId: stationRiyadh.id,
+      name: "Graphene 9H Ceramic Coating (5 Year Warranty)",
+      description: "Multi-layer extreme gloss shield with hydrophobic self-cleaning properties."
+    }
   });
 
-  await prisma.vehicleContact.create({
+  const serviceInterior = await prisma.service.create({
     data: {
-      vehicleId: vehicle2.id,
-      customerId: customer2.id,
-      isPrimary: true,
-    },
+      stationId: stationRiyadh.id,
+      name: "Interior Deep Steam Extraction & Antimicrobial Treatment",
+      description: "Complete cabin restoration, leather re-nourishment, and ozone odor elimination."
+    }
   });
 
-  const customer3 = await prisma.customer.create({
+  const serviceWash = await prisma.service.create({
     data: {
-      stationId: station.id,
-      name: "Sneha Patel",
-      mobile: "9876543212",
-      email: "sneha@example.com",
-    },
+      stationId: stationRiyadh.id,
+      name: "Presidential Exterior Wash & Paint Decontamination",
+      description: "pH neutral snow foam, clay bar treatment, and spray sealant application."
+    }
   });
 
-  const vehicle3 = await prisma.vehicle.create({
+  // 7. Customers & Vehicles for Riyadh
+  console.log("Creating Customers & Vehicles for Riyadh...");
+  const custFahad = await prisma.customer.create({
     data: {
-      stationId: station.id,
-      vehicleNumber: "MH12B9012",
-      vehicleType: VehicleType.LUXURY,
-      brand: "BMW",
-      model: "3 Series",
-      color: "Black",
-    },
+      stationId: stationRiyadh.id,
+      name: "Prince Fahad Bin Sultan",
+      mobile: "+966501112233"
+    }
   });
 
-  await prisma.vehicleContact.create({
+  const vehicleG63 = await prisma.vehicle.create({
     data: {
-      vehicleId: vehicle3.id,
-      customerId: customer3.id,
-      isPrimary: true,
-    },
+      stationId: stationRiyadh.id,
+      vehicleNumber: "KSA-9999-XYZ",
+      brand: "Mercedes-AMG",
+      model: "G63 Edition 1"
+    }
   });
 
-  // 5. Seed Job Cards, Inspections, Services, and Invoices
-
-  // Job Card 1: In Progress
-  const foamWashService = dbServices.find((s) => s.name === "Foam Wash");
-  const interiorService = dbServices.find((s) => s.name === "Interior Detailing");
-  const spaWashService = dbServices.find((s) => s.name === "Full Spa Wash");
-  const ceramicService = dbServices.find((s) => s.name === "Ceramic Coating");
-
-  const job1 = await prisma.jobCard.create({
+  const custOmar = await prisma.customer.create({
     data: {
-      stationId: station.id,
-      vehicleId: vehicle1.id,
-      customerId: customer1.id,
-      creatorId: staff.id,
-      status: JobStatus.IN_PROGRESS,
-      expectedCompletionTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
-    },
+      stationId: stationRiyadh.id,
+      name: "Dr. Omar Al-Ghamdi",
+      mobile: "+966554445566"
+    }
   });
 
-  await prisma.inspection.create({
+  const vehiclePorsche = await prisma.vehicle.create({
     data: {
-      jobCardId: job1.id,
-      notes: "Scratches on front left bumper. Rear windshield dirty.",
-    },
+      stationId: stationRiyadh.id,
+      vehicleNumber: "RYD-777-KSA",
+      brand: "Porsche",
+      model: "911 GT3 RS"
+    }
   });
 
-  await prisma.jobCardService.createMany({
-    data: [
-      {
-        jobCardId: job1.id,
-        serviceId: foamWashService.id,
-        serviceNameSnapshot: foamWashService.name,
-        priceSnapshot: 550, // SUV price
-      },
-      {
-        jobCardId: job1.id,
-        serviceId: interiorService.id,
-        serviceNameSnapshot: interiorService.name,
-        priceSnapshot: 1800, // SUV price
-      },
-    ],
-  });
-
-  // Job Card 2: Payment Pending
-  const job2 = await prisma.jobCard.create({
+  // 8. Sample Job Cards, Invoices & Payments
+  console.log("Creating Operational Job Cards & Invoices...");
+  const jobCard1 = await prisma.jobCard.create({
     data: {
-      stationId: station.id,
-      vehicleId: vehicle2.id,
-      customerId: customer2.id,
-      creatorId: staff.id,
-      status: JobStatus.PAYMENT_PENDING,
-    },
-  });
-
-  await prisma.inspection.create({
-    data: {
-      jobCardId: job2.id,
-      notes: "No body damages found. Interior neat.",
-    },
+      stationId: stationRiyadh.id,
+      vehicleId: vehicleG63.id,
+      customerId: custFahad.id,
+      creatorId: riyadhStaff.id,
+      status: JobStatus.IN_PROGRESS
+    }
   });
 
   await prisma.jobCardService.create({
     data: {
-      jobCardId: job2.id,
-      serviceId: spaWashService.id,
-      serviceNameSnapshot: spaWashService.name,
-      priceSnapshot: 1000, // Sedan price
-    },
+      jobCardId: jobCard1.id,
+      serviceId: serviceCeramic.id,
+      serviceNameSnapshot: serviceCeramic.name,
+      priceSnapshot: 3500.00
+    }
+  });
+
+  await prisma.jobCardService.create({
+    data: {
+      jobCardId: jobCard1.id,
+      serviceId: serviceInterior.id,
+      serviceNameSnapshot: serviceInterior.name,
+      priceSnapshot: 650.00
+    }
+  });
+
+  const invoice1 = await prisma.invoice.create({
+    data: {
+      stationId: stationRiyadh.id,
+      jobCardId: jobCard1.id,
+      invoiceNumber: "RYD-INV-1001",
+      subtotal: 4150.00,
+      discount: 150.00,
+      finalAmount: 4000.00,
+      status: InvoiceStatus.ISSUED
+    }
+  });
+
+  // Create partial payment
+  await prisma.payment.create({
+    data: {
+      invoiceId: invoice1.id,
+      amount: 2000.00,
+      method: PaymentMethod.CARD,
+      status: PaymentStatus.COMPLETED,
+      gatewayName: "Mada / Geidea POS",
+      transactionRef: "TXN_KSA_9988776655"
+    }
+  });
+
+  // Completed Job Card with full payment
+  const jobCard2 = await prisma.jobCard.create({
+    data: {
+      stationId: stationRiyadh.id,
+      vehicleId: vehiclePorsche.id,
+      customerId: custOmar.id,
+      creatorId: riyadhOwner.id,
+      status: JobStatus.SERVICE_COMPLETED
+    }
+  });
+
+  await prisma.jobCardService.create({
+    data: {
+      jobCardId: jobCard2.id,
+      serviceId: serviceWash.id,
+      serviceNameSnapshot: serviceWash.name,
+      priceSnapshot: 450.00
+    }
   });
 
   const invoice2 = await prisma.invoice.create({
     data: {
-      jobCardId: job2.id,
-      invoiceNumber: "INV-2026-0001",
-      subtotal: 1000,
-      discount: 100,
-      finalAmount: 900,
-      paymentStatus: PaymentStatus.PENDING,
-    },
+      stationId: stationRiyadh.id,
+      jobCardId: jobCard2.id,
+      invoiceNumber: "RYD-INV-1002",
+      subtotal: 450.00,
+      discount: 0.00,
+      finalAmount: 450.00,
+      status: InvoiceStatus.PAID
+    }
   });
 
-  // Job Card 3: Delivered (Completed & Paid)
-  const job3 = await prisma.jobCard.create({
+  await prisma.payment.create({
     data: {
-      stationId: station.id,
-      vehicleId: vehicle3.id,
-      customerId: customer3.id,
-      creatorId: staff.id,
-      status: JobStatus.DELIVERED,
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    },
+      invoiceId: invoice2.id,
+      amount: 450.00,
+      method: PaymentMethod.CARD,
+      status: PaymentStatus.COMPLETED,
+      gatewayName: "Apple Pay (Mada)",
+      transactionRef: "AP_KSA_11223344"
+    }
   });
 
-  await prisma.inspection.create({
+  // 9. Bookings
+  console.log("Creating Bookings...");
+  await prisma.booking.create({
     data: {
-      jobCardId: job3.id,
-      notes: "Full body clay treatment before coating. Perfect exterior condition.",
-    },
+      stationId: stationRiyadh.id,
+      customerName: "Khalid Al-Dosari",
+      mobile: "+966509988776",
+      vehicleNumber: "KSA-1234-ABC",
+      scheduledAt: new Date(Date.now() + 3600000 * 4), // 4 hours from now
+      status: BookingStatus.CONFIRMED
+    }
   });
 
-  await prisma.jobCardService.create({
+  await prisma.booking.create({
     data: {
-      jobCardId: job3.id,
-      serviceId: ceramicService.id,
-      serviceNameSnapshot: ceramicService.name,
-      priceSnapshot: 35000, // Luxury price
-    },
+      stationId: stationRiyadh.id,
+      customerName: "Nawaf Al-Mutairi",
+      mobile: "+966551122334",
+      vehicleNumber: "RYD-555-BMW",
+      scheduledAt: new Date(Date.now() + 3600000 * 24), // Tomorrow
+      status: BookingStatus.PENDING
+    }
   });
 
-  const invoice3 = await prisma.invoice.create({
+  // 10. Notifications
+  console.log("Creating Notifications...");
+  await prisma.notification.create({
     data: {
-      jobCardId: job3.id,
-      invoiceNumber: "INV-2026-0002",
-      subtotal: 35000,
-      discount: 2000,
-      finalAmount: 33000,
-      paymentStatus: PaymentStatus.PAID,
-      paymentMethod: PaymentMethod.UPI,
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    },
+      stationId: stationRiyadh.id,
+      title: "New VIP Customer Booking",
+      message: "Prince Fahad scheduled a Ceramic Coating checkup for next Thursday.",
+      priority: NotificationPriority.HIGH
+    }
   });
 
-  // 6. Seed Offers & Loyalty progress
-  const offer = await prisma.offer.create({
+  await prisma.notification.create({
     data: {
-      stationId: station.id,
-      name: "5th Wash Free",
-      description: "Get a complimentary spa wash after 4 paid spa washes.",
-      type: OfferType.ALL_VEHICLES,
-      targetCount: 4,
-      rewardDescription: "Free Full Spa Wash",
-    },
+      stationId: stationRiyadh.id,
+      title: "Invoice #RYD-INV-1001 Partially Paid",
+      message: "Received SAR 2,000 via Mada POS. Balance SAR 2,000 pending.",
+      priority: NotificationPriority.MEDIUM
+    }
   });
 
-  await prisma.vehicleOfferProgress.create({
-    data: {
-      vehicleId: vehicle1.id,
-      offerId: offer.id,
-      currentCount: 3, // Ready for next wash to unlock reward
-      rewardEarned: false,
-    },
-  });
-
-  console.log("Seeding complete!");
+  console.log("Database Seed Complete! 🚀");
+  console.log("=========================================");
+  console.log("Demo Credentials:");
+  console.log("Super Admin: admin@washdeck.com | WashDeck123");
+  console.log("Riyadh Owner: tariq@apexdetailing.sa | WashDeck123");
+  console.log("Riyadh Staff: (username) zayn_ryd | WashDeck123");
+  console.log("Kochi Owner: athul@washdeck.in | WashDeck123");
+  console.log("=========================================");
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
-    console.error(error);
-    await prisma.$disconnect();
+  .catch((e) => {
+    console.error(e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });

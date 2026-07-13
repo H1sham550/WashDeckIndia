@@ -19,6 +19,7 @@ import {
   Plus,
   Users,
   Eye,
+  Zap,
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
 
@@ -82,6 +83,7 @@ export function NewJobIntakeWizard({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
+  const [isZeroFrictionMode, setIsZeroFrictionMode] = useState(true);
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(preselectedVehicle ? 2 : 1);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(preselectedVehicle);
 
@@ -206,7 +208,9 @@ export function NewJobIntakeWizard({
       e.preventDefault();
       if (searchResults.length > 0) {
         setSelectedVehicle(searchResults[0]);
-        setStep(2);
+        if (!isZeroFrictionMode) {
+          setStep(2);
+        }
       } else if (searchQuery.trim().length >= 2) {
         setRegisterForm((prev) => ({
           ...prev,
@@ -384,8 +388,143 @@ export function NewJobIntakeWizard({
     });
   }
 
+  async function handleInstantCreateJob(serviceIdsToUse?: string[]) {
+    setError("");
+    const ids = serviceIdsToUse || selectedServiceIds;
+    if (!selectedVehicle) {
+      setError("Please select a vehicle first.");
+      return;
+    }
+    if (ids.length === 0) {
+      setError("Please select at least one service to instantly launch the job card.");
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/job-cards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vehicleId: selectedVehicle.id,
+            serviceIds: ids,
+            inspectionNotes: inspectionNotes.trim() || undefined,
+            expectedCompletionTime: new Date(etaTime).toISOString(),
+            beforePhotos: [],
+          }),
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.ok) {
+          throw new Error(result.error || "Failed to create job card.");
+        }
+
+        router.push(`/dashboard/jobs/${result.jobCard.id}`);
+        router.refresh();
+      } catch (err: any) {
+        setError(err.message || "Could not launch zero-friction job card.");
+      }
+    });
+  }
+
+  async function handleInstantRegisterAndCreateJob(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (!registerForm.vehicleNumber.trim()) {
+      setError("Vehicle registration number is required.");
+      return;
+    }
+    if (!registerForm.customerName.trim() || !registerForm.customerMobile.trim()) {
+      setError("Customer Name and Mobile Number are required for zero-friction intake.");
+      return;
+    }
+    if (selectedServiceIds.length === 0) {
+      setError("Please select or click at least one wash/detailing service below to launch.");
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        // Step A: Register the vehicle
+        const regRes = await fetch("/api/vehicles", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vehicleNumber: registerForm.vehicleNumber.toUpperCase(),
+            vehicleType: registerForm.vehicleType,
+            brand: registerForm.brand || undefined,
+            model: registerForm.model || undefined,
+            color: registerForm.color || undefined,
+            customerName: registerForm.customerName,
+            customerMobile: registerForm.customerMobile,
+            customerEmail: registerForm.customerEmail || undefined,
+          }),
+        });
+
+        const regData = await regRes.json();
+        if (!regRes.ok || !regData.ok) {
+          throw new Error(regData.error || "Could not register vehicle.");
+        }
+
+        // Step B: Create the job card
+        const jobRes = await fetch("/api/job-cards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vehicleId: regData.vehicle.id,
+            serviceIds: selectedServiceIds,
+            expectedCompletionTime: new Date(etaTime).toISOString(),
+            beforePhotos: [],
+          }),
+        });
+
+        const jobData = await jobRes.json();
+        if (!jobRes.ok || !jobData.ok) {
+          throw new Error(jobData.error || "Vehicle registered, but failed to create job card.");
+        }
+
+        router.push(`/dashboard/jobs/${jobData.jobCard.id}`);
+        router.refresh();
+      } catch (err: any) {
+        setError(err.message || "Could not complete instant registration intake.");
+      }
+    });
+  }
+
   return (
     <div className="space-y-6">
+      {/* Zero Friction Mode Toggle Banner */}
+      <div className="bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-xl p-4 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center border border-amber-400/30">
+            <Zap size={20} className="fill-amber-400 animate-pulse" />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm text-white flex items-center gap-2">
+              ⚡ Zero-Friction Express Intake Mode
+              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                isZeroFrictionMode ? "bg-amber-400 text-slate-900" : "bg-slate-700 text-slate-300"
+              }`}>
+                {isZeroFrictionMode ? "Active" : "Disabled"}
+              </span>
+            </h3>
+            <p className="text-xs text-blue-200">
+              {isZeroFrictionMode 
+                ? "Bypasses multi-step inspection & photo wizard. Search vehicle & open job card directly right here or instant-register returning customers."
+                : "Using standard 6-step detailed inspection, photo upload, and checklist wizard."}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsZeroFrictionMode(!isZeroFrictionMode)}
+          className="text-xs font-bold bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-lg border border-white/20 transition whitespace-nowrap shrink-0"
+        >
+          {isZeroFrictionMode ? "Switch to 6-Step Detailed Wizard" : "⚡ Enable Express Mode"}
+        </button>
+      </div>
+
       {/* Step Progress Bar */}
       <div className="bg-white border rounded-xl p-4 shadow-sm">
         <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
@@ -492,7 +631,9 @@ export function NewJobIntakeWizard({
                         key={v.id}
                         onClick={() => {
                           setSelectedVehicle(v);
-                          setStep(2);
+                          if (!isZeroFrictionMode) {
+                            setStep(2);
+                          }
                         }}
                         className={`p-3.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-xs font-semibold text-slate-700 transition ${index === 0 ? "bg-blue-50/30" : ""}`}
                         title={index === 0 ? "Press Enter to select" : undefined}
@@ -518,6 +659,119 @@ export function NewJobIntakeWizard({
                   </p>
                 )}
               </div>
+
+              {/* Zero-Friction Instant Job Launcher Card */}
+              {isZeroFrictionMode && step === 1 && selectedVehicle && (
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 border-2 border-amber-300/80 rounded-xl p-5 shadow-md space-y-4 animate-in fade-in zoom-in-95 mt-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-amber-500 text-white rounded-lg shadow-sm">
+                        <Car size={22} />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded">⚡ ZERO-FRICTION EXPRESS LAUNCH</span>
+                        <h3 className="text-lg font-extrabold text-slate-800 uppercase mt-1">
+                          {selectedVehicle.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          {selectedVehicle.brand} {selectedVehicle.model} ({selectedVehicle.vehicleType}) • Owner: {primaryContact?.name || "Customer"} ({primaryContact?.mobile || "—"})
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedVehicle(null)}
+                      className="text-xs text-slate-400 hover:text-slate-600 underline font-semibold"
+                    >
+                      Change Vehicle
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Express Wash / Detailing Service to Launch Immediately:</p>
+                    
+                    {/* Quick 1-Click Rebook from Most Recent */}
+                    {mostRecentJob && (
+                      <div className="bg-white border border-amber-200 rounded-lg p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                          <span className="text-[10px] font-extrabold text-amber-700 uppercase">⚡ Rebook Previous Job ({new Date(mostRecentJob.createdAt).toLocaleDateString()})</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {mostRecentJob.services?.map((s: any) => (
+                              <span key={s.id} className="text-xs bg-slate-100 font-bold text-slate-700 px-2 py-0.5 rounded">
+                                {s.serviceNameSnapshot}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const sIds = mostRecentJob.services?.map((s: any) => s.serviceId) || [];
+                            handleInstantCreateJob(sIds);
+                          }}
+                          disabled={isPending}
+                          className="bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-1.5 transition whitespace-nowrap"
+                        >
+                          {isPending ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} className="fill-white" />}
+                          1-Click Open Job Card
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Quick Select Buttons from available services */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
+                      {services.map((serv) => {
+                        const price = getServicePriceForVehicle(serv);
+                        const isSelected = selectedServiceIds.includes(serv.id);
+                        return (
+                          <button
+                            type="button"
+                            key={serv.id}
+                            onClick={() => handleToggleService(serv.id)}
+                            className={`p-3 rounded-lg border text-left flex flex-col justify-between transition ${
+                              isSelected
+                                ? "bg-amber-500 text-white border-amber-600 shadow-sm font-bold"
+                                : "bg-white text-slate-800 border-slate-200 hover:border-amber-300 font-semibold"
+                            }`}
+                          >
+                            <span className="text-xs">{serv.name}</span>
+                            <span className={`text-[11px] mt-1 ${isSelected ? "text-amber-100" : "text-slate-500"}`}>
+                              ₹/SAR {price.toLocaleString()}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-3 border-t border-amber-200/60 gap-3">
+                      <div className="text-xs">
+                        <span className="text-slate-500 font-semibold">Selected Services: </span>
+                        <span className="font-extrabold text-slate-800">{selectedServiceIds.length}</span>
+                        <span className="text-slate-500 font-semibold ml-3">Total Estimate: </span>
+                        <span className="font-extrabold text-amber-700">₹/SAR {totalEstimate.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setStep(2)}
+                          className="text-xs font-bold px-3 py-2.5 text-slate-600 hover:bg-white rounded-lg border border-slate-300 bg-slate-100 transition"
+                        >
+                          Detailed Wizard (Step 2) →
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleInstantCreateJob()}
+                          disabled={isPending || selectedServiceIds.length === 0}
+                          className="bg-[var(--primary-color)] hover:opacity-95 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-md flex items-center gap-1.5 transition"
+                        >
+                          {isPending ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} className="fill-white" />}
+                          ⚡ Open Job Card Directly
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <form onSubmit={handleRegisterVehicle} className="space-y-4 text-xs font-semibold text-slate-600">
@@ -620,13 +874,61 @@ export function NewJobIntakeWizard({
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full h-10 mt-3 rounded-lg text-white font-bold hover:opacity-95"
-                style={{ backgroundColor: "var(--primary-color)" }}
-              >
-                Register & Select
-              </button>
+              {/* Zero-Friction Express Service Picker on Register Form */}
+              {isZeroFrictionMode && (
+                <div className="bg-amber-50/70 border border-amber-300 rounded-xl p-4 space-y-3 mt-4">
+                  <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
+                    <Zap size={15} className="fill-amber-500 text-amber-500" />
+                    Express Service Picker (Zero-Friction Launch)
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-normal">
+                    Select the initial wash/detailing service below to register this vehicle and open its job card directly in 1 single step:
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1">
+                    {services.map((serv) => {
+                      const price = serv.prices.find((p) => p.vehicleType === registerForm.vehicleType)?.price || 0;
+                      const isSelected = selectedServiceIds.includes(serv.id);
+                      return (
+                        <button
+                          type="button"
+                          key={serv.id}
+                          onClick={() => handleToggleService(serv.id)}
+                          className={`p-2.5 rounded-lg border text-left flex flex-col justify-between transition ${
+                            isSelected
+                              ? "bg-amber-500 text-white border-amber-600 shadow-sm font-bold"
+                              : "bg-white text-slate-800 border-slate-200 hover:border-amber-300 font-semibold"
+                          }`}
+                        >
+                          <span className="text-xs">{serv.name}</span>
+                          <span className={`text-[10px] mt-1 ${isSelected ? "text-amber-100" : "text-slate-500"}`}>
+                            ₹/SAR {price.toLocaleString()}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
+                <button
+                  type="submit"
+                  className="w-full sm:w-1/2 h-11 rounded-lg text-slate-700 bg-slate-100 border border-slate-300 font-bold hover:bg-slate-200 transition text-xs"
+                >
+                  Register & Select Detailed Wizard →
+                </button>
+                {isZeroFrictionMode && (
+                  <button
+                    type="button"
+                    onClick={handleInstantRegisterAndCreateJob}
+                    disabled={isPending || selectedServiceIds.length === 0}
+                    className="w-full sm:w-1/2 h-11 rounded-lg text-white font-extrabold hover:opacity-95 disabled:opacity-50 shadow-md flex items-center justify-center gap-2 transition text-xs bg-[var(--primary-color)]"
+                  >
+                    {isPending ? <Loader2 className="animate-spin" size={16} /> : <Zap size={16} className="fill-white" />}
+                    ⚡ Register & Open Job Card Directly
+                  </button>
+                )}
+              </div>
             </form>
           )}
         </div>

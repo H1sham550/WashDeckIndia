@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { StationSelector } from "@/components/dashboard/station-selector";
 import { LogoutButton } from "@/components/layout/logout-button";
+import { SpotlightSearch } from "@/components/dashboard/spotlight-search";
 
 export default async function DashboardLayout({
   children,
@@ -41,6 +42,7 @@ export default async function DashboardLayout({
   return (
     <div
       className="wd-app-shell"
+      dir={station?.isRTL || station?.locale?.startsWith("ar") ? "rtl" : "ltr"}
       style={{ "--primary-color": primaryColor } as React.CSSProperties}
     >
       {/* Impersonation banner */}
@@ -108,6 +110,7 @@ export default async function DashboardLayout({
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            <SpotlightSearch />
             <LogoutButton />
           </div>
         </header>

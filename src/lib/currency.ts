@@ -178,6 +178,29 @@ export function formatDateTime(
 }
 
 /**
+ * Format time only.
+ */
+export function formatTime(
+  date: Date | string | null | undefined,
+  timezone: string = "Asia/Kolkata"
+): string {
+  if (!date) return "—";
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "—";
+
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).format(d);
+  } catch {
+    return d.toLocaleTimeString();
+  }
+}
+
+/**
  * Get a human-readable relative time string (e.g. "3 days ago", "in 5 hours").
  */
 export function formatRelativeTime(date: Date | string | null | undefined): string {

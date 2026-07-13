@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -12,13 +12,14 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
     const { status } = await req.json();
     if (!["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"].includes(status)) {
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
     const updated = await prisma.booking.updateMany({
-      where: { id: params.id, stationId: session.stationId },
+      where: { id, stationId: session.stationId },
       data: { status: status as any },
     });
 

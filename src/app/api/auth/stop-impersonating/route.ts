@@ -19,10 +19,10 @@ export async function POST(request: NextRequest) {
 
     await createSession({
       id: adminUser.id,
-      stationId: null,
+      stationId: "",
       role: adminUser.role,
       name: adminUser.name,
-      email: adminUser.email,
+      email: adminUser.email || "",
     });
 
     return NextResponse.json({ ok: true });
@@ -40,10 +40,10 @@ export async function GET(request: NextRequest) {
     if (adminUser && adminUser.role === "SUPER_ADMIN") {
       await createSession({
         id: adminUser.id,
-        stationId: null,
+        stationId: "",
         role: adminUser.role,
         name: adminUser.name,
-        email: adminUser.email,
+        email: adminUser.email || "",
       });
     }
   }

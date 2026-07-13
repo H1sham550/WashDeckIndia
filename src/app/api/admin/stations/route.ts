@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { StationStatus, SubscriptionStatus, UserRole, UserStatus } from "@prisma/client";
+import { StationStatus, UserRole } from "@prisma/client";
 import { hashPassword } from "@/lib/crypto";
 
 function generateTemporaryPassword() {
@@ -75,23 +75,65 @@ export async function POST(request: NextRequest) {
 
     // 3. Atomically execute all onboarding actions within a single database transaction
     const result = await prisma.$transaction(async (tx) => {
-      // Create Station
+      // Ensure default country exists
+      let country = await tx.country.findFirst();
+      if (!country) {
+        country = await tx.country.create({
+          data: {
+            code: "IN",
+            name: "India",
+            currencyCode: "INR",
+            currencyFormat: "₹#,##0.00",
+            phonePrefix: "+91",
+            defaultLocale: "en-IN",
+            supportedLocales: ["en-IN"],
+            dateFormat: "DD/MM/YYYY",
+            timeFormat: "12h",
+          },
+        });
+      }
+
+      let region = await tx.region.findFirst({
+        where: { countryId: country.id },
+      });
+      if (!region) {
+        region = await tx.region.create({
+          data: {
+            countryId: country.id,
+            name: "Main Region",
+            timezone: "Asia/Kolkata",
+            taxName: "GST",
+            taxRate: 18.0,
+          },
+        });
+      }
+
+      const branchCode = `BR-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+      // Create Station with Branding and Settings
       const station = await tx.station.create({
         data: {
           name,
           slug: normalizedSlug,
-          phone: phone || null,
-          email: email || null,
-          address: address || null,
-          country: country || "IND",
-          currency: currency || "INR",
-          timezone: timezone || "Asia/Kolkata",
-          upiId: upiId || null,
-          gstNumber: gstNumber || null,
-          primaryColor: brandColor || "#0f766e",
-          logoUrl: logoUrl || null,
-          status: status || StationStatus.TRIAL,
-          onboardingStatus: "NOT_STARTED",
+          branchCode,
+          countryId: country.id,
+          regionId: region.id,
+          status: status || "TRIAL",
+          branding: {
+            create: {
+              businessPhone: phone || null,
+              businessEmail: email || null,
+              businessAddress: address || null,
+              squareLogoUrl: logoUrl || null,
+              primaryColor: brandColor || "#0f766e",
+            },
+          },
+          settings: {
+            create: {
+              defaultCurrencyOverride: currency || "INR",
+              timezoneOverride: timezone || "Asia/Kolkata",
+            },
+          },
         },
       });
 
@@ -101,10 +143,9 @@ export async function POST(request: NextRequest) {
           stationId: station.id,
           name: ownerName,
           email: ownerEmail.toLowerCase().trim(),
-          mobile: ownerMobile || null,
           passwordHash: hashPassword(tempPassword),
           role: UserRole.OWNER,
-          status: UserStatus.ACTIVE,
+          status: "ACTIVE",
           isTempPassword: true,
         },
       });
@@ -149,7 +190,7 @@ export async function POST(request: NextRequest) {
       const daysCount = finalTrialDays > 0 ? finalTrialDays : planTemplate.durationDays;
       const trialEndDate = new Date(now.getTime() + daysCount * 24 * 60 * 60 * 1000);
       const isTrialPlan = planTemplate.name.toUpperCase() === "TRIAL";
-      const newStatus = isTrialPlan ? SubscriptionStatus.TRIAL : SubscriptionStatus.ACTIVE;
+      const newStatus = isTrialPlan ? "TRIAL" : "ACTIVE";
       const finalGraceDays = graceDays !== undefined ? Number(graceDays) : 5;
       const graceUntilDate = new Date(trialEndDate.getTime() + finalGraceDays * 24 * 60 * 60 * 1000);
 
@@ -161,17 +202,6 @@ export async function POST(request: NextRequest) {
           endDate: trialEndDate,
           graceUntil: graceUntilDate,
           status: newStatus,
-        },
-      });
-
-      // Specialized Subscription Audit Log
-      await tx.subscriptionAuditLog.create({
-        data: {
-          stationId: station.id,
-          action: "PLAN_ASSIGNED",
-          previousValue: "None",
-          newValue: planTemplate.name,
-          performedBy: session.name || session.email,
         },
       });
 
@@ -252,6 +282,7 @@ export async function GET(request: NextRequest) {
       prisma.station.findMany({
         where: whereClause,
         include: {
+          branding: true,
           users: {
             where: {
               isDeleted: false,
@@ -281,8 +312,8 @@ export async function GET(request: NextRequest) {
         id: station.id,
         name: station.name,
         slug: station.slug,
-        phone: station.phone,
-        email: station.email,
+        phone: station.branding?.businessPhone || null,
+        email: station.branding?.businessEmail || null,
         status: station.status,
         createdAt: station.createdAt,
         planName: activeSub?.subscription.name || "Trial Plan",

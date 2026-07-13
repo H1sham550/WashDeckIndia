@@ -50,10 +50,10 @@ export async function POST(request: Request) {
     // Re-issue cookie session payload (clear isTempPassword)
     await createSession({
       id: user.id,
-      stationId: user.stationId,
+      stationId: user.stationId || "",
       role: user.role,
       name: user.name || "",
-      email: user.email,
+      email: user.email || "",
       isTempPassword: false,
     });
 

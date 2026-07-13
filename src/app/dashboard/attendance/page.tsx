@@ -11,14 +11,12 @@ export default async function AttendancePage() {
   const session = await requireStationUser();
   const stationId = session.stationId || "";
 
-  // Fetch staff members belonging to station
   const staff = await prisma.user.findMany({
     where: { stationId, isDeleted: false },
-    select: { id: true, name: true, role: true, mobile: true },
+    select: { id: true, name: true, role: true, email: true },
     orderBy: { name: "asc" },
   });
 
-  // Fetch recent attendance logs
   const logs = await prisma.attendanceLog.findMany({
     where: { stationId },
     orderBy: { date: "desc" },
@@ -40,7 +38,7 @@ export default async function AttendancePage() {
     id: s.id,
     name: s.name,
     role: s.role,
-    mobile: s.mobile || "—",
+    mobile: (s as any).mobile || s.email || "—",
   }));
 
   return (

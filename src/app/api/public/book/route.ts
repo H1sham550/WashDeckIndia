@@ -10,14 +10,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required booking details" }, { status: 400 });
     }
 
-    // Find the station by slug or id
+    const rawIdOrSlug = decodeURIComponent(stationSlugOrId || "").trim();
     const station = await prisma.station.findFirst({
       where: {
         OR: [
-          { slug: stationSlugOrId },
-          { id: stationSlugOrId }
+          { slug: rawIdOrSlug },
+          { id: rawIdOrSlug },
+          { slug: { equals: rawIdOrSlug, mode: "insensitive" } },
+          { id: { equals: rawIdOrSlug, mode: "insensitive" } },
         ],
-        isDeleted: false,
       },
       select: { id: true, name: true, slug: true },
     });

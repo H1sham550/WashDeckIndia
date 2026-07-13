@@ -111,6 +111,18 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     };
   }
 
+  if (station.isDeleted) {
+    try {
+      await prisma.station.update({
+        where: { id: stationId },
+        data: { isDeleted: false },
+      });
+      station.isDeleted = false;
+    } catch (e) {
+      // ignore self-heal errors
+    }
+  }
+
   const [country, region] = await Promise.all([
     station.countryId ? prisma.country.findUnique({ where: { id: station.countryId } }).catch(() => null) : Promise.resolve(null),
     station.regionId ? prisma.region.findUnique({ where: { id: station.regionId } }).catch(() => null) : Promise.resolve(null),

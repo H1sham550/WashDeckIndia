@@ -4,9 +4,16 @@ import { PublicBookingWizard } from "@/components/public/public-booking-wizard";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+  const rawSlug = decodeURIComponent((await params).slug || "").trim();
   const station = await prisma.station.findFirst({
-    where: { OR: [{ slug }, { id: slug }], isDeleted: false },
+    where: {
+      OR: [
+        { slug: rawSlug },
+        { id: rawSlug },
+        { slug: { equals: rawSlug, mode: "insensitive" } },
+        { id: { equals: rawSlug, mode: "insensitive" } },
+      ],
+    },
     select: { name: true },
   });
 
@@ -16,10 +23,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function PublicBookingPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+  const rawSlug = decodeURIComponent((await params).slug || "").trim();
 
   const station = await prisma.station.findFirst({
-    where: { OR: [{ slug }, { id: slug }], isDeleted: false },
+    where: {
+      OR: [
+        { slug: rawSlug },
+        { id: rawSlug },
+        { slug: { equals: rawSlug, mode: "insensitive" } },
+        { id: { equals: rawSlug, mode: "insensitive" } },
+      ],
+    },
     include: {
       branding: true,
     },

@@ -27,74 +27,21 @@ export default async function DashboardPage() {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [
-    entitlements,
-    boardData,
-    paidInvoicesSum,
-    pendingInvoices,
-    todayBookings,
-    recentJobs,
-  ] = await Promise.all([
+  const [entitlements, summary] = await Promise.all([
     getStationEntitlements(stationId),
-    jobCardService.getOperationsBoardData(stationId),
-    prisma.invoice.aggregate({
-      _sum: { finalAmount: true },
-      where: {
-        jobCard: { stationId },
-        status: "PAID",
-        createdAt: { gte: startOfDay },
-      },
-    }),
-    prisma.invoice.findMany({
-      where: {
-        jobCard: { stationId, isDeleted: false },
-        status: "ISSUED",
-      },
-      select: { finalAmount: true },
-    }),
-    prisma.booking.findMany({
-      where: {
-        stationId,
-        scheduledAt: { gte: startOfDay },
-        status: { not: "CANCELLED" },
-      },
-      orderBy: { scheduledAt: "asc" },
-      take: 5,
-      select: {
-        id: true,
-        customerName: true,
-        vehicleNumber: true,
-        scheduledAt: true,
-        serviceName: true,
-        status: true,
-      },
-    }),
-    prisma.jobCard.findMany({
-      where: { stationId, isDeleted: false, status: "DELIVERED" },
-      orderBy: { updatedAt: "desc" },
-      take: 6,
-      select: {
-        id: true,
-        updatedAt: true,
-        vehicle: { select: { vehicleNumber: true } },
-        customer: { select: { name: true } },
-        services: { select: { serviceNameSnapshot: true, priceSnapshot: true } },
-        invoice: { select: { finalAmount: true, status: true } },
-      },
-    }),
+    jobCardService.getDashboardSummary(stationId),
   ]);
 
-  const revenueToday = Number(paidInvoicesSum._sum?.finalAmount || 0);
-  const outstandingAmount = pendingInvoices.reduce(
-    (sum, inv) => sum + Number(inv.finalAmount),
-    0
-  );
-
-  const waitingCount = boardData.RECEIVED.length;
-  const inProgressCount = boardData.IN_PROGRESS.length;
-  const completedCount = boardData.SERVICE_COMPLETED.length;
-  const paymentPendingCount = boardData.PAYMENT_PENDING.length;
-  const totalActive = waitingCount + inProgressCount + completedCount + paymentPendingCount;
+  const revenueToday = summary.revenueToday;
+  const outstandingAmount = summary.outstandingAmount;
+  const waitingCount = summary.counts.waiting;
+  const inProgressCount = summary.counts.inProgress;
+  const completedCount = summary.counts.completed;
+  const paymentPendingCount = summary.counts.paymentPending;
+  const totalActive = summary.counts.totalActive;
+  const activeJobs = summary.activeJobs;
+  const todayBookings = summary.todayBookings;
+  const recentJobs = summary.recentDeliveredJobs;
 
   const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "₹";
 
@@ -125,14 +72,6 @@ export default async function DashboardPage() {
     PAYMENT_PENDING: "Pay Pending",
     DELIVERED: "Delivered",
   };
-
-  // Flatten active jobs sorted by time
-  const activeJobs = [
-    ...boardData.RECEIVED,
-    ...boardData.IN_PROGRESS,
-    ...boardData.SERVICE_COMPLETED,
-    ...boardData.PAYMENT_PENDING,
-  ].slice(0, 10);
 
   return (
     <div className="space-y-5 max-w-[1400px]">
@@ -350,7 +289,7 @@ export default async function DashboardPage() {
                 <span className="badge badge-blue">{todayBookings.length}</span>
               </div>
               <div className="divide-y" style={{ borderColor: "hsl(var(--border))" }}>
-                {todayBookings.map((booking) => (
+                {todayBookings.map((booking: any) => (
                   <div key={booking.id} className="px-4 py-2.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">

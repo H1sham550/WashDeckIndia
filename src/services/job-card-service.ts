@@ -126,17 +126,44 @@ export async function updateStatus(
   return updatedJob;
 }
 
-export async function getOperationsBoardData(stationId: string) {
+import { cache } from "react";
+
+const dashboardSummaryCache = new Map<string, { data: any; expiresAt: number }>();
+const operationsBoardCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL_MS = 4000; // 4-second memory cache for instant page switching
+
+export const getOperationsBoardData = cache(async (stationId: string) => {
+  const now = Date.now();
+  const cached = operationsBoardCache.get(stationId);
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
+
   const [activeJobs, deliveredToday] = await Promise.all([
     jobCardRepository.getActiveJobCardsByStation(stationId),
     jobCardRepository.getDeliveredJobCardsByStationToday(stationId),
   ]);
 
-  return {
+  const result = {
     RECEIVED: activeJobs.filter((j) => j.status === "RECEIVED"),
     IN_PROGRESS: activeJobs.filter((j) => j.status === "IN_PROGRESS"),
     SERVICE_COMPLETED: activeJobs.filter((j) => j.status === "SERVICE_COMPLETED"),
     PAYMENT_PENDING: activeJobs.filter((j) => j.status === "PAYMENT_PENDING"),
     DELIVERED: deliveredToday,
   };
-}
+
+  operationsBoardCache.set(stationId, { data: result, expiresAt: now + CACHE_TTL_MS });
+  return result;
+});
+
+export const getDashboardSummary = cache(async (stationId: string) => {
+  const now = Date.now();
+  const cached = dashboardSummaryCache.get(stationId);
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
+
+  const summary = await jobCardRepository.getDashboardSummaryRepository(stationId);
+  dashboardSummaryCache.set(stationId, { data: summary, expiresAt: now + CACHE_TTL_MS });
+  return summary;
+});

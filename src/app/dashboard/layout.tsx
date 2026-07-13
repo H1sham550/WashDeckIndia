@@ -25,7 +25,11 @@ export default async function DashboardLayout({
 
   const station = entitlements.stationMetadata;
 
-  if (station?.onboardingStatus !== "COMPLETED") {
+  if (!station) {
+    redirect("/login" as any);
+  }
+
+  if (station.onboardingStatus === "PENDING") {
     redirect("/onboarding" as any);
   }
 

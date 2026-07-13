@@ -18,7 +18,7 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
-  if (station.status === "ACTIVE") {
+  if (station.status === "ACTIVE" || station.status === "TRIAL") {
     redirect("/dashboard");
   }
 

@@ -70,8 +70,6 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     include: {
       branding: true,
       settings: true,
-      country: true,
-      region: true,
       featureOverrides: true,
       stationSubscriptions: {
         include: {
@@ -93,8 +91,30 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       staffLimit: 1,
       reportLimit: 10,
       currentPlanName: "None",
+      stationMetadata: {
+        id: stationId,
+        name: "WashDeck Station",
+        slug: "station",
+        branchCode: "WD001",
+        onboardingStatus: "COMPLETED",
+        logoUrl: null,
+        primaryColor: "#0F172A",
+        dueForVisitThreshold: 30,
+        country: "SA",
+        currency: "SAR",
+        timezone: "Asia/Riyadh",
+        locale: "en-SA",
+        isRTL: false,
+        vipSpendThreshold: 10000,
+        vipVisitThreshold: 5,
+      },
     };
   }
+
+  const [country, region] = await Promise.all([
+    station.countryId ? prisma.country.findUnique({ where: { id: station.countryId } }).catch(() => null) : Promise.resolve(null),
+    station.regionId ? prisma.region.findUnique({ where: { id: station.regionId } }).catch(() => null) : Promise.resolve(null),
+  ]);
 
   let lifecycle: SubscriptionLifecycleState = "EXPIRED";
   if (station.status === "SUSPENDED") {
@@ -232,11 +252,11 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       logoUrl: station.branding?.squareLogoUrl || null,
       primaryColor: station.branding?.primaryColor || "#0F172A",
       dueForVisitThreshold: 30,
-      country: station.country?.code || "SA",
-      currency: station.country?.currencyCode || "SAR",
-      timezone: station.region?.timezone || "Asia/Riyadh",
-      locale: station.country?.defaultLocale || "en-SA",
-      isRTL: station.country?.isRTL || false,
+      country: country?.code || "SA",
+      currency: country?.currencyCode || "SAR",
+      timezone: region?.timezone || "Asia/Riyadh",
+      locale: country?.defaultLocale || "en-SA",
+      isRTL: country?.isRTL || false,
       vipSpendThreshold: 10000,
       vipVisitThreshold: 5,
     },

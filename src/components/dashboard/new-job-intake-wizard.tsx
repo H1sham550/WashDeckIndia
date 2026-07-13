@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Car,
@@ -142,6 +142,86 @@ export function NewJobIntakeWizard({
     customerEmail: "",
   });
 
+  const customerNameInputRef = useRef<HTMLInputElement>(null);
+
+  // Debounced search
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setShowRegisterForm(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/vehicles?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        if (data.ok && data.vehicles) {
+          const mapped = data.vehicles.map((v: any) => ({
+            id: v.id,
+            vehicleNumber: v.vehicleNumber,
+            vehicleType: v.vehicleType,
+            brand: v.brand,
+            model: v.model,
+            color: v.color,
+            contacts: v.contacts.map((c: any) => ({
+              isPrimary: c.isPrimary,
+              label: c.label || "Owner",
+              customer: {
+                name: c.customer.name,
+                mobile: c.customer.mobile,
+              },
+            })),
+          }));
+          setSearchResults(mapped);
+
+          if (mapped.length === 0) {
+            // Auto switch to register form if no results
+            setRegisterForm((prev) => ({
+              ...prev,
+              vehicleNumber: searchQuery.toUpperCase(),
+            }));
+            setShowRegisterForm(true);
+            setTimeout(() => {
+              if (customerNameInputRef.current) {
+                customerNameInputRef.current.focus();
+              }
+            }, 100);
+          } else {
+            setShowRegisterForm(false);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  function handleKeyDownSearch(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (searchResults.length > 0) {
+        setSelectedVehicle(searchResults[0]);
+        setStep(2);
+      } else if (searchQuery.trim().length >= 2) {
+        setRegisterForm((prev) => ({
+          ...prev,
+          vehicleNumber: searchQuery.toUpperCase(),
+        }));
+        setShowRegisterForm(true);
+        setTimeout(() => {
+          if (customerNameInputRef.current) {
+            customerNameInputRef.current.focus();
+          }
+        }, 100);
+      }
+    }
+  }
+
   // Wizard fields
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
   const [inspectionNotes, setInspectionNotes] = useState("");
@@ -169,42 +249,7 @@ export function NewJobIntakeWizard({
     return sum + (s ? getServicePriceForVehicle(s) : 0);
   }, 0);
 
-  async function searchVehicles(val: string) {
-    setSearchQuery(val);
-    if (val.trim().length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const res = await fetch(`/api/vehicles?q=${encodeURIComponent(val)}`);
-      const data = await res.json();
-      if (data.ok && data.vehicles) {
-        const mapped = data.vehicles.map((v: any) => ({
-          id: v.id,
-          vehicleNumber: v.vehicleNumber,
-          vehicleType: v.vehicleType,
-          brand: v.brand,
-          model: v.model,
-          color: v.color,
-          contacts: v.contacts.map((c: any) => ({
-            isPrimary: c.isPrimary,
-            label: c.label || "Owner",
-            customer: {
-              name: c.customer.name,
-              mobile: c.customer.mobile,
-            },
-          })),
-        }));
-        setSearchResults(mapped);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSearching(false);
-    }
-  }
+  // The previous searchVehicles function is replaced by useEffect
 
   async function handleRegisterVehicle(e: React.FormEvent) {
     e.preventDefault();
@@ -391,15 +436,31 @@ export function NewJobIntakeWizard({
         <div className="bg-white border rounded-xl p-6 shadow-sm space-y-6">
           <div className="flex justify-between items-center border-b pb-3">
             <h2 className="text-base font-bold text-slate-800">Step 1: Intake & Search Vehicle</h2>
-            <button
-              onClick={() => {
-                setError("");
-                setShowRegisterForm(!showRegisterForm);
-              }}
-              className="text-xs font-bold text-[var(--primary-color)] hover:underline flex items-center gap-1"
-            >
-              {showRegisterForm ? "Search Returning Vehicle" : "+ Register New Vehicle"}
-            </button>
+            {!showRegisterForm ? (
+              <button
+                onClick={() => {
+                  setError("");
+                  setShowRegisterForm(true);
+                  setTimeout(() => {
+                    if (customerNameInputRef.current) customerNameInputRef.current.focus();
+                  }, 100);
+                }}
+                className="text-xs font-bold text-[var(--primary-color)] hover:underline flex items-center gap-1"
+              >
+                + Register New Vehicle
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setError("");
+                  setShowRegisterForm(false);
+                  setSearchQuery("");
+                }}
+                className="text-xs font-bold text-[var(--primary-color)] hover:underline flex items-center gap-1"
+              >
+                Search Returning Vehicle
+              </button>
+            )}
           </div>
 
           {!showRegisterForm ? (
@@ -408,9 +469,11 @@ export function NewJobIntakeWizard({
                 <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                 <input
                   type="text"
+                  autoFocus
                   placeholder="Enter vehicle number, contact name, or phone..."
                   value={searchQuery}
-                  onChange={(e) => searchVehicles(e.target.value)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDownSearch}
                   className="pl-9 h-10 w-full border rounded-lg text-xs font-semibold outline-none focus:border-[var(--primary-color)]"
                 />
                 {isSearching && (
@@ -422,7 +485,7 @@ export function NewJobIntakeWizard({
 
               <div className="divide-y border rounded-lg max-h-60 overflow-y-auto">
                 {searchResults.length > 0 ? (
-                  searchResults.map((v) => {
+                  searchResults.map((v, index) => {
                     const primary = v.contacts.find((c) => c.isPrimary)?.customer || v.contacts[0]?.customer;
                     return (
                       <div
@@ -431,7 +494,8 @@ export function NewJobIntakeWizard({
                           setSelectedVehicle(v);
                           setStep(2);
                         }}
-                        className="p-3.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-xs font-semibold text-slate-700 transition"
+                        className={`p-3.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-xs font-semibold text-slate-700 transition ${index === 0 ? "bg-blue-50/30" : ""}`}
+                        title={index === 0 ? "Press Enter to select" : undefined}
                       >
                         <div>
                           <p className="font-extrabold text-slate-800 uppercase text-sm">
@@ -450,7 +514,7 @@ export function NewJobIntakeWizard({
                   })
                 ) : (
                   <p className="text-center text-slate-400 text-xs py-8">
-                    {searchQuery ? "No matching vehicles found. Register it above!" : "Search for a vehicle registration number to start."}
+                    {searchQuery ? "Searching..." : "Search for a vehicle registration number to start."}
                   </p>
                 )}
               </div>
@@ -526,6 +590,7 @@ export function NewJobIntakeWizard({
                   <input
                     type="text"
                     required
+                    ref={customerNameInputRef}
                     value={registerForm.customerName}
                     onChange={(e) => setRegisterForm((prev) => ({ ...prev, customerName: e.target.value }))}
                     placeholder="Amit Patel"

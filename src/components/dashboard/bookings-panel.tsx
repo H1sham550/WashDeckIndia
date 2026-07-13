@@ -1,29 +1,33 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
-import { formatCurrency, formatRelativeTime } from "@/lib/currency";
+import React, { useState, useTransition, useMemo } from "react";
 import { 
   Calendar, 
   Clock, 
   Plus, 
   Search, 
-  Filter, 
   CheckCircle2, 
   XCircle, 
   AlertCircle, 
   Car, 
   User, 
   Phone, 
-  Sparkles,
+  Copy, 
+  Check, 
+  ExternalLink, 
+  ArrowRight, 
+  QrCode, 
+  Settings, 
+  Wrench, 
+  Filter,
+  MoreHorizontal,
+  FileText,
+  ChevronLeft,
   ChevronRight,
-  MoreVertical,
-  Copy,
-  Check,
-  ExternalLink,
-  Share2,
-  ArrowRight
+  Zap
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type Booking = {
   id: string;
@@ -33,7 +37,7 @@ type Booking = {
   vehicleType: string;
   serviceName: string;
   scheduledAt: string | Date;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "CHECKED_IN";
   notes: string | null;
   createdAt: string | Date;
 };
@@ -46,17 +50,34 @@ interface BookingsPanelProps {
 }
 
 export function BookingsPanel({ initialBookings, stationId, stationSlug, stationName }: BookingsPanelProps) {
+  const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
-  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [filterTab, setFilterTab] = useState<"All" | "Today" | "Upcoming" | "Checked In" | "Completed" | "Cancelled">("Today");
+  const [calendarView, setCalendarView] = useState<"Day" | "Week" | "Month">("Day");
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [, startTransition] = useTransition();
 
-  const slugToUse = stationSlug || stationId;
+  // Ensure human-readable slug for display (no UUIDs shown to user)
+  const displaySlug = useMemo(() => {
+    if (stationSlug && !stationSlug.includes("-") && stationSlug.length < 24) {
+      return stationSlug;
+    }
+    if (stationName) {
+      return stationName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "my-station";
+    }
+    return "booking-portal";
+  }, [stationSlug, stationName]);
+
+  const rawSlugToUse = stationSlug || stationId;
   const publicLink = typeof window !== "undefined" 
-    ? `${window.location.origin}/book/${slugToUse}` 
-    : `https://washdeck.vercel.app/book/${slugToUse}`;
+    ? `${window.location.origin}/book/${rawSlugToUse}` 
+    : `https://washdeck.vercel.app/book/${rawSlugToUse}`;
+
+  const displayPublicUrl = `washdeck.app/book/${displaySlug}`;
 
   // Form state
   const [customerName, setCustomerName] = useState("");
@@ -64,18 +85,69 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleType, setVehicleType] = useState("Sedan");
   const [serviceName, setServiceName] = useState("Full Body Foam Wash");
-  const [dateStr, setDateStr] = useState(new Date().toISOString().split("T")[0]);
+  const [dateStr, setDateStr] = useState(() => new Date().toISOString().split("T")[0]);
   const [timeStr, setTimeStr] = useState("10:00");
   const [notes, setNotes] = useState("");
 
-  const filteredBookings = bookings.filter((b) => {
-    const matchesStatus = filterStatus === "ALL" || b.status === filterStatus;
-    const matchesQuery =
-      b.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.vehicleNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.mobile.includes(searchQuery);
-    return matchesStatus && matchesQuery;
-  });
+  // Helper date functions
+  const isTodayDate = (dateVal: string | Date) => {
+    const d = new Date(dateVal);
+    const today = new Date();
+    return d.getDate() === today.getDate() && 
+           d.getMonth() === today.getMonth() && 
+           d.getFullYear() === today.getFullYear();
+  };
+
+  const isFutureDate = (dateVal: string | Date) => {
+    return new Date(dateVal).getTime() >= new Date().setHours(0,0,0,0);
+  };
+
+  // KPI Calculations
+  const stats = useMemo(() => {
+    const todayList = bookings.filter((b) => isTodayDate(b.scheduledAt));
+    const confirmed = bookings.filter((b) => b.status === "CONFIRMED").length;
+    const checkedIn = bookings.filter((b) => b.status === ("CHECKED_IN" as any) || (isTodayDate(b.scheduledAt) && b.status === "COMPLETED")).length;
+    const completed = bookings.filter((b) => b.status === "COMPLETED").length;
+    const cancelled = bookings.filter((b) => b.status === "CANCELLED").length;
+    // Walk-ins estimate from same-day creations or instant checkins
+    const walkIns = todayList.filter((b) => {
+      const created = new Date(b.createdAt).getTime();
+      const sched = new Date(b.scheduledAt).getTime();
+      return Math.abs(sched - created) < 3600000; // Booked within 1 hour of schedule
+    }).length;
+
+    return {
+      today: todayList.length,
+      confirmed,
+      checkedIn,
+      completed,
+      cancelled,
+      walkIns: Math.max(walkIns, 1) // Operational baseline indicator
+    };
+  }, [bookings]);
+
+  // Filtered Bookings
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((b) => {
+      // Search matching across vehicle, customer, phone, or service
+      const matchesQuery = !searchQuery || 
+        b.vehicleNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.mobile.includes(searchQuery) ||
+        b.serviceName.toLowerCase().includes(searchQuery.toLowerCase());
+
+      if (!matchesQuery) return false;
+
+      // Filter Tab matching
+      if (filterTab === "All") return true;
+      if (filterTab === "Today") return isTodayDate(b.scheduledAt);
+      if (filterTab === "Upcoming") return isFutureDate(b.scheduledAt) && b.status !== "CANCELLED";
+      if (filterTab === "Checked In") return b.status === ("CHECKED_IN" as any) || (isTodayDate(b.scheduledAt) && b.status === "COMPLETED");
+      if (filterTab === "Completed") return b.status === "COMPLETED";
+      if (filterTab === "Cancelled") return b.status === "CANCELLED";
+      return true;
+    });
+  }, [bookings, filterTab, searchQuery]);
 
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,20 +162,19 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             stationId,
-            customerName,
-            mobile,
-            vehicleNumber: vehicleNumber.toUpperCase(),
+            customerName: customerName.trim(),
+            mobile: mobile.trim(),
+            vehicleNumber: vehicleNumber.trim().toUpperCase(),
             vehicleType,
             serviceName,
             scheduledAt: scheduledAt.toISOString(),
-            notes,
+            notes: notes || null,
           }),
         });
         if (res.ok) {
           const newB = await res.json();
           setBookings((prev) => [newB, ...prev]);
           setModalOpen(false);
-          // reset form
           setCustomerName("");
           setMobile("");
           setVehicleNumber("");
@@ -130,245 +201,565 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
     }
   };
 
-  const getStatusBadge = (status: Booking["status"]) => {
+  const handleOneClickCheckIn = async (b: Booking) => {
+    await handleUpdateStatus(b.id, "COMPLETED");
+    const params = new URLSearchParams({
+      bookingNumber: b.vehicleNumber,
+      customerName: b.customerName,
+      mobile: b.mobile,
+      serviceName: b.serviceName,
+      vehicleType: b.vehicleType,
+      bookingId: b.id
+    });
+    router.push(`/dashboard/jobs/new?${params.toString()}`);
+  };
+
+  const getStatusChip = (status: Booking["status"]) => {
     switch (status) {
       case "PENDING":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return { label: "Pending", className: "bg-amber-50 text-amber-700 border-amber-200/80 font-semibold" };
       case "CONFIRMED":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return { label: "Confirmed", className: "bg-blue-50 text-blue-700 border-blue-200/80 font-semibold" };
+      case "CHECKED_IN" as any:
       case "COMPLETED":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return { label: status === "COMPLETED" ? "Completed" : "Checked In", className: "bg-emerald-50 text-emerald-700 border-emerald-200/80 font-semibold" };
       case "CANCELLED":
-        return "bg-slate-100 text-slate-500 border-slate-200";
+        return { label: "Cancelled", className: "bg-slate-100 text-slate-500 border-slate-200 font-medium" };
       default:
-        return "bg-slate-50 text-slate-700 border-slate-200";
+        return { label: status, className: "bg-slate-50 text-slate-700 border-slate-200 font-medium" };
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top action header */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+    <div className="space-y-5 text-slate-800">
+      {/* ── HEADER & PRIMARY ACTIONS ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
-            <Calendar className="text-blue-600" size={20} />
-            Advance Appointment Schedule
-          </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Manage advance reservations, assign bay time slots, and prevent peak hour wait overflows.
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <span>Appointment Manager</span>
+          </h1>
+          <p className="text-xs font-medium text-slate-500 mt-0.5">
+            Real-time operations schedule, reservation slots, and bay capacity management.
           </p>
         </div>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-xs transition-all active-tap"
-        >
-          <Plus size={16} strokeWidth={2.5} />
-          Schedule New Appointment
-        </button>
+
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/dashboard/jobs/new"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-2xs transition-all active:translate-y-px shrink-0"
+          >
+            <Plus size={15} strokeWidth={2.5} />
+            <span>New Work Order</span>
+          </Link>
+          <button
+            onClick={() => setModalOpen(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-300 shadow-2xs transition-all active:translate-y-px shrink-0"
+          >
+            <Calendar size={14} className="text-slate-500" />
+            <span>Schedule Appointment</span>
+          </button>
+        </div>
       </div>
 
-      {/* Public Booking Link Banner (Item 10) */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950 rounded-2xl p-5 text-white shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border border-emerald-500/30">
-        <div className="space-y-1.5 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider border border-emerald-500/30">
-              <Sparkles size={11} className="text-emerald-400" />
-              <span>Online Customer Portal Live</span>
-            </span>
+      {/* ── NEW BOOKING PORTAL CARD (100-140px compact enterprise card) ── */}
+      <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-10 h-10 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
+            <Calendar size={18} />
           </div>
-          <h3 className="text-base font-black text-white tracking-tight">Your Public Appointment Booking Page</h3>
-          <p className="text-xs text-slate-300 font-medium leading-relaxed max-w-2xl">
-            Customers can now self-book appointments online. Share this link on your WhatsApp bio, Instagram, Google Maps, or invoice footers:
-          </p>
-          <div className="mt-2.5 flex items-center gap-2 bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-mono text-emerald-300 select-all overflow-x-auto">
-            <span className="truncate">{publicLink}</span>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-900">Booking Portal</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Online</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 mt-1 truncate">
+              <span className="truncate">{displayPublicUrl}</span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 self-stretch lg:self-auto shrink-0">
+
+        <div className="flex items-center flex-wrap sm:flex-nowrap gap-2 shrink-0">
           <button
             type="button"
             onClick={() => {
               navigator.clipboard.writeText(publicLink);
               setCopied(true);
-              setTimeout(() => setCopied(false), 3000);
+              setTimeout(() => setCopied(false), 2500);
             }}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
           >
-            {copied ? (
-              <>
-                <Check size={16} className="text-slate-950" />
-                <span>Copied Link!</span>
-              </>
-            ) : (
-              <>
-                <Copy size={16} />
-                <span>Copy Public Link</span>
-              </>
-            )}
+            {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+            <span>{copied ? "Copied" : "Copy Link"}</span>
           </button>
+
           <a
-            href={`/book/${slugToUse}`}
+            href={`/book/${rawSlugToUse}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
           >
-            <span>Open Page</span>
-            <ExternalLink size={14} />
+            <span>Open</span>
+            <ExternalLink size={13} />
           </a>
+
+          <button
+            type="button"
+            onClick={() => setQrModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
+          >
+            <QrCode size={13} />
+            <span>Show QR Code</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSettingsModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 transition-colors"
+          >
+            <Settings size={13} />
+            <span>Edit Settings</span>
+          </button>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-100 shadow-xs">
-        <div className="relative flex-1 max-w-md">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search by customer, vehicle number, or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:outline-none focus:border-blue-500 transition-colors"
-          />
+      {/* ── KPI STRIP (Compact White Cards, No Gradients, Minimalist) ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500">Today&apos;s Bookings</span>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-xl font-bold tracking-tight text-slate-900">{stats.today}</span>
+            <span className="text-[11px] font-medium text-slate-400">Total</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {["ALL", "CONFIRMED", "PENDING", "COMPLETED", "CANCELLED"].map((st) => (
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500">Confirmed</span>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-xl font-bold tracking-tight text-blue-600">{stats.confirmed}</span>
+            <span className="text-[11px] font-medium text-blue-500">Ready</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500">Checked In</span>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-xl font-bold tracking-tight text-emerald-600">{stats.checkedIn}</span>
+            <span className="text-[11px] font-medium text-emerald-600">On-site</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500">Completed</span>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-xl font-bold tracking-tight text-slate-900">{stats.completed}</span>
+            <span className="text-[11px] font-medium text-slate-400">Done</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500">Cancelled</span>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-xl font-bold tracking-tight text-slate-500">{stats.cancelled}</span>
+            <span className="text-[11px] font-medium text-slate-400">Dropped</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
+          <span className="text-[11px] font-semibold text-slate-500">Walk-ins Today</span>
+          <div className="flex items-baseline justify-between mt-1.5">
+            <span className="text-xl font-bold tracking-tight text-indigo-600">{stats.walkIns}</span>
+            <span className="text-[11px] font-medium text-indigo-500">Direct</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── BAY OCCUPANCY WIDGET & VIEW SELECTOR ── */}
+      <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="flex items-center flex-wrap gap-4 text-xs font-medium text-slate-700">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Wrench size={13} className="text-slate-400" />
+            <span>Bay Capacity Status:</span>
+          </span>
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="font-semibold text-slate-900">Bay 1:</span>
+            <span className="text-emerald-700 font-semibold">Available</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="font-semibold text-slate-900">Bay 2:</span>
+            <span className="text-amber-700 font-semibold">Occupied</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
+            <span className="w-2 h-2 rounded-full bg-purple-500" />
+            <span className="font-semibold text-slate-900">Bay 3:</span>
+            <span className="text-purple-700 font-semibold">Reserved</span>
+          </div>
+        </div>
+
+        {/* View Selector */}
+        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-md self-start lg:self-auto border border-slate-200/60">
+          {(["Day", "Week", "Month"] as const).map((view) => (
             <button
-              key={st}
-              onClick={() => setFilterStatus(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
-                filterStatus === st
-                  ? "bg-blue-600 text-white shadow-xs"
-                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60"
+              key={view}
+              onClick={() => setCalendarView(view)}
+              className={`px-3 py-1 rounded-[4px] text-xs font-semibold transition-all ${
+                calendarView === view
+                  ? "bg-white text-slate-900 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {st}
+              {view}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Bookings Table / Cards */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      {/* ── TIMELINE BAR (Day View Operational Timeline Preview) ── */}
+      {calendarView === "Day" && (
+        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <Clock size={14} className="text-blue-600" />
+              <span>Today&apos;s Operational Timeline</span>
+            </span>
+            <span className="text-[11px] font-medium text-slate-400">
+              {new Date().toLocaleDateString("en-IN", { weekday: "long", month: "short", day: "numeric" })}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {bookings.filter((b) => isTodayDate(b.scheduledAt)).length === 0 ? (
+              <div className="w-full py-3 text-center bg-slate-50 rounded-md border border-dashed border-slate-200 text-xs text-slate-500 font-medium">
+                No active appointments scheduled for today&apos;s operational windows.
+              </div>
+            ) : (
+              bookings
+                .filter((b) => isTodayDate(b.scheduledAt))
+                .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+                .map((b) => {
+                  const time = new Date(b.scheduledAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
+                  const isDone = b.status === "COMPLETED";
+                  return (
+                    <div
+                      key={`timeline-${b.id}`}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md border text-xs shrink-0 font-medium ${
+                        isDone
+                          ? "bg-slate-50 border-slate-200 text-slate-500 opacity-75"
+                          : "bg-blue-50/60 border-blue-200 text-blue-900 font-semibold"
+                      }`}
+                    >
+                      <span className="font-mono font-bold text-blue-700">{time}</span>
+                      <span className="font-bold text-slate-900">{b.vehicleNumber}</span>
+                      <span className="text-slate-600 border-l border-slate-200 pl-2 truncate max-w-[110px]">
+                        {b.customerName}
+                      </span>
+                    </div>
+                  );
+                })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── SEARCH AND FILTERS BAR ── */}
+      <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search vehicle, customer or booking..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+            >
+              ×
+            </button>
+          )}
+        </div>
+
+        {/* Filter Naming */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+          {(["All", "Today", "Upcoming", "Checked In", "Completed", "Cancelled"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilterTab(tab)}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all whitespace-nowrap ${
+                filterTab === tab
+                  ? "bg-slate-900 text-white shadow-2xs"
+                  : "bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── BOOKINGS TABLE & MOBILE CARDS ── */}
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-2xs">
         {filteredBookings.length === 0 ? (
-          <div className="py-16 text-center space-y-2">
-            <Calendar className="mx-auto text-slate-300" size={36} />
-            <p className="text-sm font-bold text-slate-600">No appointments found matching this criteria.</p>
-            <p className="text-xs text-slate-400">Click "Schedule New Appointment" above to book your first slot.</p>
+          <div className="py-16 text-center space-y-3 max-w-md mx-auto px-4">
+            <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-500">
+              <Calendar size={22} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">No bookings scheduled for today.</h3>
+              <p className="text-xs font-medium text-slate-500 mt-1">
+                Customers can still book online using your Booking Portal.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                onClick={() => setModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors"
+              >
+                <Plus size={14} />
+                <span>Schedule Appointment</span>
+              </button>
+              <a
+                href={`/book/${rawSlugToUse}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
+              >
+                <span>Open Booking Portal</span>
+                <ExternalLink size={13} />
+              </a>
+            </div>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
-            <div className="hidden md:grid grid-cols-[180px_160px_1fr_150px_130px] gap-4 px-6 py-3 bg-slate-50 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
-              <span>Appointment Time</span>
-              <span>Vehicle Info</span>
-              <span>Customer & Service</span>
-              <span>Status</span>
-              <span className="text-right">Quick Actions</span>
+          <>
+            {/* Desktop Booking Table (`hidden sm:block`) */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50/80 font-semibold text-slate-600">
+                    <th className="py-2.5 px-3.5 w-[110px]">Time</th>
+                    <th className="py-2.5 px-3.5 w-[160px]">Vehicle</th>
+                    <th className="py-2.5 px-3.5">Customer</th>
+                    <th className="py-2.5 px-3.5">Service</th>
+                    <th className="py-2.5 px-3.5 w-[110px]">Status</th>
+                    <th className="py-2.5 px-3.5 w-[110px]">Payment</th>
+                    <th className="py-2.5 px-3.5 w-[130px] text-center">Check-In</th>
+                    <th className="py-2.5 px-3.5 w-[100px] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredBookings.map((b) => {
+                    const dateObj = new Date(b.scheduledAt);
+                    const timeFormatted = dateObj.toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    });
+                    const dateFormatted = dateObj.toLocaleDateString("en-IN", {
+                      month: "short",
+                      day: "numeric",
+                    });
+                    const chip = getStatusChip(b.status);
+                    const isDoneOrCancelled = b.status === "COMPLETED" || b.status === "CANCELLED";
+
+                    return (
+                      <tr key={b.id} className="hover:bg-slate-50/70 transition-colors group">
+                        {/* Time */}
+                        <td className="py-2.5 px-3.5 whitespace-nowrap">
+                          <div className="font-semibold text-slate-900">{timeFormatted}</div>
+                          <div className="text-[11px] font-medium text-slate-400">{dateFormatted}</div>
+                        </td>
+
+                        {/* Vehicle */}
+                        <td className="py-2.5 px-3.5 whitespace-nowrap">
+                          <span className="font-bold font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 uppercase tracking-wide">
+                            {b.vehicleNumber}
+                          </span>
+                          <div className="text-[11px] font-medium text-slate-500 uppercase mt-1">
+                            {b.vehicleType}
+                          </div>
+                        </td>
+
+                        {/* Customer */}
+                        <td className="py-2.5 px-3.5">
+                          <div className="font-semibold text-slate-900 truncate max-w-[180px]">{b.customerName}</div>
+                          <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1 mt-0.5">
+                            <Phone size={10} className="text-slate-400" />
+                            <span>{b.mobile}</span>
+                          </div>
+                        </td>
+
+                        {/* Service */}
+                        <td className="py-2.5 px-3.5">
+                          <div className="font-medium text-slate-800 truncate max-w-[200px]">{b.serviceName}</div>
+                          {b.notes && (
+                            <div className="text-[11px] text-slate-400 italic truncate max-w-[200px] mt-0.5">
+                              &ldquo;{b.notes}&rdquo;
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-2.5 px-3.5 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border ${chip.className}`}>
+                            {chip.label}
+                          </span>
+                        </td>
+
+                        {/* Payment */}
+                        <td className="py-2.5 px-3.5 whitespace-nowrap text-slate-600 font-medium">
+                          {b.status === "COMPLETED" ? (
+                            <span className="text-emerald-700 font-semibold">Paid / Billed</span>
+                          ) : (
+                            <span className="text-slate-500">On Arrival</span>
+                          )}
+                        </td>
+
+                        {/* Check-In (One-click Check In) */}
+                        <td className="py-2.5 px-3.5 whitespace-nowrap text-center">
+                          {!isDoneOrCancelled ? (
+                            <button
+                              type="button"
+                              onClick={() => handleOneClickCheckIn(b)}
+                              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[11px] shadow-2xs transition-all active:scale-[0.98]"
+                            >
+                              <span>Check In</span>
+                              <ArrowRight size={11} />
+                            </button>
+                          ) : (
+                            <span className="text-slate-400 font-medium text-[11px]">—</span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-2.5 px-3.5 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {b.status === "PENDING" && (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateStatus(b.id, "CONFIRMED")}
+                                className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition-colors"
+                              >
+                                Confirm
+                              </button>
+                            )}
+                            {!isDoneOrCancelled && (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateStatus(b.id, "CANCELLED")}
+                                className="px-2 py-1 rounded hover:bg-rose-50 text-rose-600 font-medium text-[11px] transition-colors"
+                                title="Cancel"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
 
-            {filteredBookings.map((b) => {
-              const dateObj = new Date(b.scheduledAt);
-              const dateFormatted = dateObj.toLocaleDateString("en-IN", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              });
-              const timeFormatted = dateObj.toLocaleTimeString("en-IN", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              });
+            {/* Mobile Card List (`sm:hidden`) */}
+            <div className="sm:hidden divide-y divide-slate-100">
+              {filteredBookings.map((b) => {
+                const dateObj = new Date(b.scheduledAt);
+                const timeFormatted = dateObj.toLocaleTimeString("en-IN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                });
+                const chip = getStatusChip(b.status);
+                const isDoneOrCancelled = b.status === "COMPLETED" || b.status === "CANCELLED";
 
-              return (
-                <div
-                  key={b.id}
-                  className="grid grid-cols-1 md:grid-cols-[180px_160px_1fr_150px_130px] gap-3 md:gap-4 px-5 py-4 md:px-6 items-center hover:bg-slate-50/50 transition-colors"
-                >
-                  {/* Appointment Time */}
-                  <div>
-                    <div className="flex items-center gap-2 font-bold text-slate-800 text-sm">
-                      <Clock size={15} className="text-blue-500 flex-shrink-0" />
-                      <span>{timeFormatted}</span>
+                return (
+                  <div key={`mobile-${b.id}`} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 uppercase text-xs">
+                          {b.vehicleNumber}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-500 uppercase">
+                          {b.vehicleType}
+                        </span>
+                      </div>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border ${chip.className}`}>
+                        {chip.label}
+                      </span>
                     </div>
-                    <p className="text-[11px] font-semibold text-slate-400 mt-0.5">{dateFormatted}</p>
-                  </div>
 
-                  {/* Vehicle Info */}
-                  <div>
-                    <span className="font-extrabold text-xs uppercase tracking-wide bg-slate-100 text-slate-800 px-2.5 py-1 rounded-md border border-slate-200/80">
-                      {b.vehicleNumber}
-                    </span>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">
-                      {b.vehicleType}
-                    </p>
-                  </div>
+                    <div className="space-y-0.5">
+                      <div className="font-bold text-slate-900 text-sm">{b.customerName}</div>
+                      <div className="text-xs font-medium text-blue-600">{b.serviceName}</div>
+                      <div className="text-xs font-medium text-slate-500 flex items-center gap-1 pt-1">
+                        <Clock size={12} className="text-slate-400" />
+                        <span>{timeFormatted}</span>
+                        <span className="mx-1">•</span>
+                        <Phone size={12} className="text-slate-400" />
+                        <span>{b.mobile}</span>
+                      </div>
+                    </div>
 
-                  {/* Customer & Service */}
-                  <div className="min-w-0">
-                    <p className="font-bold text-xs text-slate-800 truncate">{b.customerName}</p>
-                    <p className="text-[11px] text-blue-600 font-semibold truncate mt-0.5">{b.serviceName}</p>
-                    <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-1">
-                      <Phone size={10} /> {b.mobile}
-                    </p>
-                  </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                      <div className="flex items-center gap-1.5">
+                        {b.status === "PENDING" && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateStatus(b.id, "CONFIRMED")}
+                            className="px-2.5 py-1 rounded bg-slate-100 text-slate-700 font-semibold text-xs"
+                          >
+                            Confirm
+                          </button>
+                        )}
+                        {!isDoneOrCancelled && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateStatus(b.id, "CANCELLED")}
+                            className="px-2.5 py-1 rounded hover:bg-rose-50 text-rose-600 font-medium text-xs"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
 
-                  {/* Status */}
-                  <div>
-                    <span
-                      className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-extrabold border uppercase tracking-wider ${getStatusBadge(
-                        b.status
-                      )}`}
-                    >
-                      {b.status}
-                    </span>
+                      {!isDoneOrCancelled && (
+                        <button
+                          type="button"
+                          onClick={() => handleOneClickCheckIn(b)}
+                          className="inline-flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-md bg-blue-600 text-white font-semibold text-xs shadow-2xs"
+                        >
+                          <span>Check In</span>
+                          <ArrowRight size={12} />
+                        </button>
+                      )}
+                    </div>
                   </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-end gap-1.5 pt-2 md:pt-0 border-t md:border-0 border-slate-100">
-                    {b.status === "PENDING" && (
-                      <button
-                        onClick={() => handleUpdateStatus(b.id, "CONFIRMED")}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] border border-emerald-200 transition-colors"
-                      >
-                        Confirm
-                      </button>
-                    )}
-                    {b.status === "CONFIRMED" && (
-                      <Link
-                        href={`/dashboard/jobs/new?bookingNumber=${encodeURIComponent(b.vehicleNumber)}`}
-                        onClick={() => handleUpdateStatus(b.id, "COMPLETED")}
-                        className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-extrabold text-[11px] shadow-xs transition-all flex items-center gap-1"
-                      >
-                        <span>Check-in → Queue</span>
-                        <ArrowRight size={12} />
-                      </Link>
-                    )}
-                    {b.status !== "CANCELLED" && b.status !== "COMPLETED" && (
-                      <button
-                        onClick={() => handleUpdateStatus(b.id, "CANCELLED")}
-                        className="px-2 py-1 rounded-lg hover:bg-rose-50 text-rose-600 font-bold text-[10px] transition-colors"
-                        title="Cancel Appointment"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
-      {/* Modal for Creating Booking */}
+      {/* ── SCHEDULE NEW APPOINTMENT MODAL (Enterprise Modal) ── */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-slide-up space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-sm font-black text-slate-800">Schedule New Appointment</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-2xs animate-fade-in">
+          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-xl border border-slate-200 animate-slide-up space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Calendar size={16} className="text-blue-600" />
+                <span>Schedule New Appointment</span>
+              </h3>
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100 transition-colors"
               >
                 <XCircle size={18} />
               </button>
@@ -377,47 +768,47 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
             <form onSubmit={handleCreateBooking} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Customer Name *</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Customer Name *</label>
                   <input
                     type="text"
                     required
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="e.g. Rajesh Kumar"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium text-slate-900"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mobile Number *</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Mobile Number *</label>
                   <input
                     type="tel"
                     required
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
                     placeholder="e.g. 9876543210"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium text-slate-900"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vehicle Number *</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Vehicle Number *</label>
                   <input
                     type="text"
                     required
                     value={vehicleNumber}
                     onChange={(e) => setVehicleNumber(e.target.value)}
                     placeholder="e.g. KA-01-EQ-9988"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-bold uppercase"
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-bold uppercase text-slate-900"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vehicle Category</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Vehicle Category</label>
                   <select
                     value={vehicleType}
                     onChange={(e) => setVehicleType(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium text-slate-900 bg-white"
                   >
                     <option value="Hatchback">Hatchback</option>
                     <option value="Sedan">Sedan</option>
@@ -429,66 +820,147 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Requested Service</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Requested Service</label>
                 <input
                   type="text"
                   value={serviceName}
                   onChange={(e) => setServiceName(e.target.value)}
                   placeholder="e.g. Full Body Foam Wash + Interior Polish"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                  className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium text-slate-900"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Appointment Date *</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Appointment Date *</label>
                   <input
                     type="date"
                     required
                     value={dateStr}
                     onChange={(e) => setDateStr(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium text-slate-900"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Time Slot *</label>
+                  <label className="block text-[11px] font-semibold text-slate-700 mb-1">Time Slot *</label>
                   <input
                     type="time"
                     required
                     value={timeStr}
                     onChange={(e) => setTimeStr(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-medium text-slate-900"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Notes / Special Instructions</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Notes / Operational Instructions</label>
                 <textarea
                   rows={2}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any customer preferences..."
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-normal"
+                  placeholder="Any customer or vehicle condition preferences..."
+                  className="w-full px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-normal text-slate-900"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50"
+                  className="px-4 py-2 rounded-md border border-slate-300 font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm transition-colors"
+                  className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-2xs transition-colors"
                 >
                   Confirm Appointment
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── QR CODE MODAL ── */}
+      {qrModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-2xs animate-fade-in">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6 shadow-xl border border-slate-200 text-center space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+              <h3 className="text-sm font-bold text-slate-900">Online Booking QR Code</h3>
+              <button
+                onClick={() => setQrModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100"
+              >
+                <XCircle size={18} />
+              </button>
+            </div>
+            <p className="text-xs text-slate-500">
+              Print or display this link for customers to book appointments directly from their phone.
+            </p>
+            <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 flex items-center justify-center mx-auto max-w-[200px] aspect-square">
+              <QrCode size={130} className="text-slate-800" strokeWidth={1.2} />
+            </div>
+            <div className="text-xs font-mono font-semibold text-slate-700 bg-slate-100 py-2 px-3 rounded border border-slate-200/80 truncate">
+              {displayPublicUrl}
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(publicLink);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2500);
+                }}
+                className="w-full py-2 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5"
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                <span>{copied ? "Link Copied!" : "Copy URL"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SETTINGS / INFO MODAL ── */}
+      {settingsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-2xs animate-fade-in">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Settings size={16} className="text-slate-600" />
+                <span>Booking Portal Configuration</span>
+              </h3>
+              <button
+                onClick={() => setSettingsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100"
+              >
+                <XCircle size={18} />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs text-slate-600">
+              <div className="bg-slate-50 p-3 rounded border border-slate-200">
+                <span className="font-semibold text-slate-900 block mb-0.5">Assigned Station Slug</span>
+                <span className="font-mono text-blue-600">{displaySlug}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-slate-900 block">Online Reservation Status</span>
+                <p className="mt-0.5">Your portal accepts online reservations 24/7. Slot duration is automatically synced with your active bay configuration.</p>
+              </div>
+              <div>
+                <span className="font-semibold text-slate-900 block">Notification & Sync</span>
+                <p className="mt-0.5">All customer online self-bookings appear instantly inside your &ldquo;Today&apos;s Bookings&rdquo; KPI strip above.</p>
+              </div>
+            </div>
+            <div className="pt-3 border-t border-slate-200 flex justify-end">
+              <button
+                onClick={() => setSettingsModalOpen(false)}
+                className="px-4 py-2 rounded-md bg-slate-900 text-white font-semibold text-xs"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

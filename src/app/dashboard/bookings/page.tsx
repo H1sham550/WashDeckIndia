@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { BookingsPanel } from "@/components/dashboard/bookings-panel";
 
 export const metadata = {
-  title: "Advance Appointments | WashDeck",
+  title: "Appointment Manager | WashDeck",
 };
 
 export default async function BookingsPage() {
@@ -37,12 +37,12 @@ export default async function BookingsPage() {
   }));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6">
+    <div className="mx-auto max-w-[1600px] px-4 py-6">
       <BookingsPanel 
         initialBookings={serialized} 
         stationId={stationId}
         stationSlug={station?.slug || stationId}
-        stationName={station?.name || "Your Station"}
+        stationName={station?.name || "WashDeck Station"}
       />
     </div>
   );

@@ -65,7 +65,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     return cached.data;
   }
 
-  const station = await prisma.station.findUnique({
+  let station = await prisma.station.findUnique({
     where: { id: stationId },
     include: {
       branding: true,
@@ -83,6 +83,76 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       },
     },
   });
+
+  if (!station && stationId && stationId !== "station" && stationId.length >= 8) {
+    try {
+      let country = await prisma.country.findFirst({ where: { code: "SA" } });
+      if (!country) country = await prisma.country.findFirst();
+      if (!country) {
+        country = await prisma.country.create({
+          data: {
+            code: "SA",
+            name: "Saudi Arabia",
+            currencyCode: "SAR",
+            currencyFormat: "SAR {amount}",
+            phonePrefix: "+966",
+            defaultLocale: "en-SA",
+            supportedLocales: ["en-SA", "ar-SA"],
+            dateFormat: "DD/MM/YYYY",
+            timeFormat: "12h",
+          },
+        });
+      }
+
+      let region = await prisma.region.findFirst({ where: { countryId: country.id } });
+      if (!region) {
+        region = await prisma.region.create({
+          data: { countryId: country.id, name: "Riyadh", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15 },
+        });
+      }
+
+      station = await prisma.station.create({
+        data: {
+          id: stationId,
+          name: "WashDeck Station",
+          slug: stationId,
+          branchCode: `WD-${stationId.slice(0, 4).toUpperCase()}`,
+          countryId: country.id,
+          regionId: region.id,
+          status: "TRIAL",
+          isDeleted: false,
+          branding: {
+            create: {
+              primaryColor: "#0F172A",
+            },
+          },
+          settings: {
+            create: {
+              defaultCurrencyOverride: country.currencyCode || "SAR",
+              timezoneOverride: region.timezone || "Asia/Riyadh",
+            },
+          },
+        },
+        include: {
+          branding: true,
+          settings: true,
+          featureOverrides: true,
+          stationSubscriptions: {
+            include: {
+              subscription: {
+                include: {
+                  planFeatures: true,
+                },
+              },
+            },
+            orderBy: { endDate: "desc" },
+          },
+        },
+      });
+    } catch (createErr) {
+      console.error("Self-healing missing station creation error:", createErr);
+    }
+  }
 
   if (!station) {
     return {

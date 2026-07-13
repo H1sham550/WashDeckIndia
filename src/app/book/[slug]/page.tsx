@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PublicBookingPage({ params }: { params: Promise<{ slug: string }> }) {
   const rawSlug = decodeURIComponent((await params).slug || "").trim();
 
-  const station = await prisma.station.findFirst({
+  let station = await prisma.station.findFirst({
     where: {
       OR: [
         { slug: rawSlug },
@@ -38,6 +38,29 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
       branding: true,
     },
   });
+
+  if (!station && rawSlug && rawSlug.length >= 8) {
+    try {
+      const userOrExist = await prisma.user.findFirst({ where: { stationId: rawSlug } });
+      if (userOrExist || rawSlug.includes("-")) {
+        const { getStationEntitlements } = await import("@/lib/entitlement");
+        await getStationEntitlements(rawSlug);
+        station = await prisma.station.findFirst({
+          where: {
+            OR: [
+              { slug: rawSlug },
+              { id: rawSlug },
+              { slug: { equals: rawSlug, mode: "insensitive" } },
+              { id: { equals: rawSlug, mode: "insensitive" } },
+            ],
+          },
+          include: { branding: true },
+        });
+      }
+    } catch (err) {
+      console.error("Public booking page self-healing trigger error:", err);
+    }
+  }
 
   if (!station) return notFound();
 

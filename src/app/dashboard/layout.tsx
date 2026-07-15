@@ -46,7 +46,7 @@ export default async function DashboardLayout({
   return (
     <div
       className="wd-app-shell"
-      dir={station?.isRTL || station?.locale?.startsWith("ar") ? "rtl" : "ltr"}
+      dir={station?.locale?.startsWith("ar") ? "rtl" : "ltr"}
       style={{ "--primary-color": primaryColor } as React.CSSProperties}
     >
       {/* Impersonation banner */}

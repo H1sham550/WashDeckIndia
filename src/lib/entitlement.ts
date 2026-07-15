@@ -338,7 +338,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       currency: country?.currencyCode || "SAR",
       timezone: region?.timezone || "Asia/Riyadh",
       locale: country?.defaultLocale || "en-SA",
-      isRTL: country?.isRTL || false,
+      isRTL: (country?.defaultLocale || "en-SA").startsWith("ar"),
       vipSpendThreshold: 10000,
       vipVisitThreshold: 5,
     },

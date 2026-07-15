@@ -18,16 +18,14 @@ export default async function LoginPage() {
       >
         {/* Logo */}
         <div>
-          <div className="flex items-center gap-2.5 mb-12">
-            <div
-              className="h-8 w-8 rounded flex items-center justify-center text-white text-sm font-bold"
-              style={{ background: "hsl(220 91% 54%)" }}
-            >
-              W
+          <div className="mb-10">
+            <div className="bg-white rounded-2xl px-5 py-3 shadow-xl inline-block border border-white/10">
+              <img
+                src="/brand/washdeck-shield-logo.png"
+                alt="WashDeck - Professional Car Wash Management"
+                className="h-11 w-auto object-contain"
+              />
             </div>
-            <span className="text-white font-semibold text-lg tracking-tight">
-              WashDeck
-            </span>
           </div>
 
           <h2 className="text-2xl font-semibold text-white mb-3 leading-snug">
@@ -71,16 +69,12 @@ export default async function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div
-              className="h-7 w-7 rounded flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: "hsl(220 91% 54%)" }}
-            >
-              W
-            </div>
-            <span className="font-semibold text-base" style={{ color: "#0F172A" }}>
-              WashDeck
-            </span>
+          <div className="mb-8 lg:hidden">
+            <img
+              src="/brand/washdeck-shield-logo.png"
+              alt="WashDeck - Professional Car Wash Management"
+              className="h-11 w-auto object-contain"
+            />
           </div>
 
           <div className="mb-7">

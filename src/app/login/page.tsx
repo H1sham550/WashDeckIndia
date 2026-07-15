@@ -19,11 +19,11 @@ export default async function LoginPage() {
         {/* Logo */}
         <div>
           <div className="mb-10">
-            <div className="bg-white rounded-2xl px-5 py-3 shadow-xl inline-block border border-white/10">
+            <div className="bg-white rounded-2xl px-6 py-4 shadow-xl inline-block border border-white/10 transition-all hover:shadow-2xl">
               <img
                 src="/brand/washdeck-shield-logo.png"
                 alt="WashDeck - Professional Car Wash Management"
-                className="h-11 w-auto object-contain"
+                className="h-16 w-auto max-w-[260px] object-contain"
               />
             </div>
           </div>
@@ -69,11 +69,11 @@ export default async function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
-          <div className="mb-8 lg:hidden">
+          <div className="mb-8 lg:hidden flex justify-start">
             <img
               src="/brand/washdeck-shield-logo.png"
               alt="WashDeck - Professional Car Wash Management"
-              className="h-11 w-auto object-contain"
+              className="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-[280px] object-contain"
             />
           </div>
 

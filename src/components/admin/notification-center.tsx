@@ -53,7 +53,7 @@ export function NotificationCenter() {
       </button>
 
       {open && (
-        <div className="fixed sm:absolute inset-0 sm:inset-auto sm:right-0 sm:top-full sm:mt-2 z-[100] sm:z-50 flex items-start justify-center sm:block pt-2 sm:pt-0 px-2 sm:px-0">
+        <div className="fixed sm:absolute inset-0 sm:inset-auto sm:right-0 rtl:sm:right-auto rtl:sm:left-0 sm:top-full sm:mt-2 z-[100] sm:z-50 flex items-start justify-center sm:block pt-2 sm:pt-0 px-2 sm:px-0">
           {/* Backdrop Overlay */}
           <div
             className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs sm:hidden"

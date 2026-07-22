@@ -93,32 +93,34 @@ function JobCardItem({ job }: { job: JobCard }) {
   return (
     <Link
       href={`/dashboard/jobs/${job.id}`}
-      className="block p-3 hover:bg-slate-50 transition-colors"
-      style={{
-        borderBottom: "1px solid hsl(var(--border))",
-      }}
+      className="block p-3.5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-200 last:border-b-0 active-tap"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <span className="plate">{job.vehicle.vehicleNumber}</span>
-            <span className="wd-caption">{job.vehicle.vehicleType}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="plate bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[11px] tracking-wide">
+              {job.vehicle.vehicleNumber}
+            </span>
+            <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+              {job.vehicle.vehicleType}
+            </span>
           </div>
-          <p className="text-xs mt-1 truncate" style={{ color: "hsl(var(--text-primary))", fontWeight: 500 }}>
+          <p className="text-xs font-extrabold text-slate-900 truncate">
             {job.customer.name}
           </p>
-          <p className="wd-caption truncate mt-0.5">
+          <p className="text-[11px] font-semibold text-slate-700 truncate">
             {job.services.map((s) => s.serviceNameSnapshot).join(", ")}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <span className="text-xs font-medium" style={{ color: "hsl(var(--text-primary))" }}>
-            ₹{totalPrice.toLocaleString("en-IN")}
+
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <span className="text-xs font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+            SAR {totalPrice.toLocaleString("en-IN")}
           </span>
           {eta ? (
-            <span className="wd-caption">ETA {eta}</span>
+            <span className="text-[10px] font-bold text-slate-600">ETA {eta}</span>
           ) : (
-            <span className="wd-caption">{formatElapsed(job.createdAt)}</span>
+            <span className="text-[10px] font-bold text-slate-600">{formatElapsed(job.createdAt)}</span>
           )}
         </div>
       </div>
@@ -128,60 +130,91 @@ function JobCardItem({ job }: { job: JobCard }) {
 
 export function OperationsBoard({ initialBoardData }: OperationsBoardProps) {
   return (
-    <div
-      className="grid gap-3"
-      style={{ gridTemplateColumns: "repeat(5, minmax(0, 1fr))" }}
-    >
-      {COLUMNS.map((col) => {
-        const jobs = initialBoardData[col.key] || [];
-        return (
-          <div
-            key={col.key}
-            className="wd-card overflow-hidden flex flex-col"
-            style={{ minHeight: 200 }}
-          >
-            {/* Column header */}
+    <div>
+      {/* ── Desktop View (5-Column Kanban Grid) ───────────────────── */}
+      <div className="hidden md:grid grid-cols-5 gap-3.5">
+        {COLUMNS.map((col) => {
+          const jobs = initialBoardData[col.key] || [];
+          return (
             <div
-              className="flex items-center gap-2 px-3 py-2.5 border-b"
-              style={{ background: "hsl(var(--bg-subtle))" }}
+              key={col.key}
+              className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col min-h-[260px]"
             >
-              <div className={col.dotClass} />
-              <span className="wd-label flex-1">{col.label}</span>
-              <span
-                className="badge badge-neutral"
-                style={{ fontSize: 10, minWidth: 20, justifyContent: "center" }}
-              >
-                {jobs.length}
-              </span>
-            </div>
-
-            {/* Cards */}
-            <div className="flex-1 overflow-y-auto">
-              {jobs.length === 0 ? (
-                <div className="py-6 text-center">
-                  <p className="wd-caption">No vehicles</p>
+              {/* Column header */}
+              <div className="flex items-center justify-between px-3 py-2.5 bg-slate-50 border-b border-slate-200">
+                <div className="flex items-center gap-2">
+                  <div className={col.dotClass} />
+                  <span className={`text-xs font-black ${col.headerClass}`}>{col.label}</span>
                 </div>
-              ) : (
-                jobs.map((job) => <JobCardItem key={job.id} job={job} />)
+                <span className="bg-slate-200 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full">
+                  {jobs.length}
+                </span>
+              </div>
+
+              {/* Cards */}
+              <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+                {jobs.length === 0 ? (
+                  <div className="py-8 text-center text-slate-400 text-xs font-bold">
+                    No vehicles
+                  </div>
+                ) : (
+                  jobs.map((job) => <JobCardItem key={job.id} job={job} />)
+                )}
+              </div>
+
+              {/* Footer */}
+              {col.key !== "DELIVERED" && (
+                <div className="border-t border-slate-200 bg-slate-50/50">
+                  <Link
+                    href={`/dashboard/queue?tab=${col.key}`}
+                    className="flex items-center justify-center gap-1 py-2 text-xs font-extrabold text-slate-700 hover:text-slate-900 transition-colors w-full"
+                  >
+                    <span>View All ({jobs.length})</span>
+                    <ArrowRight size={12} className="rtl:rotate-180" />
+                  </Link>
+                </div>
               )}
             </div>
+          );
+        })}
+      </div>
 
-            {/* Footer */}
-            {col.key !== "DELIVERED" && (
-              <div className="border-t">
-                <Link
-                  href={`/dashboard/queue?tab=${col.key}`}
-                  className="flex items-center justify-center gap-1 py-2 text-xs hover:bg-slate-50 transition-colors w-full"
-                  style={{ color: "hsl(var(--text-secondary))" }}
-                >
-                  <span>See all</span>
-                  <ArrowRight size={11} />
-                </Link>
+      {/* ── Mobile View (Vertical Section Tiles Stacked) ─────────── */}
+      <div className="md:hidden flex flex-col space-y-4">
+        {COLUMNS.map((col) => {
+          const jobs = initialBoardData[col.key] || [];
+          return (
+            <div
+              key={col.key}
+              className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+            >
+              {/* Section Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+                <div className="flex items-center gap-2.5">
+                  <div className={col.dotClass} />
+                  <h3 className={`text-xs font-black uppercase tracking-wider ${col.headerClass}`}>
+                    {col.label}
+                  </h3>
+                </div>
+                <span className="bg-slate-900 text-white text-xs font-black px-2.5 py-0.5 rounded-full">
+                  {jobs.length} {jobs.length === 1 ? "vehicle" : "vehicles"}
+                </span>
               </div>
-            )}
-          </div>
-        );
-      })}
+
+              {/* Section Body */}
+              <div className="divide-y divide-slate-200">
+                {jobs.length === 0 ? (
+                  <div className="py-6 text-center text-slate-400 text-xs font-semibold">
+                    No vehicles in {col.label.toLowerCase()} stage
+                  </div>
+                ) : (
+                  jobs.map((job) => <JobCardItem key={job.id} job={job} />)
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

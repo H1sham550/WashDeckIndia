@@ -134,42 +134,50 @@ export function CommandPalette({ stations = [] }: CommandPaletteProps) {
       {/* Modal Dialog */}
       {open && (
         <div
-          className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] p-4"
+          className="fixed inset-0 z-[9999] flex items-start justify-center pt-2 sm:pt-[10vh] px-2 sm:px-4"
           role="dialog"
           aria-modal="true"
         >
           {/* Overlay */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-xs animate-fade-in"
+            className="absolute inset-0 bg-black/50 backdrop-blur-xs animate-fade-in"
             onClick={() => setOpen(false)}
           />
 
           {/* Dialog Panel */}
           <div
-            className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-slide-up"
+            className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-slide-up"
             onKeyDown={handleListKeyDown}
           >
             {/* Search Input Bar */}
-            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-100">
+            <div className="flex items-center gap-2 px-3.5 py-3 border-b border-slate-100 bg-slate-50/50">
               <Search size={18} className="text-slate-400 flex-shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search customers, invoices, plans, or type a command..."
+                placeholder="Search customers, invoices, plans..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
+                className="flex-1 bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none"
               />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg flex-shrink-0"
+                >
+                  <X size={15} />
+                </button>
+              )}
               <button
                 onClick={() => setOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+                className="px-2 py-1 bg-slate-200/70 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold shrink-0 transition-colors"
               >
-                <X size={16} />
+                Close
               </button>
             </div>
 
             {/* Results List */}
-            <div className="max-h-80 overflow-y-auto p-2 space-y-1">
+            <div className="max-h-[70vh] sm:max-h-80 overflow-y-auto p-2 space-y-1 -webkit-overflow-scrolling-touch">
               {filtered.length === 0 ? (
                 <div className="py-8 text-center text-xs text-slate-400">
                   No matching results found for <span className="font-bold text-slate-600">"{query}"</span>.

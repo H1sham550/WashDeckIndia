@@ -24,6 +24,7 @@ export default async function LoginPage() {
                 src="/brand/washdeck-shield-logo.png"
                 alt="WashDeck - Professional Car Wash Management"
                 className="h-16 w-auto max-w-[260px] object-contain"
+                suppressHydrationWarning
               />
             </div>
           </div>
@@ -68,13 +69,16 @@ export default async function LoginPage() {
       {/* Right Panel — Login Form */}
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">
-          {/* Mobile logo */}
+          {/* Mobile logo — larger, prominent, high contrast card */}
           <div className="mb-8 lg:hidden flex justify-start">
-            <img
-              src="/brand/washdeck-shield-logo.png"
-              alt="WashDeck - Professional Car Wash Management"
-              className="h-14 sm:h-16 w-auto max-w-[240px] sm:max-w-[280px] object-contain"
-            />
+            <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-md border border-slate-200 inline-block">
+              <img
+                src="/brand/washdeck-shield-logo.png"
+                alt="WashDeck - Professional Car Wash Management"
+                className="h-16 sm:h-20 w-auto max-w-[280px] sm:max-w-[340px] object-contain"
+                suppressHydrationWarning
+              />
+            </div>
           </div>
 
           <div className="mb-7">

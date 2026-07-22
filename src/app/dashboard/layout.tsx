@@ -6,6 +6,8 @@ import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { StationSelector } from "@/components/dashboard/station-selector";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { SpotlightSearch } from "@/components/dashboard/spotlight-search";
+import { NotificationCenter } from "@/components/admin/notification-center";
+import { WashDeckLogo } from "@/components/brand/washdeck-logo";
 
 export default async function DashboardLayout({
   children,
@@ -77,21 +79,16 @@ export default async function DashboardLayout({
         <header className="wd-topbar">
           {/* Station selector + role badge */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* Mobile: show logo / station name */}
-            <div className="md:hidden flex items-center gap-2">
+            {/* Mobile: show clean WashDeck shield icon */}
+            <div className="md:hidden flex items-center flex-shrink-0">
               {logoUrl ? (
                 <img
                   src={logoUrl}
                   alt={station?.name}
-                  className="h-6 w-6 rounded object-contain"
+                  className="h-8 w-8 rounded-lg object-contain border border-slate-100"
                 />
               ) : (
-                <div
-                  className="h-6 w-6 rounded flex items-center justify-center text-white text-xs font-semibold"
-                  style={{ background: "hsl(var(--brand-blue))", fontSize: 11 }}
-                >
-                  {station?.name?.charAt(0).toUpperCase()}
-                </div>
+                <WashDeckLogo variant="icon" className="h-8 w-8 object-contain" />
               )}
             </div>
 
@@ -105,16 +102,17 @@ export default async function DashboardLayout({
             />
 
             <span
-              className="badge badge-neutral hidden sm:inline-flex"
+              className="badge badge-neutral hidden sm:inline-flex flex-shrink-0"
               style={{ fontSize: 10 }}
             >
               {session.role}
             </span>
           </div>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-2">
+          {/* Right actions - always visible & protected from shrinking */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-10">
             <SpotlightSearch />
+            <NotificationCenter />
             <LogoutButton />
           </div>
         </header>

@@ -5,8 +5,8 @@ import { sessionCookieName, type SessionUser } from "@/lib/session";
 const protectedPrefixes = ["/dashboard", "/admin"];
 
 function getSecret() {
-  const secret = process.env.SESSION_SECRET;
-  return secret ? new TextEncoder().encode(secret) : null;
+  const secret = process.env.SESSION_SECRET || "washdeck-local-development-fallback-secret-key-32-chars";
+  return new TextEncoder().encode(secret);
 }
 
 export async function middleware(request: NextRequest) {

@@ -59,13 +59,13 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 flex-1 rounded-xl transition-all duration-150 active-tap px-1",
                 active
-                  ? "text-wd-teal-700 bg-wd-teal-50"
-                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                  ? "text-teal-950 bg-teal-100/90 font-black shadow-xs"
+                  : "text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-bold"
               )}
             >
               <Icon
                 size={20}
-                strokeWidth={active ? 2.2 : 1.8}
+                strokeWidth={active ? 2.3 : 1.9}
                 className="flex-shrink-0"
               />
               <span className={cn("text-[9px] font-bold tracking-tight leading-none", active && "font-extrabold")}>
@@ -79,8 +79,8 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
   }
 
   return (
-    <nav className="space-y-0.5">
-      <p className="px-3 mb-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+    <nav className="space-y-1">
+      <p className="px-3 mb-2 text-[9px] font-black text-slate-600 uppercase tracking-widest">
         Navigation
       </p>
       {NAV_ITEMS.map(({ href, label, icon: Icon, exact }) => {
@@ -90,22 +90,22 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
             key={href}
             href={href as any}
             className={cn(
-              "group flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 active-tap",
+              "group flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-150 active-tap",
               active
-                ? "bg-gradient-to-r from-wd-teal-500 to-wd-teal-600 text-white shadow-sm font-bold"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                ? "bg-teal-700 text-white shadow-sm font-extrabold"
+                : "text-slate-800 hover:bg-slate-100 hover:text-slate-950"
             )}
           >
             <Icon
               size={18}
-              strokeWidth={active ? 2.3 : 1.8}
+              strokeWidth={active ? 2.3 : 1.9}
               className={cn(
                 "flex-shrink-0 transition-transform duration-150",
-                active ? "text-white scale-105" : "text-slate-400 group-hover:text-slate-600"
+                active ? "text-white scale-105" : "text-slate-600 group-hover:text-slate-900"
               )}
             />
             <span className="flex-1 truncate">{label}</span>
-            {active && <ChevronRight size={14} className="text-white/80" />}
+            {active && <ChevronRight size={14} className="text-white/90" />}
           </Link>
         );
       })}

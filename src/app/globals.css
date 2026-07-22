@@ -12,58 +12,58 @@
    ============================================================ */
 
 :root {
-  /* ── Brand ──────────────────────────────────────────── */
-  --brand-blue: 220 91% 54%;          /* #2563EB — primary actions */
-  --brand-blue-hover: 221 83% 47%;    /* #1D4ED8 */
-  --brand-blue-light: 214 100% 97%;   /* #EFF6FF — subtle bg */
-  --brand-blue-border: 213 94% 88%;   /* #BFDBFE */
+  /* ── Brand: Deep Cobalt Blue & Vivid Royal Accent ──────────────── */
+  --brand-blue: 221 83% 47%;          /* #1D4ED8 — vivid cobalt blue */
+  --brand-blue-hover: 224 76% 38%;    /* #1E40AF */
+  --brand-blue-light: 214 95% 93%;   /* #DBEAFE — active tab bg */
+  --brand-blue-border: 213 94% 80%;   /* #93C5FD */
 
   /* ── Surface ─────────────────────────────────────────── */
-  --surface: 0 0% 100%;               /* #FFFFFF — cards, panels */
-  --surface-raised: 0 0% 100%;        /* modals, dropdowns */
-  --bg: 210 17% 98%;                  /* #F8F9FA — page background */
-  --bg-subtle: 220 14% 96%;           /* #F1F5F9 — hover, inactive */
+  --surface: 0 0% 100%;               /* #FFFFFF */
+  --surface-raised: 0 0% 100%;
+  --bg: 210 20% 98%;                  /* #F8FAFC — page bg */
+  --bg-subtle: 214 32% 94%;           /* #E2E8F0 — subtle bg */
 
-  /* ── Text ────────────────────────────────────────────── */
-  --text-primary: 222 47% 11%;        /* #0F172A slate-900 */
-  --text-secondary: 215 16% 47%;      /* #64748B slate-500 */
-  --text-tertiary: 215 20% 65%;       /* #94A3B8 slate-400 */
-  --text-disabled: 215 20% 75%;       /* slate-300 */
+  /* ── Text: Jet Black & Crisp Charcoal (Zero Faded Greys) ──── */
+  --text-primary: 222 47% 7%;         /* #020617 Slate-950 — maximum legibility */
+  --text-secondary: 222 47% 11%;      /* #0F172A Slate-900 — bold secondary text */
+  --text-tertiary: 215 25% 20%;       /* #1E293B Slate-800 — solid readable text */
+  --text-disabled: 215 20% 30%;       /* #334155 Slate-700 */
   --text-inverse: 0 0% 100%;          /* white on dark */
 
   /* ── Border ──────────────────────────────────────────── */
-  --border: 214 32% 91%;              /* #E2E8F0 slate-200 */
-  --border-strong: 215 25% 84%;       /* #CBD5E1 slate-300 */
+  --border: 214 25% 85%;              /* #CBD5E1 Slate-300 */
+  --border-strong: 215 20% 65%;       /* #94A3B8 Slate-400 */
 
   /* ── Semantic Colors ─────────────────────────────────── */
-  --success: 142 71% 45%;             /* #22C55E */
+  --success: 142 76% 36%;             /* #15803D */
   --success-bg: 141 84% 93%;          /* #DCFCE7 */
   --success-border: 141 69% 82%;      /* #BBF7D0 */
 
-  --warning: 32 95% 44%;              /* #D97706 */
+  --warning: 32 95% 36%;              /* #B45309 */
   --warning-bg: 48 100% 89%;          /* #FEF3C7 */
   --warning-border: 46 97% 77%;       /* #FDE68A */
 
-  --danger: 0 84% 60%;                /* #EF4444 */
+  --danger: 0 84% 45%;                /* #DC2626 */
   --danger-bg: 0 86% 97%;             /* #FEF2F2 */
   --danger-border: 0 94% 87%;         /* #FECACA */
 
-  --info: 199 89% 48%;                /* #0EA5E9 */
+  --info: 199 89% 38%;                /* #0369A1 */
   --info-bg: 204 100% 97%;            /* #F0F9FF */
   --info-border: 198 93% 82%;         /* #BAE6FD */
 
   /* ── Radius ──────────────────────────────────────────── */
-  --radius-sm: 6px;                   /* tight elements */
-  --radius: 8px;                      /* buttons, inputs */
-  --radius-md: 10px;                  /* cards */
-  --radius-lg: 12px;                  /* modals, dialogs */
-  --radius-xl: 16px;                  /* large containers */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 
   /* ── Shadows ─────────────────────────────────────────── */
-  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.04);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.06);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.06);
 
   /* ── Sidebar ─────────────────────────────────────────── */
   --sidebar-width: 224px;
@@ -440,7 +440,7 @@ a[role="button"],
   display: flex;
   align-items: center;
   padding: 0 16px;
-  gap: 12px;
+  gap: 8px;
   z-index: 30;
 }
 
@@ -455,9 +455,20 @@ a[role="button"],
     display: none;
   }
   .wd-main {
-    padding: 12px 12px 80px;   /* bottom space for mobile nav */
+    padding: 12px 12px calc(84px + env(safe-area-inset-bottom, 0px));   /* bottom space for mobile nav + safe area */
+  }
+  .wd-topbar {
+    padding: 0 10px;
+    gap: 6px;
   }
 }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 
 /* ============================================================
    SIDEBAR NAV ITEMS

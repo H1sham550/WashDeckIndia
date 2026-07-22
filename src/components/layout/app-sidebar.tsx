@@ -22,6 +22,7 @@ import {
   ChevronRight,
   Bell,
 } from "lucide-react";
+import { WashDeckLogo } from "@/components/brand/washdeck-logo";
 
 interface AppSidebarProps {
   isOwner: boolean;
@@ -119,33 +120,32 @@ export function AppSidebar({
     >
       {/* Logo / Station Name */}
       <div
-        className="flex items-center gap-2.5 px-3 border-b"
+        className="flex items-center gap-2.5 px-3 border-b border-slate-100"
         style={{ height: "var(--topbar-height)", flexShrink: 0 }}
       >
-        {logoUrl ? (
-          <img
-            src={logoUrl}
-            alt={stationName}
-            className="h-7 w-7 rounded object-contain flex-shrink-0"
-          />
-        ) : (
-          <div
-            className="h-7 w-7 rounded flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-            style={{ background: "hsl(var(--brand-blue))" }}
-          >
-            {stationName.charAt(0).toUpperCase()}
-          </div>
-        )}
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-600 truncate text-slate-800 leading-none" style={{fontWeight:600}}>
-              {stationName}
-            </p>
-            {planName && (
-              <p className="text-[10px] mt-0.5" style={{ color: "hsl(var(--text-tertiary))" }}>
-                {planName}
+        {collapsed ? (
+          <WashDeckLogo variant="icon" className="h-8 w-8 object-contain mx-auto" />
+        ) : logoUrl ? (
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <img
+              src={logoUrl}
+              alt={stationName}
+              className="h-8 w-8 rounded-lg object-contain flex-shrink-0 border border-slate-100"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold truncate text-slate-800 leading-tight">
+                {stationName}
               </p>
-            )}
+              {planName && (
+                <p className="text-[10px] text-slate-400 truncate">
+                  {planName}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <WashDeckLogo variant="full" className="h-9 w-auto max-w-[150px] object-contain flex-shrink-0" />
           </div>
         )}
       </div>

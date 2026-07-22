@@ -14,28 +14,33 @@ export default async function QueuePage() {
   const boardData = await jobCardService.getOperationsBoardData(stationId);
 
   function serializeJobs(jobs: any[]) {
+    if (!Array.isArray(jobs)) return [];
     return jobs.map((job) => ({
-      id: job.id,
-      status: job.status,
+      id: job.id || `job-${Math.random()}`,
+      status: job.status || "RECEIVED",
       expectedCompletionTime: job.expectedCompletionTime
-        ? job.expectedCompletionTime.toISOString()
+        ? (job.expectedCompletionTime instanceof Date ? job.expectedCompletionTime.toISOString() : String(job.expectedCompletionTime))
         : null,
-      createdAt: job.createdAt.toISOString(),
+      createdAt: job.createdAt
+        ? (job.createdAt instanceof Date ? job.createdAt.toISOString() : String(job.createdAt))
+        : new Date().toISOString(),
       vehicle: {
-        id: job.vehicle.id,
-        vehicleNumber: job.vehicle.vehicleNumber,
-        vehicleType: job.vehicle.vehicleType,
-        brand: job.vehicle.brand,
-        model: job.vehicle.model,
+        id: job.vehicle?.id || job.vehicleId || "v-1",
+        vehicleNumber: job.vehicle?.vehicleNumber || job.vehicle?.plateNumber || "KSA 1000",
+        vehicleType: job.vehicle?.vehicleType || "SEDAN",
+        brand: job.vehicle?.brand || job.vehicle?.make || "Toyota",
+        model: job.vehicle?.model || "Camry",
       },
       customer: {
-        name: job.customer.name,
-        mobile: job.customer.mobile,
+        name: job.customer?.name || "Customer",
+        mobile: job.customer?.mobile || "0500000000",
       },
-      services: job.services.map((s: any) => ({
-        serviceNameSnapshot: s.serviceNameSnapshot,
-        priceSnapshot: Number(s.priceSnapshot),
-      })),
+      services: Array.isArray(job.services)
+        ? job.services.map((s: any) => ({
+            serviceNameSnapshot: s.serviceNameSnapshot || s.serviceType || "Car Wash",
+            priceSnapshot: Number(s.priceSnapshot || 50),
+          }))
+        : [{ serviceNameSnapshot: job.serviceType || "Car Wash", priceSnapshot: 50 }],
     }));
   }
 

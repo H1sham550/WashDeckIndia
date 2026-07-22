@@ -184,12 +184,12 @@ export function SpotlightSearch() {
       {/* Trigger Button in Topbar */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-slate-200/80 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300 transition-all text-slate-500 text-xs font-medium group active-tap"
+        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200/80 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all text-slate-600 text-xs font-semibold group active-tap shrink-0"
         title="Universal Search (Ctrl+K / Cmd+K)"
       >
-        <Search size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+        <Search size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors shrink-0" />
         <span className="hidden sm:inline">Quick Search & Actions...</span>
-        <span className="inline sm:hidden">Search</span>
+        <span className="inline sm:hidden text-[11px] font-bold">Search</span>
         <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-400">
           ⌘K
         </kbd>
@@ -197,11 +197,18 @@ export function SpotlightSearch() {
 
       {/* Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4 bg-slate-900/40 backdrop-blur-sm transition-opacity">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-2 sm:pt-[10vh] px-2 sm:px-4">
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150"
+            onClick={() => setIsOpen(false)}
+          />
+
+          {/* Modal Panel */}
+          <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Search Input Bar */}
-            <div className="relative flex items-center border-b border-slate-100 px-4 py-3 bg-slate-50/50">
-              <Search size={18} className="text-slate-400 mr-3 shrink-0" />
+            <div className="flex items-center border-b border-slate-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50/80 gap-2">
+              <Search size={18} className="text-slate-400 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -211,21 +218,27 @@ export function SpotlightSearch() {
                   setSelectedIndex(0);
                 }}
                 onKeyDown={handleInputKeyDown}
-                placeholder="Search vehicles, jobs, customers, or jump to..."
-                className="w-full bg-transparent text-sm font-semibold text-slate-800 placeholder-slate-400 outline-none"
+                placeholder="Search vehicles, jobs, customers..."
+                className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 outline-none"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="p-1 text-slate-400 hover:text-slate-600 rounded-md"
+                  className="p-1 text-slate-400 hover:text-slate-600 rounded-md shrink-0"
                 >
-                  <X size={16} />
+                  <X size={15} />
                 </button>
               )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-2 py-1 bg-slate-200/70 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold shrink-0 transition-colors"
+              >
+                Close
+              </button>
             </div>
 
             {/* Results Body */}
-            <div className="max-h-[60vh] overflow-y-auto divide-y divide-slate-100/80">
+            <div className="max-h-[70vh] sm:max-h-[55vh] overflow-y-auto divide-y divide-slate-100/80 -webkit-overflow-scrolling-touch">
               {loading && (
                 <div className="px-4 py-8 text-center text-xs text-slate-400 font-medium">
                   Searching records across database...
@@ -256,13 +269,13 @@ export function SpotlightSearch() {
                         key={item.id}
                         onClick={() => handleSelect(item)}
                         onMouseEnter={() => setSelectedIndex(idx)}
-                        className={`flex items-center justify-between px-3.5 py-2.5 mx-1.5 rounded-xl cursor-pointer transition-colors ${
-                          isSelected ? "bg-wd-blue-50/80 text-wd-blue-800" : "hover:bg-slate-50 text-slate-700"
+                        className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
+                          isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
-                            className={`p-2 rounded-lg ${
+                            className={`p-2 rounded-lg shrink-0 ${
                               isSelected
                                 ? "bg-wd-blue-500 text-white shadow-sm"
                                 : "bg-slate-100 text-slate-500"
@@ -270,14 +283,14 @@ export function SpotlightSearch() {
                           >
                             <Icon size={16} />
                           </div>
-                          <div className="truncate">
-                            <p className="text-xs font-bold">{item.title}</p>
+                          <div className="truncate min-w-0">
+                            <p className="text-xs font-bold truncate">{item.title}</p>
                             <p className="text-[11px] text-slate-400 truncate">{item.subtitle}</p>
                           </div>
                         </div>
                         <ArrowRight
                           size={14}
-                          className={`shrink-0 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                          className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
                         />
                       </div>
                     );
@@ -301,13 +314,13 @@ export function SpotlightSearch() {
                             key={item.id}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(idx)}
-                            className={`flex items-center justify-between px-3.5 py-2.5 mx-1.5 rounded-xl cursor-pointer transition-colors ${
-                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800" : "hover:bg-slate-50 text-slate-700"
+                            className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
+                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
-                                className={`p-2 rounded-lg ${
+                                className={`p-2 rounded-lg shrink-0 ${
                                   isSelected
                                     ? "bg-wd-blue-500 text-white"
                                     : "bg-amber-50 text-amber-600"
@@ -315,14 +328,14 @@ export function SpotlightSearch() {
                               >
                                 <ClipboardList size={16} />
                               </div>
-                              <div className="truncate">
-                                <p className="text-xs font-bold">{item.title}</p>
+                              <div className="truncate min-w-0">
+                                <p className="text-xs font-bold truncate">{item.title}</p>
                                 <p className="text-[11px] text-slate-400 truncate">{item.subtitle}</p>
                               </div>
                             </div>
                             <ArrowRight
                               size={14}
-                              className={`shrink-0 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
                             />
                           </div>
                         );
@@ -343,26 +356,26 @@ export function SpotlightSearch() {
                             key={item.id}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(idx)}
-                            className={`flex items-center justify-between px-3.5 py-2.5 mx-1.5 rounded-xl cursor-pointer transition-colors ${
-                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800" : "hover:bg-slate-50 text-slate-700"
+                            className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
+                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
-                                className={`p-2 rounded-lg ${
+                                className={`p-2 rounded-lg shrink-0 ${
                                   isSelected ? "bg-wd-blue-500 text-white" : "bg-blue-50 text-blue-600"
                                 }`}
                               >
                                 <Car size={16} />
                               </div>
-                              <div className="truncate">
-                                <p className="text-xs font-bold">{item.title}</p>
+                              <div className="truncate min-w-0">
+                                <p className="text-xs font-bold truncate">{item.title}</p>
                                 <p className="text-[11px] text-slate-400 truncate">{item.subtitle}</p>
                               </div>
                             </div>
                             <ArrowRight
                               size={14}
-                              className={`shrink-0 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
                             />
                           </div>
                         );
@@ -383,26 +396,26 @@ export function SpotlightSearch() {
                             key={item.id}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(idx)}
-                            className={`flex items-center justify-between px-3.5 py-2.5 mx-1.5 rounded-xl cursor-pointer transition-colors ${
-                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800" : "hover:bg-slate-50 text-slate-700"
+                            className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
+                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
-                                className={`p-2 rounded-lg ${
+                                className={`p-2 rounded-lg shrink-0 ${
                                   isSelected ? "bg-wd-blue-500 text-white" : "bg-emerald-50 text-emerald-600"
                                 }`}
                               >
                                 <User size={16} />
                               </div>
-                              <div className="truncate">
-                                <p className="text-xs font-bold">{item.title}</p>
+                              <div className="truncate min-w-0">
+                                <p className="text-xs font-bold truncate">{item.title}</p>
                                 <p className="text-[11px] text-slate-400 truncate">{item.subtitle}</p>
                               </div>
                             </div>
                             <ArrowRight
                               size={14}
-                              className={`shrink-0 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
                             />
                           </div>
                         );
@@ -414,8 +427,8 @@ export function SpotlightSearch() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-              <div className="flex items-center gap-3">
+            <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+              <div className="hidden sm:flex items-center gap-3">
                 <span>
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">↑↓</kbd> to navigate
                 </span>
@@ -426,6 +439,7 @@ export function SpotlightSearch() {
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">Esc</kbd> to close
                 </span>
               </div>
+              <span className="sm:hidden text-slate-500 font-semibold">Tap item to view details</span>
               <span className="font-semibold text-slate-500">Universal Search</span>
             </div>
           </div>

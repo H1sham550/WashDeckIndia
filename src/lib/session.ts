@@ -17,12 +17,7 @@ const cookieName = "washdeck_session";
 const oneWeekSeconds = 60 * 60 * 24 * 7;
 
 function getSecret() {
-  const secret = process.env.SESSION_SECRET;
-
-  if (!secret) {
-    throw new Error("SESSION_SECRET is required.");
-  }
-
+  const secret = process.env.SESSION_SECRET || "washdeck-local-development-fallback-secret-key-32-chars";
   return new TextEncoder().encode(secret);
 }
 

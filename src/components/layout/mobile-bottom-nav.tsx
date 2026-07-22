@@ -114,7 +114,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
               {navSections.map((section) => {
                 if (section.ownerOnly && !isOwner) return null;
                 if (section.items.length === 0) return null;
@@ -155,8 +155,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
 
       {/* Bottom Nav Bar */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t"
-        style={{ borderColor: "hsl(var(--border))" }}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg pb-[env(safe-area-inset-bottom,0px)]"
       >
         <div className="grid grid-cols-5 h-14">
           {BOTTOM_NAV.map(({ href, label, icon: Icon, exact }) => {
@@ -165,13 +164,12 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
               <Link
                 key={href}
                 href={href as any}
-                className="flex flex-col items-center justify-center gap-0.5 transition-colors"
-                style={{
-                  color: active ? "hsl(var(--brand-blue))" : "hsl(var(--text-tertiary))",
-                }}
+                className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                  active ? "text-blue-700 font-bold" : "text-slate-700 hover:text-slate-900 font-semibold"
+                }`}
               >
-                <Icon size={20} strokeWidth={active ? 2 : 1.75} />
-                <span style={{ fontSize: "10px", fontWeight: active ? 500 : 400 }}>
+                <Icon size={20} strokeWidth={active ? 2.3 : 1.9} />
+                <span className="text-[10px] tracking-tight">
                   {label}
                 </span>
               </Link>
@@ -185,21 +183,22 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
             style={{ gridColumn: "4" }}
           >
             <div
-              className="h-10 w-10 rounded-full flex items-center justify-center shadow-sm"
-              style={{ background: "hsl(var(--brand-blue))", color: "white" }}
+              className="h-10 w-10 rounded-full flex items-center justify-center shadow-md bg-blue-600 text-white active-tap"
             >
-              <Plus size={20} strokeWidth={2} />
+              <Plus size={20} strokeWidth={2.3} />
             </div>
           </Link>
 
           {/* More */}
           <button
             onClick={() => setShowMoreMenu(true)}
-            className="flex flex-col items-center justify-center gap-0.5 transition-colors"
-            style={{ color: showMoreMenu ? "hsl(var(--brand-blue))" : "hsl(var(--text-tertiary))", gridColumn: "5" }}
+            className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${
+              showMoreMenu ? "text-blue-700 font-bold" : "text-slate-700 hover:text-slate-900 font-semibold"
+            }`}
+            style={{ gridColumn: "5" }}
           >
-            <Menu size={20} strokeWidth={showMoreMenu ? 2 : 1.75} />
-            <span style={{ fontSize: "10px", fontWeight: showMoreMenu ? 500 : 400 }}>More</span>
+            <Menu size={20} strokeWidth={showMoreMenu ? 2.3 : 1.9} />
+            <span className="text-[10px] tracking-tight">More</span>
           </button>
         </div>
       </nav>

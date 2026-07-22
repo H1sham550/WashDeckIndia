@@ -41,7 +41,7 @@ export async function linkVehicleToCustomer(data: {
     throw new Error("Vehicle not found.");
   }
 
-  const existingContact = vehicle.contacts.find((c) => c.customerId === data.customerId);
+  const existingContact = vehicle.contacts.find((c: any) => c.customerId === data.customerId);
   if (existingContact) {
     return existingContact;
   }

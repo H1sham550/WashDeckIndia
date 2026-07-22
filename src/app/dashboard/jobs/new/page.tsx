@@ -24,25 +24,25 @@ export default async function NewJobIntakePage({ searchParams }: PageProps) {
   }
 
   // Serialize Decimals to Numbers
-  const serializedServices = services.map((s) => ({
+  const serializedServices = services.map((s: any) => ({
     id: s.id,
     name: s.name,
     description: s.description,
-    prices: s.prices.map((p) => ({
+    prices: (s.prices || []).map((p: any) => ({
       vehicleType: p.vehicleType,
       price: Number(p.price),
     })),
   }));
 
-  const serializedTemplates = templates.map((t) => ({
+  const serializedTemplates = templates.map((t: any) => ({
     id: t.id,
     name: t.name,
     description: t.description,
-    items: t.items.map((i) => ({
+    items: (t.items || []).map((i: any) => ({
       service: {
         id: i.service.id,
         name: i.service.name,
-        prices: i.service.prices.map((p) => ({
+        prices: (i.service.prices || []).map((p: any) => ({
           vehicleType: p.vehicleType,
           price: Number(p.price),
         })),

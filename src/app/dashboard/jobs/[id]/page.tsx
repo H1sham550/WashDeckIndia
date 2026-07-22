@@ -41,7 +41,7 @@ export default async function JobDetailsPage({ params }: PageProps) {
     createdAt: job.createdAt.toISOString(),
     updatedAt: job.updatedAt.toISOString(),
     expectedCompletionTime: job.expectedCompletionTime ? job.expectedCompletionTime.toISOString() : null,
-    services: job.services.map((srv) => ({
+    services: (job.services || []).map((srv: any) => ({
       ...srv,
       priceSnapshot: Number(srv.priceSnapshot),
       createdAt: srv.createdAt.toISOString(),

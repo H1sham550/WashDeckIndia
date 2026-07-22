@@ -100,7 +100,7 @@ export async function deleteTemplate(stationId: string, templateId: string) {
 
   // Validate template exists at station
   const templates = await serviceRepository.getServiceTemplatesByStation(stationId);
-  const exists = templates.some((t) => t.id === templateId);
+  const exists = templates.some((t: any) => t.id === templateId);
   if (!exists) {
     throw new Error("Template not found or unauthorized.");
   }

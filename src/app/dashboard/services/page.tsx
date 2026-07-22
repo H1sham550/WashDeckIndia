@@ -14,21 +14,21 @@ export default async function ServicesPage() {
   const templates = await serviceService.getStationTemplates(session.stationId);
 
   // Serialize Decimal objects from Prisma so they don't crash Next.js serialization
-  const serializedServices = services.map((s) => ({
+  const serializedServices = services.map((s: any) => ({
     ...s,
-    prices: s.prices.map((p) => ({
+    prices: (s.prices || []).map((p: any) => ({
       ...p,
       price: Number(p.price),
     })),
   }));
 
-  const serializedTemplates = templates.map((t) => ({
+  const serializedTemplates = templates.map((t: any) => ({
     ...t,
-    items: t.items.map((i) => ({
+    items: (t.items || []).map((i: any) => ({
       ...i,
       service: {
         ...i.service,
-        prices: i.service.prices.map((p) => ({
+        prices: (i.service?.prices || []).map((p: any) => ({
           ...p,
           price: Number(p.price),
         })),

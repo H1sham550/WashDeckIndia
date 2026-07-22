@@ -25,7 +25,7 @@ export async function createJobCard(
     throw new Error("Vehicle not found or unauthorized.");
   }
 
-  const primaryContact = vehicle.contacts.find((c) => c.isPrimary) || vehicle.contacts[0];
+  const primaryContact = vehicle.contacts.find((c: any) => c.isPrimary) || vehicle.contacts[0];
   if (!primaryContact) {
     throw new Error("Vehicle is not linked to any customer contact.");
   }
@@ -146,10 +146,10 @@ export const getOperationsBoardData = cache(async (stationId: string) => {
     ]);
 
     const result = {
-      RECEIVED: activeJobs.filter((j) => j.status === "RECEIVED"),
-      IN_PROGRESS: activeJobs.filter((j) => j.status === "IN_PROGRESS"),
-      SERVICE_COMPLETED: activeJobs.filter((j) => j.status === "SERVICE_COMPLETED"),
-      PAYMENT_PENDING: activeJobs.filter((j) => j.status === "PAYMENT_PENDING"),
+      RECEIVED: activeJobs.filter((j: any) => j.status === "RECEIVED"),
+      IN_PROGRESS: activeJobs.filter((j: any) => j.status === "IN_PROGRESS"),
+      SERVICE_COMPLETED: activeJobs.filter((j: any) => j.status === "SERVICE_COMPLETED"),
+      PAYMENT_PENDING: activeJobs.filter((j: any) => j.status === "PAYMENT_PENDING"),
       DELIVERED: deliveredToday,
     };
 

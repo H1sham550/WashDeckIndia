@@ -61,13 +61,13 @@ export function NotificationCenter() {
           />
 
           {/* Notification Panel Card */}
-          <div className="relative z-10 w-full sm:w-96 bg-white rounded-2xl shadow-2xl sm:shadow-xl border border-slate-200 p-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative z-10 w-full sm:w-96 bg-white rounded-2xl shadow-2xl sm:shadow-xl border border-slate-200 p-4 animate-in fade-in zoom-in-95 duration-150 text-right" dir="rtl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-extrabold text-slate-900">Notifications</h3>
+                <h3 className="text-sm font-black text-slate-900">الإشعارات / Notifications</h3>
                 {unreadCount > 0 && (
-                  <span className="bg-teal-100 text-teal-900 text-[10px] font-black px-2 py-0.5 rounded-full border border-teal-200">
-                    {unreadCount} new
+                  <span className="bg-blue-100 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full border border-blue-200">
+                    {unreadCount} جديد
                   </span>
                 )}
               </div>

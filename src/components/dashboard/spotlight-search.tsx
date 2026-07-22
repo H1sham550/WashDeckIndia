@@ -197,7 +197,7 @@ export function SpotlightSearch() {
 
       {/* Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-2 sm:pt-[10vh] px-2 sm:px-4">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-2 sm:pt-[10vh] px-2 sm:px-4" dir="rtl">
           {/* Backdrop Overlay */}
           <div
             className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150"
@@ -205,10 +205,10 @@ export function SpotlightSearch() {
           />
 
           {/* Modal Panel */}
-          <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-right">
             {/* Search Input Bar */}
-            <div className="flex items-center border-b border-slate-100 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50/80 gap-2">
-              <Search size={18} className="text-slate-400 shrink-0" />
+            <div className="flex items-center border-b border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50 gap-2">
+              <Search size={18} className="text-slate-600 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -218,22 +218,22 @@ export function SpotlightSearch() {
                   setSelectedIndex(0);
                 }}
                 onKeyDown={handleInputKeyDown}
-                placeholder="Search vehicles, jobs, customers..."
-                className="w-full bg-transparent text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 outline-none"
+                placeholder="البحث عن المركبات، البطاقات، العملاء... / Search vehicles, jobs..."
+                className="w-full bg-transparent text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-500 outline-none text-right"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="p-1 text-slate-400 hover:text-slate-600 rounded-md shrink-0"
+                  className="p-1 text-slate-500 hover:text-slate-800 rounded-md shrink-0"
                 >
                   <X size={15} />
                 </button>
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="px-2 py-1 bg-slate-200/70 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold shrink-0 transition-colors"
+                className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-black shrink-0 transition-colors"
               >
-                Close
+                إغلاق / Close
               </button>
             </div>
 

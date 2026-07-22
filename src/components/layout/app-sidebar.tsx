@@ -170,15 +170,15 @@ export function AppSidebar({
                   <Link
                     key={item.href}
                     href={item.href as any}
-                    className={`wd-nav-item ${active ? "active" : ""}`}
+                    className={`wd-nav-item ${active ? "active font-black" : "font-bold text-slate-900 hover:text-slate-950"}`}
                     title={collapsed ? item.label : undefined}
                   >
                     <Icon
-                      size={16}
-                      strokeWidth={active ? 2 : 1.75}
+                      size={17}
+                      strokeWidth={active ? 2.3 : 1.9}
                       className="flex-shrink-0"
                     />
-                    {!collapsed && <span>{item.label}</span>}
+                    {!collapsed && <span className="truncate">{item.label}</span>}
                   </Link>
                 );
               })}

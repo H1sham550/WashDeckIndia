@@ -11,6 +11,7 @@ export interface VehicleTypeOption {
   description: string;
   doors: string;
   badge: string;
+  imagePath: string;
   svgIcon: React.ReactNode;
 }
 
@@ -22,9 +23,9 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "4-door passenger car with a separate rear trunk.",
     doors: "4 Doors",
     badge: "Standard",
+    imagePath: "/images/vehicles/sedan.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        {/* Sedan Silhouette */}
         <path d="M 8 28 L 22 28 L 32 16 L 66 16 L 78 28 L 92 28 C 94 28 96 30 96 32 L 96 36 L 4 36 L 4 32 C 4 30 6 28 8 28 Z" />
         <path d="M 33 17 L 49 17 L 49 28 L 24 28 Z" className="fill-blue-500/15 stroke-current" strokeWidth="1.5" />
         <path d="M 52 17 L 65 17 L 75 28 L 52 28 Z" className="fill-blue-500/15 stroke-current" strokeWidth="1.5" />
@@ -42,9 +43,9 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "High roofline, large frame, 5-7 seats, high ground clearance.",
     doors: "5 Doors",
     badge: "Large",
+    imagePath: "/images/vehicles/suv.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        {/* SUV Silhouette */}
         <path d="M 6 30 L 16 30 L 26 12 L 80 12 L 90 24 L 94 28 C 96 29 96 31 96 33 L 96 36 L 4 36 L 4 32 C 4 30 5 30 6 30 Z" />
         <path d="M 28 14 L 49 14 L 49 28 L 20 28 Z" className="fill-blue-500/15 stroke-current" strokeWidth="1.5" />
         <path d="M 52 14 L 76 14 L 84 28 L 52 28 Z" className="fill-blue-500/15 stroke-current" strokeWidth="1.5" />
@@ -62,9 +63,9 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "Compact 2-box body with upward opening rear door.",
     doors: "3-5 Doors",
     badge: "Compact",
+    imagePath: "/images/vehicles/hatchback.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        {/* Hatchback Silhouette */}
         <path d="M 8 28 L 22 28 L 34 16 L 70 16 L 82 24 L 88 28 L 92 28 C 94 28 96 30 96 32 L 96 36 L 4 36 L 4 32 C 4 30 6 28 8 28 Z" />
         <path d="M 35 18 L 50 18 L 50 28 L 24 28 Z" className="fill-blue-500/15 stroke-current" strokeWidth="1.5" />
         <path d="M 53 18 L 68 18 L 78 28 L 53 28 Z" className="fill-blue-500/15 stroke-current" strokeWidth="1.5" />
@@ -82,9 +83,9 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "2-wheeler scooter, sports bike, or motorcycle.",
     doors: "N/A",
     badge: "2-Wheel",
+    imagePath: "/images/vehicles/bike.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        {/* Motorcycle Silhouette */}
         <circle cx="22" cy="34" r="8" className="fill-slate-800 stroke-slate-900" />
         <circle cx="22" cy="34" r="3" className="fill-white" />
         <circle cx="78" cy="34" r="8" className="fill-slate-800 stroke-slate-900" />
@@ -103,9 +104,9 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "High-end luxury sedan, sports car, exotic, or limousine.",
     doors: "2-4 Doors",
     badge: "Premium",
+    imagePath: "/images/vehicles/luxury.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-        {/* Sports Car Silhouette */}
         <path d="M 6 30 L 26 28 L 38 18 L 62 18 L 84 26 L 94 28 C 96 28 97 30 97 32 L 97 36 L 3 36 L 3 32 C 3 30 4 30 6 30 Z" />
         <path d="M 40 19 L 58 19 L 74 26 L 30 26 Z" className="fill-blue-500/20 stroke-current" strokeWidth="1.5" />
         <circle cx="24" cy="36" r="6" className="fill-slate-800 stroke-slate-900" />
@@ -144,7 +145,7 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
               key={item.type}
               type="button"
               onClick={() => onChange(item.type)}
-              className={`relative flex flex-col items-center justify-between p-2.5 rounded-xl border-2 transition-all active-tap text-center ${
+              className={`relative flex flex-col items-center justify-between p-2.5 rounded-xl border-2 transition-all text-center group ${
                 isSelected
                   ? "border-blue-600 bg-blue-50/70 text-blue-900 shadow-sm ring-2 ring-blue-500/20"
                   : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:border-slate-300"
@@ -159,9 +160,13 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
                 {item.badge}
               </span>
 
-              {/* Reference SVG Illustration */}
-              <div className={`w-full h-12 my-1 flex items-center justify-center p-1 ${isSelected ? "text-blue-600" : "text-slate-500"}`}>
-                {item.svgIcon}
+              {/* Reference Vector Line-Art Diagram */}
+              <div className="w-full h-12 my-1 flex items-center justify-center p-0.5 relative">
+                <img
+                  src={item.imagePath}
+                  alt={item.label}
+                  className="h-full w-full object-contain filter drop-shadow-2xs group-hover:scale-105 transition"
+                />
               </div>
 
               {/* Label */}
@@ -177,8 +182,8 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
       {/* Reference Visual Guide Panel */}
       {showDetails && activeOption && (
         <div className="flex items-start gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600">
-          <div className="w-16 h-10 shrink-0 text-blue-600 bg-white border border-slate-200 rounded-lg p-1 shadow-2xs">
-            {activeOption.svgIcon}
+          <div className="w-16 h-10 shrink-0 bg-white border border-slate-200 rounded-lg p-0.5 shadow-2xs flex items-center justify-center overflow-hidden">
+            <img src={activeOption.imagePath} alt={activeOption.label} className="w-full h-full object-contain" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">

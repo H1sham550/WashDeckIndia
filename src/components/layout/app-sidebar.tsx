@@ -10,6 +10,7 @@ import {
   Car,
   Wrench,
   Users,
+  UserPlus,
   BarChart2,
   Settings,
   Package,
@@ -86,9 +87,9 @@ export function AppSidebar({
       ],
     },
     {
-      label: "Finance",
+      label: "Finance & Profit Loss",
       items: [
-        ...(features.finance ? [{ href: "/dashboard/finance", label: "Finance", icon: BarChart2 }] : []),
+        { href: "/dashboard/finance", label: "Profit & Loss / Finance", icon: BarChart2 },
         { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
         { href: "/dashboard/inventory", label: "Inventory", icon: Package },
       ],
@@ -97,7 +98,8 @@ export function AppSidebar({
     {
       label: "Team",
       items: [
-        ...(features.staff ? [{ href: "/dashboard/staff", label: "Staff", icon: Users }] : []),
+        { href: "/dashboard/staff", label: "Staff Members", icon: Users },
+        { href: "/dashboard/staff?action=add", label: "Add New Staff", icon: UserPlus },
         { href: "/dashboard/attendance", label: "Attendance", icon: ClipboardList },
       ],
       ownerOnly: true,

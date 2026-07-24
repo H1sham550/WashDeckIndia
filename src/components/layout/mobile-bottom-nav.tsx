@@ -16,12 +16,14 @@ import {
   CreditCard,
   Package,
   Users,
+  UserPlus,
   ClipboardList,
   Bell,
   FileText,
   Settings,
 } from "lucide-react";
 import { useState } from "react";
+import { LogoutButton } from "./logout-button";
 
 interface MobileBottomNavProps {
   isOwner: boolean;
@@ -54,7 +56,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
     {
       label: "Operations",
       items: [
-        { href: "/dashboard/bookings", label: "Bookings", icon: Calendar },
+        { href: "/dashboard/bookings", label: "Bookings & Appointments", icon: Calendar },
       ],
     },
     {
@@ -65,24 +67,25 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
       ],
     },
     {
-      label: "Finance",
+      label: "Finance & Profit Loss",
       items: [
-        ...(features.finance ? [{ href: "/dashboard/finance", label: "Finance", icon: BarChart2 }] : []),
-        { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
+        { href: "/dashboard/finance", label: "Profit & Loss / Finance", icon: BarChart2 },
+        { href: "/dashboard/payments", label: "Payment Invoices", icon: CreditCard },
         { href: "/dashboard/inventory", label: "Inventory", icon: Package },
       ],
       ownerOnly: true,
     },
     {
-      label: "Team",
+      label: "Team Management",
       items: [
-        ...(features.staff ? [{ href: "/dashboard/staff", label: "Staff", icon: Users }] : []),
-        { href: "/dashboard/attendance", label: "Attendance", icon: ClipboardList },
+        { href: "/dashboard/staff", label: "Staff Members", icon: Users },
+        { href: "/dashboard/staff?action=add", label: "Add New Staff", icon: UserPlus },
+        { href: "/dashboard/attendance", label: "Attendance Log", icon: ClipboardList },
       ],
       ownerOnly: true,
     },
     {
-      label: "System",
+      label: "System & Settings",
       items: [
         { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
         ...(features.analytics ? [{ href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 }] : []),
@@ -98,14 +101,14 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
       {showMoreMenu && (
         <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             onClick={() => setShowMoreMenu(false)}
           />
           <div
             className="relative bg-white w-full max-h-[85vh] rounded-t-2xl shadow-xl flex flex-col animate-in slide-in-from-bottom-full duration-200"
           >
             <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="font-semibold text-slate-800">Menu</h2>
+              <h2 className="font-bold text-slate-800 text-base">Store Navigation</h2>
               <button
                 onClick={() => setShowMoreMenu(false)}
                 className="p-2 -mr-2 text-slate-500 hover:bg-slate-100 rounded-full"
@@ -114,14 +117,14 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
               {navSections.map((section) => {
                 if (section.ownerOnly && !isOwner) return null;
                 if (section.items.length === 0) return null;
 
                 return (
                   <div key={section.label}>
-                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 ml-1">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2 ml-1">
                       {section.label}
                     </p>
                     <div className="space-y-1">
@@ -133,14 +136,14 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                             key={item.href}
                             href={item.href as any}
                             onClick={() => setShowMoreMenu(false)}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${
+                            className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
                               active
-                                ? "bg-blue-50 text-blue-700 font-medium"
-                                : "text-slate-700 hover:bg-slate-50"
+                                ? "bg-blue-50 text-blue-700 font-bold"
+                                : "text-slate-700 hover:bg-slate-50 font-medium"
                             }`}
                           >
-                            <Icon size={18} strokeWidth={active ? 2 : 1.75} />
-                            <span>{item.label}</span>
+                            <Icon size={18} strokeWidth={active ? 2.2 : 1.75} />
+                            <span className="text-xs">{item.label}</span>
                           </Link>
                         );
                       })}
@@ -148,6 +151,12 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                   </div>
                 );
               })}
+
+              {/* Logout Button inside Menu */}
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">Account Session</span>
+                <LogoutButton />
+              </div>
             </div>
           </div>
         </div>
@@ -198,7 +207,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
             style={{ gridColumn: "5" }}
           >
             <Menu size={20} strokeWidth={showMoreMenu ? 2.3 : 1.9} />
-            <span className="text-[10px] tracking-tight">More</span>
+            <span className="text-[10px] tracking-tight">Menu</span>
           </button>
         </div>
       </nav>

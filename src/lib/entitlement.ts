@@ -25,6 +25,7 @@ export type StationEntitlements = {
     branchCode: string;
     onboardingStatus: string;
     logoUrl: string | null;
+    bannerUrl?: string | null;
     primaryColor: string | null;
     dueForVisitThreshold: number;
     country?: string;
@@ -351,6 +352,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       branchCode: station.branchCode,
       onboardingStatus: "COMPLETED",
       logoUrl: station.branding?.squareLogoUrl || null,
+      bannerUrl: (station.branding as any)?.bannerUrl || null,
       primaryColor: station.branding?.primaryColor || "#0F172A",
       dueForVisitThreshold: 30,
       country: country?.code || "SA",

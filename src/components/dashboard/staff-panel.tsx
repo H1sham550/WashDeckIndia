@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Plus, X, Pencil, Key, ShieldAlert, UserCheck, UserX, Loader2, AlertCircle, CheckCircle2, User } from "lucide-react";
 
 type StaffUser = {
@@ -50,6 +51,13 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
   const [success, setSuccess] = useState("");
 
   const isLimitReached = limits.usedStaff >= limits.allowedStaff;
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("action") === "add" && !isLimitReached) {
+      openAddModal();
+    }
+  }, [searchParams, isLimitReached]);
 
   function openAddModal() {
     if (isLimitReached) return;

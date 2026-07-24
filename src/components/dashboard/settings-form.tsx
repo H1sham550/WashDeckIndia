@@ -19,8 +19,10 @@ import {
   Calendar,
   AlertTriangle,
   Gift,
-  Globe
+  Globe,
+  LogOut
 } from "lucide-react";
+import { LogoutButton } from "@/components/layout/logout-button";
 
 type SettingsFormProps = {
   station: {
@@ -680,6 +682,20 @@ export function SettingsForm({ station }: SettingsFormProps) {
           "Save station settings"
         )}
       </button>
+
+      {/* Account & Session Sign Out Card */}
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-6">
+        <div>
+          <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <LogOut size={16} className="text-slate-500" />
+            Account & Session Security
+          </h4>
+          <p className="text-xs text-slate-500 font-medium mt-0.5">
+            Sign out of your store owner account session on this device.
+          </p>
+        </div>
+        <LogoutButton />
+      </div>
     </form>
   );
 }

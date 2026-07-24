@@ -22,6 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
+import { VehicleTypeSelector } from "./vehicle-type-selector";
 
 type ServicePrice = {
   vehicleType: VehicleType;
@@ -788,19 +789,12 @@ export function NewJobIntakeWizard({
                   />
                 </div>
 
-                <div>
-                  <label className="mb-1 block">Vehicle Type *</label>
-                  <select
+                <div className="col-span-2">
+                  <VehicleTypeSelector
                     value={registerForm.vehicleType}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, vehicleType: e.target.value as VehicleType }))}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  >
-                    <option value="BIKE">BIKE</option>
-                    <option value="HATCHBACK">HATCHBACK</option>
-                    <option value="SEDAN">SEDAN</option>
-                    <option value="SUV">SUV</option>
-                    <option value="LUXURY">LUXURY</option>
-                  </select>
+                    onChange={(type) => setRegisterForm((prev) => ({ ...prev, vehicleType: type }))}
+                    showDetails={true}
+                  />
                 </div>
 
                 <div>

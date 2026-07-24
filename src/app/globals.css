@@ -428,7 +428,7 @@ a[role="button"],
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   min-width: 0;
 }
 
@@ -441,7 +441,8 @@ a[role="button"],
   align-items: center;
   padding: 0 16px;
   gap: 8px;
-  z-index: 30;
+  z-index: 40;
+  position: relative;
 }
 
 .wd-main {

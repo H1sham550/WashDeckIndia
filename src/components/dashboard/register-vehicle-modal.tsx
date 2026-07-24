@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { X, Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { VehicleType } from "@prisma/client";
+import { VehicleTypeSelector } from "./vehicle-type-selector";
 
 type RegisterVehicleModalProps = {
   onClose: () => void;
@@ -121,34 +122,27 @@ export function RegisterVehicleModal({ onClose, initialVehicleNumber = "" }: Reg
           {/* Vehicle Details */}
           <div className="space-y-3 pt-1">
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vehicle Details</h4>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600" htmlFor="vehNumber">Vehicle Registration Number *</label>
-                <input
-                  id="vehNumber"
-                  type="text"
-                  required
-                  value={formData.vehicleNumber}
-                  onChange={(e) => setFormData((p) => ({ ...p, vehicleNumber: e.target.value.toUpperCase().replace(/\s/g, "") }))}
-                  placeholder="KA03HA1234"
-                  className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)] uppercase font-bold tracking-wider"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600" htmlFor="vehType">Vehicle Type *</label>
-                <select
-                  id="vehType"
-                  value={formData.vehicleType}
-                  onChange={(e) => setFormData((p) => ({ ...p, vehicleType: e.target.value as VehicleType }))}
-                  className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)] bg-white font-medium"
-                >
-                  <option value={VehicleType.BIKE}>Bike</option>
-                  <option value={VehicleType.HATCHBACK}>Hatchback</option>
-                  <option value={VehicleType.SEDAN}>Sedan</option>
-                  <option value={VehicleType.SUV}>SUV</option>
-                  <option value={VehicleType.LUXURY}>Luxury</option>
-                </select>
-              </div>
+            
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-600" htmlFor="vehNumber">Vehicle Registration Number *</label>
+              <input
+                id="vehNumber"
+                type="text"
+                required
+                value={formData.vehicleNumber}
+                onChange={(e) => setFormData((p) => ({ ...p, vehicleNumber: e.target.value.toUpperCase().replace(/\s/g, "") }))}
+                placeholder="KA03HA1234"
+                className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)] uppercase font-bold tracking-wider"
+              />
+            </div>
+
+            {/* Visual Car Reference Type Selector */}
+            <div className="pt-2">
+              <VehicleTypeSelector
+                value={formData.vehicleType}
+                onChange={(type) => setFormData((p) => ({ ...p, vehicleType: type }))}
+                showDetails={true}
+              />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">

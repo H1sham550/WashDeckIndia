@@ -17,19 +17,27 @@ import { prisma } from "@/lib/prisma";
 import * as jobCardService from "@/services/job-card-service";
 import { getStationEntitlements } from "@/lib/entitlement";
 import { VehicleSearch } from "@/components/dashboard/vehicle-search";
+import { OwnerProfitLossCard } from "@/components/dashboard/owner-profit-loss-card";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await requireStationUser();
   const stationId = session.stationId || "";
+  const isOwner = session.role === "OWNER";
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [entitlements, summary] = await Promise.all([
+  const [entitlements, summary, expenses] = await Promise.all([
     getStationEntitlements(stationId),
     jobCardService.getDashboardSummary(stationId),
+    isOwner
+      ? prisma.expense.findMany({
+          where: { stationId },
+          orderBy: { date: "desc" },
+        }).catch(() => [])
+      : Promise.resolve([]),
   ]);
 
   const revenueToday = summary.revenueToday;
@@ -43,7 +51,34 @@ export default async function DashboardPage() {
   const todayBookings = summary.todayBookings;
   const recentJobs = summary.recentDeliveredJobs;
 
-  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "₹";
+  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "ر.س ";
+
+  // Compute 7-day financial analyzing chart data for Store Owners
+  const chartData: Array<{ label: string; income: number; expense: number }> = [];
+  let totalIncome7Days = 0;
+  let totalExpenses7Days = 0;
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateKey = d.toDateString();
+    const label = d.toLocaleDateString("en-US", { weekday: "short", day: "numeric" });
+
+    // Aggregate income for day from completed/delivered jobs
+    const dayIncome = recentJobs
+      .filter((j: any) => new Date(j.createdAt).toDateString() === dateKey)
+      .reduce((sum: number, j: any) => sum + (Number(j.invoice?.finalAmount) || 0), 0) + (i === 0 ? revenueToday : 0);
+
+    // Aggregate expenses for day
+    const dayExpense = expenses
+      .filter((e: any) => new Date(e.date).toDateString() === dateKey)
+      .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
+
+    totalIncome7Days += dayIncome;
+    totalExpenses7Days += dayExpense;
+
+    chartData.push({ label, income: dayIncome, expense: dayExpense });
+  }
 
   function formatTime(iso: Date) {
     return new Date(iso).toLocaleTimeString("en-IN", {
@@ -87,7 +122,8 @@ export default async function DashboardPage() {
             })}
           </p>
         </div>
-        <Link href="/dashboard/jobs/new" className="btn btn-primary">
+        {/* Hide duplicate New Job button on mobile view (bottom bar FAB handles mobile) */}
+        <Link href="/dashboard/jobs/new" className="btn btn-primary hidden md:inline-flex">
           <Plus size={15} strokeWidth={2} />
           New Job
         </Link>
@@ -156,6 +192,16 @@ export default async function DashboardPage() {
           <p className="text-xl mt-2 tracking-tight" style={{ fontWeight: 600 }}>{todayBookings.length}</p>
         </Link>
       </div>
+
+      {/* ── Owner Profit & Loss Analyzing Chart Widget (Owner POV) ── */}
+      {isOwner && (
+        <OwnerProfitLossCard
+          currency={currency}
+          totalIncome={totalIncome7Days}
+          totalExpense={totalExpenses7Days}
+          chartData={chartData}
+        />
+      )}
 
       {/* ── Main Content Grid ─────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

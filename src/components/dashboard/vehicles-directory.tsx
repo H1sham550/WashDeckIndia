@@ -18,6 +18,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
+import { VehicleTypeSelector } from "./vehicle-type-selector";
 
 type Customer = {
   id: string;
@@ -421,19 +422,12 @@ export function VehiclesDirectory({ initialVehicles, userRole }: VehiclesDirecto
                   />
                 </div>
 
-                <div>
-                  <label className="mb-1 block">Vehicle Type *</label>
-                  <select
+                <div className="col-span-2">
+                  <VehicleTypeSelector
                     value={formData.vehicleType}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, vehicleType: e.target.value as VehicleType }))}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  >
-                    <option value="BIKE">BIKE</option>
-                    <option value="HATCHBACK">HATCHBACK</option>
-                    <option value="SEDAN">SEDAN</option>
-                    <option value="SUV">SUV</option>
-                    <option value="LUXURY">LUXURY</option>
-                  </select>
+                    onChange={(type) => setFormData((prev) => ({ ...prev, vehicleType: type }))}
+                    showDetails={true}
+                  />
                 </div>
 
                 <div>

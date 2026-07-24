@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ArrowRight, ChevronLeft, Check, Loader2, Phone, Clock } from "lucide-react";
+import { VehicleTypeSelector } from "@/components/dashboard/vehicle-type-selector";
 
 // ─── Types ───────────────────────────────────────────────────────────────
 type ServicePrice = { vehicleType: string; price: number };
@@ -312,35 +313,22 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
 
         {/* STEP 1: Vehicle Type */}
         {step === 1 && (
-          <div className="px-4 py-6 max-w-lg mx-auto">
-            <h2 className="text-base font-semibold mb-1" style={{ color: "#0F172A" }}>
-              Select your vehicle type
-            </h2>
-            <p className="text-sm mb-5" style={{ color: "#64748B" }}>
-              Pricing is based on vehicle size.
-            </p>
-            <div className="space-y-2">
-              {VEHICLE_TYPES.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => setVehicleType(v.id)}
-                  className="w-full flex items-center justify-between px-4 py-3 border rounded text-sm transition-all text-left"
-                  style={{
-                    borderRadius: 8,
-                    borderColor: vehicleType === v.id ? "hsl(220 91% 54%)" : "#E2E8F0",
-                    background: vehicleType === v.id ? "hsl(214 100% 97%)" : "white",
-                    color: vehicleType === v.id ? "hsl(220 91% 54%)" : "#0F172A",
-                    fontWeight: vehicleType === v.id ? 500 : 400,
-                  }}
-                >
-                  <span>{v.label}</span>
-                  {vehicleType === v.id && (
-                    <Check size={15} strokeWidth={2.5} style={{ color: "hsl(220 91% 54%)" }} />
-                  )}
-                </button>
-              ))}
+          <div className="px-4 py-6 max-w-xl mx-auto space-y-4">
+            <div>
+              <h2 className="text-base font-bold mb-1" style={{ color: "#0F172A" }}>
+                Select your vehicle type
+              </h2>
+              <p className="text-xs mb-3" style={{ color: "#64748B" }}>
+                Reference illustrations and categories to pick your car type accurately.
+              </p>
             </div>
+            
+            <VehicleTypeSelector
+              value={vehicleType as any}
+              onChange={(type) => setVehicleType(type)}
+              showDetails={true}
+            />
+
             <FooterBar onNext={() => setStep(2)} />
           </div>
         )}

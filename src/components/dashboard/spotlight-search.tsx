@@ -208,7 +208,7 @@ export function SpotlightSearch() {
           <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-right">
             {/* Search Input Bar */}
             <div className="flex items-center border-b border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50 gap-2">
-              <Search size={18} className="text-slate-600 shrink-0" />
+              <Search size={18} className="text-slate-500 shrink-0 ml-1" />
               <input
                 ref={inputRef}
                 type="text"
@@ -218,23 +218,18 @@ export function SpotlightSearch() {
                   setSelectedIndex(0);
                 }}
                 onKeyDown={handleInputKeyDown}
-                placeholder="البحث عن المركبات، البطاقات، العملاء... / Search vehicles, jobs..."
-                className="w-full bg-transparent text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-500 outline-none text-right"
+                placeholder="البحث عن المركبات، البطاقات، العملاء... / Search registration, phone..."
+                className="w-full bg-transparent text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 outline-none text-right px-2"
               />
               {query && (
                 <button
                   onClick={() => setQuery("")}
-                  className="p-1 text-slate-500 hover:text-slate-800 rounded-md shrink-0"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 bg-slate-200/60 rounded-full shrink-0 transition"
+                  title="Clear"
                 >
-                  <X size={15} />
+                  <X size={14} />
                 </button>
               )}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-black shrink-0 transition-colors"
-              >
-                إغلاق / Close
-              </button>
             </div>
 
             {/* Results Body */}
@@ -426,8 +421,8 @@ export function SpotlightSearch() {
               )}
             </div>
 
-            {/* Modal Footer */}
-            <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            {/* Modal Footer with Single-Handed Bottom-Right Close Button */}
+            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
               <div className="hidden sm:flex items-center gap-3">
                 <span>
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">↑↓</kbd> to navigate
@@ -439,8 +434,17 @@ export function SpotlightSearch() {
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">Esc</kbd> to close
                 </span>
               </div>
-              <span className="sm:hidden text-slate-500 font-semibold">Tap item to view details</span>
-              <span className="font-semibold text-slate-500">Universal Search</span>
+              <span className="sm:hidden text-slate-500 font-semibold">Universal Search</span>
+
+              {/* Single-Handed Close Button (Bottom Right) */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-md transition-all active-tap shrink-0 ml-auto"
+                title="Close search modal"
+              >
+                <X size={14} />
+                <span>إغلاق / Close</span>
+              </button>
             </div>
           </div>
         </div>

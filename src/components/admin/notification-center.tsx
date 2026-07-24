@@ -53,15 +53,15 @@ export function NotificationCenter() {
       </button>
 
       {open && (
-        <div className="fixed sm:absolute inset-0 sm:inset-auto sm:right-0 rtl:sm:right-auto rtl:sm:left-0 sm:top-full sm:mt-2 z-[100] sm:z-50 flex items-start justify-center sm:block pt-2 sm:pt-0 px-2 sm:px-0">
-          {/* Backdrop Overlay */}
+        <div className="fixed sm:absolute inset-0 sm:inset-auto sm:left-0 rtl:sm:left-0 rtl:sm:right-auto sm:top-full sm:mt-2 z-[200] flex items-start justify-center sm:block pt-2 sm:pt-0 px-2 sm:px-0">
+          {/* Backdrop Overlay for closing on outside click */}
           <div
-            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs sm:hidden"
+            className="fixed inset-0 bg-slate-900/40 sm:bg-transparent backdrop-blur-xs sm:backdrop-blur-none"
             onClick={() => setOpen(false)}
           />
 
           {/* Notification Panel Card */}
-          <div className="relative z-10 w-full sm:w-96 bg-white rounded-2xl shadow-2xl sm:shadow-xl border border-slate-200 p-4 animate-in fade-in zoom-in-95 duration-150 text-right" dir="rtl">
+          <div className="relative z-[210] w-full sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 animate-in fade-in zoom-in-95 duration-150 text-right" dir="rtl">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-slate-900">الإشعارات / Notifications</h3>

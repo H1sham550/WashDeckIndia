@@ -49,6 +49,7 @@ interface Customer360ViewProps {
   owner: any;
   staffMembers: any[];
   activeSub: any;
+  allPlans?: any[];
   auditLogs: any[];
   totalJobsCount: number;
   totalRevenue: number;
@@ -60,6 +61,7 @@ export function Customer360View({
   owner,
   staffMembers,
   activeSub,
+  allPlans = [],
   auditLogs,
   totalJobsCount,
   totalRevenue,
@@ -111,12 +113,34 @@ export function Customer360View({
     color: "bg-amber-50 border-amber-200 text-amber-900",
   };
 
+  const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(activeSub?.subscriptionId || "");
+
   function showToast(msg: string) {
     setStatusMessage(msg);
     setTimeout(() => setStatusMessage(null), 4000);
   }
 
   // Quick Action Handlers
+  async function handleAssignPlan(planIdToAssign: string) {
+    if (!planIdToAssign) return;
+    startTransition(async () => {
+      const res = await fetch(`/api/admin/stations/${station.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscriptionId: planIdToAssign }),
+      });
+      if (res.ok) {
+        showToast("✓ Station subscription plan updated successfully in database!");
+        setChangePlanModalOpen(false);
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to update station plan.");
+      }
+    });
+  }
+
   async function handleImpersonate() {
     startTransition(async () => {
       const res = await fetch(`/api/admin/stations/${station.id}/impersonate`, { method: "POST" });
@@ -201,6 +225,15 @@ export function Customer360View({
           >
             <LogIn className="h-3.5 w-3.5" />
             <span>Login as Owner</span>
+          </button>
+
+          <button
+            onClick={() => setChangePlanModalOpen(true)}
+            disabled={isPending}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md transition-all border border-blue-400/30"
+          >
+            <Package className="h-3.5 w-3.5 text-white" />
+            <span>Change Plan / Elevate</span>
           </button>
 
           <button
@@ -593,10 +626,10 @@ export function Customer360View({
                   <span>Renew Monthly Subscription</span>
                 </button>
                 <button
-                  onClick={() => showToast("✓ Plan upgrade modal initialized for Enterprise Monthly tier.")}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-sm transition-all"
+                  onClick={() => setChangePlanModalOpen(true)}
+                  className="px-4 py-2.5 rounded-xl border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs shadow-sm transition-all"
                 >
-                  Upgrade Plan Tier
+                  Change Subscription Plan
                 </button>
                 <button
                   onClick={handleToggleSuspend}
@@ -901,6 +934,112 @@ export function Customer360View({
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 5. CHANGE SUBSCRIPTION PLAN MODAL ────────────────────────────────────── */}
+      {changePlanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl p-6 space-y-6 text-right" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-blue-100 text-blue-800 rounded-xl">
+                  <Package className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900">تغيير خطة الاشتراك / Change Subscription Plan</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    اختر خطة الاشتراك الجديدة لمحطة <span className="font-bold text-slate-800">{station.name}</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setChangePlanModalOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Plan selection grid */}
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+              {allPlans.length > 0 ? (
+                allPlans.map((p) => {
+                  const isCurrent = activeSub?.subscriptionId === p.id;
+                  const isSelected = (selectedPlanId || activeSub?.subscriptionId) === p.id;
+
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => setSelectedPlanId(p.id)}
+                      className={cn(
+                        "p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between gap-4",
+                        isSelected
+                          ? "border-blue-600 bg-blue-50/50 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={cn(
+                            "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition",
+                            isSelected ? "border-blue-600 bg-blue-600 text-white" : "border-slate-300 bg-white"
+                          )}
+                        >
+                          {isSelected && <Check size={12} strokeWidth={3} />}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-extrabold text-slate-900">{p.name} Plan</h4>
+                            {isCurrent && (
+                              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">
+                                الخطة الحالية / Current
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{p.description || "خطة شاملة لجميع العمليات"}</p>
+                          <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-600 font-semibold">
+                            <span>👥 حد الموظفين: {p.staffLimit} staff</span>
+                            <span>•</span>
+                            <span>📄 تقارير: {p.reportLimit} / month</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-left flex-shrink-0">
+                        <span className="text-base font-black text-slate-900">
+                          {Number(p.price) === 0 ? "مجاني / Free" : `₹/SAR ${Number(p.price).toLocaleString()}`}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-medium block mt-0.5">/{p.durationDays} يوم</span>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-slate-400 text-center py-4">No plans available.</p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setChangePlanModalOpen(false)}
+                className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition"
+              >
+                إلغاء / Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isPending || !selectedPlanId}
+                onClick={() => handleAssignPlan(selectedPlanId)}
+                className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-2"
+              >
+                <Check size={16} />
+                <span>تأكيد وحفظ في قاعدة البيانات / Save to DB</span>
+              </button>
             </div>
           </div>
         </div>

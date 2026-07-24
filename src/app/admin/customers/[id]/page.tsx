@@ -93,18 +93,23 @@ export default async function CustomerDetailPage({
     actor: actors.find((a) => a.id === l.actorUserId) || null,
   }));
 
-  // Calculate some basic customer metrics
-  const totalJobsCount = await prisma.jobCard.count({
-    where: { stationId: id, isDeleted: false },
-  });
+  const [totalJobsCount, totalRevenueResult, allPlans] = await Promise.all([
+    prisma.jobCard.count({
+      where: { stationId: id, isDeleted: false },
+    }),
+    prisma.invoice.aggregate({
+      where: {
+        stationId: id,
+        status: "PAID",
+      },
+      _sum: { finalAmount: true },
+    }),
+    prisma.subscriptionPlan.findMany({
+      where: { isActive: true },
+      orderBy: { price: "desc" },
+    }),
+  ]);
 
-  const totalRevenueResult = await prisma.invoice.aggregate({
-    where: {
-      stationId: id,
-      status: "PAID",
-    },
-    _sum: { finalAmount: true },
-  });
   const totalRevenue = Number(totalRevenueResult._sum.finalAmount ?? 0);
   return (
     <div className="px-4 sm:px-6 py-6 max-w-7xl mx-auto">
@@ -113,10 +118,11 @@ export default async function CustomerDetailPage({
         owner={owner}
         staffMembers={staffMembers}
         activeSub={activeSub}
+        allPlans={allPlans}
         auditLogs={auditLogs}
         totalJobsCount={totalJobsCount}
         totalRevenue={totalRevenue}
-        currency={(station as any).currency ?? "INR"}
+        currency={(station as any).currency ?? "SAR"}
       />
     </div>
   );

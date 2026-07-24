@@ -23,57 +23,25 @@ export async function POST(request: Request) {
 
     const { identity, password } = parsed.data;
 
-    let user: any = null;
+    // 1. Authenticate user against Database
+    const candidates = await prisma.user.findMany({
+      where: {
+        OR: [
+          { email: { equals: identity, mode: "insensitive" } },
+          { username: { equals: identity, mode: "insensitive" } },
+        ],
+        isDeleted: false,
+        status: "ACTIVE",
+      },
+    });
 
-    // 1. Attempt database lookup if Prisma / DATABASE_URL is configured
-    if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes("placeholder")) {
-      try {
-        const candidates = await prisma.user.findMany({
-          where: {
-            OR: [
-              { email: { equals: identity, mode: "insensitive" } },
-              { username: { equals: identity, mode: "insensitive" } },
-            ],
-            isDeleted: false,
-            status: "ACTIVE",
-          },
-        });
+    const user = candidates.find((candidate) => verifyPassword(password, candidate.passwordHash));
 
-        if (candidates.length > 0) {
-          user = candidates.find((candidate) => verifyPassword(password, candidate.passwordHash));
-        }
-      } catch (dbErr) {
-        console.warn("Database lookup failed, falling back to dummy authentication:", dbErr);
-      }
-    }
-
-    // 2. Fallback to Dummy Authentication if DB lookup yields no user or DB is unreachable
     if (!user) {
-      const lowerIdentity = identity.toLowerCase();
-      let mockRole: "SUPER_ADMIN" | "OWNER" | "STAFF" = "OWNER";
-      let mockName = "Demo Station Owner";
-      let mockStationId: string | null = "mock-station-ryd";
-
-      if (lowerIdentity.includes("admin")) {
-        mockRole = "SUPER_ADMIN";
-        mockName = "System Super Admin";
-        mockStationId = null;
-      } else if (lowerIdentity.includes("staff") || lowerIdentity === "zayn_ryd") {
-        mockRole = "STAFF";
-        mockName = "Front Desk Staff (Zayn)";
-      } else if (lowerIdentity.includes("tariq")) {
-        mockRole = "OWNER";
-        mockName = "Tariq Al-Mansoor";
-      }
-
-      user = {
-        id: `mock-user-${Date.now()}`,
-        stationId: mockStationId,
-        role: mockRole,
-        name: mockName,
-        email: identity.includes("@") ? identity : `${identity}@washdeck.local`,
-        isTempPassword: false,
-      };
+      return NextResponse.json(
+        { ok: false, error: "Invalid identity or password." },
+        { status: 401 }
+      );
     }
 
     await createSession({
@@ -85,24 +53,23 @@ export async function POST(request: Request) {
       isTempPassword: user.isTempPassword,
     });
 
-    // Fire and forget non-blocking audit if DB is connected
-    if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes("placeholder")) {
-      Promise.all([
-        prisma.user.update({
-          where: { id: user.id },
-          data: { lastLogin: new Date() },
-        }),
-        prisma.auditLog.create({
-          data: {
-            actorUserId: user.id,
-            stationId: user.stationId,
-            action: "USER_LOGIN_PASSWORD",
-            entityType: "User",
-            entityId: user.id,
-          },
-        }),
-      ]).catch(() => {});
-    }
+    // Update lastLogin and audit log in background
+    Promise.all([
+      prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      }),
+      prisma.auditLog.create({
+        data: {
+          actorUserId: user.id,
+          stationId: user.stationId,
+          action: "USER_LOGIN_PASSWORD",
+          entityType: "User",
+          entityId: user.id,
+        },
+      }),
+    ]).catch((err) => console.error("Audit log error:", err));
+
 
     return NextResponse.json({
       ok: true,

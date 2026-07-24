@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!adminUser || adminUser.role !== "SUPER_ADMIN") {
-      return NextResponse.json({ ok: false, error: "Invalid admin impersonator." }, { status: 403 });
+      return NextResponse.json({ ok: false, error: "Invalid admin impersonator session." }, { status: 403 });
     }
 
     await createSession({
@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
     const adminUser = await prisma.user.findUnique({
       where: { id: session.impersonatorId },
     });
+
     if (adminUser && adminUser.role === "SUPER_ADMIN") {
       await createSession({
         id: adminUser.id,
@@ -49,3 +50,4 @@ export async function GET(request: NextRequest) {
   }
   return NextResponse.redirect(new URL("/admin", request.url));
 }
+

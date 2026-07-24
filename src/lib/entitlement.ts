@@ -273,8 +273,10 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
     const reportsVal = features["service_reports"] || features["SERVICE_REPORTS"] || false;
     features["reports"] = reportsVal;
     features["REPORTS"] = reportsVal;
-    features["finance"] = reportsVal;
-    features["FINANCE"] = reportsVal;
+
+    // Profit & Loss and Finance tracking is available for ALL plans
+    features["finance"] = true;
+    features["FINANCE"] = true;
 
     const recoveryVal = features["revenue_recovery"] || features["REVENUE_RECOVERY"] || false;
     features["recovery"] = recoveryVal;
@@ -393,6 +395,9 @@ export const getUserStations = cache(async (email: string, role: string): Promis
 });
 
 export async function isFeatureEnabled(stationId: string, featureKey: string): Promise<boolean> {
+  if (featureKey.toLowerCase() === "finance" || featureKey.toUpperCase() === "FINANCE") {
+    return true;
+  }
   const entitlements = await getStationEntitlements(stationId);
   const normalizedKey = normalizeFeatureKey(featureKey);
   return entitlements.features[normalizedKey] || entitlements.features[featureKey.toLowerCase()] || false;

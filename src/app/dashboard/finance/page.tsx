@@ -13,38 +13,13 @@ export default async function FinancePage() {
     redirect("/login");
   }
 
-  const [enabled, entitlements, allPlans, station] = await Promise.all([
-    isFeatureEnabled(session.stationId, "finance"),
+  const [entitlements, station] = await Promise.all([
     getStationEntitlements(session.stationId),
-    getCachedSubscriptionPlans(),
     prisma.station.findUnique({
       where: { id: session.stationId },
       include: { branding: true },
     }),
   ]);
-
-  if (!enabled) {
-    const upgradePlans = allPlans
-      .filter(p => p.planFeatures.some((pf: any) => pf.featureKey === "SERVICE_REPORTS" && pf.enabled))
-      .map(p => ({
-        id: p.id,
-        name: p.name,
-        price: Number(p.price),
-        description: p.description,
-        staffLimit: p.staffLimit,
-        reportLimit: p.reportLimit,
-        features: p.planFeatures.map((pf: any) => pf.featureKey),
-      }));
-
-    return (
-      <UpgradeLock
-        featureName="Expense & Income Tracker"
-        currentPlanName={entitlements.currentPlanName}
-        availablePlans={upgradePlans}
-        stationId={session.stationId}
-      />
-    );
-  }
 
   if (!entitlements.stationMetadata) {
     redirect("/login");

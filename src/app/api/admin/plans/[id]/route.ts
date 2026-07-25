@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { normalizeFeatureKey } from "@/lib/entitlement";
+import { normalizeFeatureKey, clearStationEntitlementCache } from "@/lib/entitlement";
 
 export async function PATCH(
   request: NextRequest,
@@ -88,6 +88,8 @@ export async function PATCH(
       maxStaff: populated.staffLimit,
       maxReports: populated.reportLimit,
     };
+
+    clearStationEntitlementCache();
 
     return NextResponse.json({ ok: true, plan: formattedPlan });
   } catch (error: any) {

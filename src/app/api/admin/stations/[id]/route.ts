@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StationStatus } from "@prisma/client";
+import { clearStationEntitlementCache } from "@/lib/entitlement";
 
 export async function PATCH(
   request: NextRequest,
@@ -266,7 +267,9 @@ export async function PATCH(
       }
     }
 
-    // Fetch updated station object
+    // Invalidate station entitlement cache so changes take effect instantly
+    clearStationEntitlementCache(stationId);
+
     const updatedStation = await prisma.station.findUnique({
       where: { id: stationId },
       include: {

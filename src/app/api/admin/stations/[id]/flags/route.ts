@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { clearStationEntitlementCache } from "@/lib/entitlement";
 
 export async function POST(
   request: NextRequest,
@@ -71,6 +72,8 @@ export async function POST(
 
       return override;
     });
+
+    clearStationEntitlementCache(stationId);
 
     return NextResponse.json({ ok: true, flag: result });
   } catch (error: any) {

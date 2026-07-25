@@ -41,6 +41,14 @@ export type StationEntitlements = {
 const entitlementCache = new Map<string, { data: StationEntitlements; expiresAt: number }>();
 const CACHE_TTL_MS = 60 * 1000; // 1 minute
 
+export function clearStationEntitlementCache(stationId?: string) {
+  if (stationId) {
+    entitlementCache.delete(stationId);
+  } else {
+    entitlementCache.clear();
+  }
+}
+
 const FEATURE_KEY_MAPPING: Record<string, string> = {
   offers: "LOYALTY_PROGRAMS",
   reports: "SERVICE_REPORTS",

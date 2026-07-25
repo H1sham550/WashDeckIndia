@@ -100,11 +100,11 @@ export default async function FinancePage() {
   const b = station?.branding || ({} as any);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Expense & Income Manager</h1>
+    <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Expense Tracker & Cash Flow</h1>
         <p className="text-sm text-slate-500">
-          Track operational expenses, view detailing revenues, and analyze daily net profits.
+          Log operational costs, track detailing revenues, and monitor full station cash flow & net profit/loss in real-time.
         </p>
       </div>
       <FinancePanel 

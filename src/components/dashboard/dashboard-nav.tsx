@@ -17,7 +17,8 @@ import {
   Car,
   Clock,
   LayoutDashboard,
-  PlusCircle
+  PlusCircle,
+  Receipt
 } from "lucide-react";
 
 interface DashboardNavProps {
@@ -87,8 +88,8 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
           <span>Services</span>
         </Link>
         <Link href="/dashboard/finance" className={navItemClass("/dashboard/finance")}>
-          <Coins size={16} />
-          <span>Finance</span>
+          <Receipt size={16} />
+          <span>Expense Tracker</span>
         </Link>
         {isOwner && (
           <>
@@ -114,9 +115,9 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
           <LayoutDashboard size={18} />
           <span>Home</span>
         </Link>
-        <Link href="/dashboard/queue" className={mobileItemClass("/dashboard/queue")}>
-          <Clock size={18} />
-          <span>Queue</span>
+        <Link href="/dashboard/finance" className={mobileItemClass("/dashboard/finance")}>
+          <Receipt size={18} />
+          <span>Expenses</span>
         </Link>
         <Link 
           href="/dashboard/jobs/new" 
@@ -170,6 +171,22 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
             {/* Drawer Navigation List */}
             <div className="space-y-3">
               <Link 
+                href="/dashboard/queue" 
+                onClick={() => setIsMoreOpen(false)}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors active-tap"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600">
+                    <Clock size={18} />
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-xs font-bold text-slate-700">Queue Management</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Live bay tracking & waiting line.</p>
+                  </div>
+                </div>
+                <ChevronRight size={16} className="text-slate-400" />
+              </Link>
+              <Link 
                 href="/dashboard/vehicles" 
                 onClick={() => setIsMoreOpen(false)}
                 className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50/50 border border-slate-100 hover:bg-slate-50 transition-colors active-tap"
@@ -212,11 +229,11 @@ export function DashboardNav({ isOwner, features }: DashboardNavProps) {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-9 w-9 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600">
-                        <Coins size={18} />
+                        <Receipt size={18} />
                       </div>
                       <div className="text-left">
-                        <h4 className="text-xs font-bold text-slate-700">Finance & Invoices</h4>
-                        <p className="text-[10px] text-slate-400 mt-0.5">Daily collections, UPI, & expenses.</p>
+                        <h4 className="text-xs font-bold text-slate-700">Expense Tracker & Cash Flow</h4>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Track operational expenses, cash inflow, & profit/loss.</p>
                       </div>
                     </div>
                     <ChevronRight size={16} className="text-slate-400" />

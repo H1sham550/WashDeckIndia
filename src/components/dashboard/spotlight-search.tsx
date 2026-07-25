@@ -74,8 +74,8 @@ export function SpotlightSearch() {
     },
     {
       id: "act-finance",
-      title: "Finance & Invoices",
-      subtitle: "Review revenue reports and payment statuses",
+      title: "Expense Tracker & Cash Flow",
+      subtitle: "Track operational expenses, cash inflow, and profit/loss",
       type: "ACTION",
       url: "/dashboard/finance",
       icon: BarChart2,

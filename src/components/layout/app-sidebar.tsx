@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Bell,
+  Receipt,
 } from "lucide-react";
 import { WashDeckLogo } from "@/components/brand/washdeck-logo";
 
@@ -87,9 +88,9 @@ export function AppSidebar({
       ],
     },
     {
-      label: "Finance & Profit Loss",
+      label: "Expense Tracker & Cash Flow",
       items: [
-        { href: "/dashboard/finance", label: "Profit & Loss / Finance", icon: BarChart2 },
+        { href: "/dashboard/finance", label: "Expense Tracker", icon: Receipt },
         { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
         { href: "/dashboard/inventory", label: "Inventory", icon: Package },
       ],

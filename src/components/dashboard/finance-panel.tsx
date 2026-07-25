@@ -17,9 +17,11 @@ import {
   Briefcase,
   AlertCircle,
   CheckCircle2,
-  Info,
-  ChevronRight,
-  ChevronLeft
+  Receipt,
+  PieChart,
+  ArrowUpRight,
+  ArrowDownRight,
+  Sparkles
 } from "lucide-react";
 
 type IncomeTransaction = {
@@ -53,13 +55,13 @@ type FinancePanelProps = {
 };
 
 const EXPENSE_CATEGORIES = [
-  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-amber-50 text-amber-700 border-amber-200" },
-  { value: "UTILITIES", label: "Utilities (Water/Power)", color: "bg-blue-50 text-blue-700 border-blue-200" },
-  { value: "RENT", label: "Rent & Lease", color: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-  { value: "SALARIES", label: "Staff Salaries", color: "bg-purple-50 text-purple-700 border-purple-200" },
-  { value: "MARKETING", label: "Marketing & Ads", color: "bg-pink-50 text-pink-700 border-pink-200" },
-  { value: "REPAIRS", label: "Equipment Repairs", color: "bg-orange-50 text-orange-700 border-orange-200" },
-  { value: "OTHER", label: "Other Operational", color: "bg-slate-50 text-slate-700 border-slate-200" }
+  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500" },
+  { value: "UTILITIES", label: "Utilities (Water/Power)", color: "bg-blue-50 text-blue-700 border-blue-200", barColor: "bg-blue-500" },
+  { value: "RENT", label: "Rent & Lease", color: "bg-indigo-50 text-indigo-700 border-indigo-200", barColor: "bg-indigo-500" },
+  { value: "SALARIES", label: "Staff Salaries", color: "bg-purple-50 text-purple-700 border-purple-200", barColor: "bg-purple-500" },
+  { value: "MARKETING", label: "Marketing & Ads", color: "bg-pink-50 text-pink-700 border-pink-200", barColor: "bg-pink-500" },
+  { value: "REPAIRS", label: "Equipment Repairs", color: "bg-orange-50 text-orange-700 border-orange-200", barColor: "bg-orange-500" },
+  { value: "OTHER", label: "Other Operational", color: "bg-slate-50 text-slate-700 border-slate-200", barColor: "bg-slate-500" }
 ];
 
 export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: FinancePanelProps) {
@@ -169,6 +171,19 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
   const netProfit = totalIncome - totalExpense;
   const profitMargin = totalIncome > 0 ? Math.round((netProfit / totalIncome) * 100) : 0;
+  const expenseRatio = totalIncome > 0 ? Math.round((totalExpense / totalIncome) * 100) : 0;
+
+  // Expenses Category breakdown calculation
+  const expenseTransactions = filteredTransactions.filter(
+    (tx): tx is ExpenseTransaction => tx.type === "EXPENSE"
+  );
+  const categoryTotals: Record<string, number> = {};
+  EXPENSE_CATEGORIES.forEach((cat) => {
+    categoryTotals[cat.value] = 0;
+  });
+  expenseTransactions.forEach((exp) => {
+    categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+  });
 
   // Render SVG Daily Profit Chart (maps 7 or 30 days)
   const daysToDraw = dateRange === "month" ? 30 : 7;
@@ -178,7 +193,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
     const d = new Date();
     d.setDate(d.getDate() - i);
     const dateKey = d.toDateString();
-    const label = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    const label = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 
     // Aggregate values for this specific calendar day
     const dayIncome = incomes
@@ -194,7 +209,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
   const maxChartVal = Math.max(
     ...chartData.map((d) => Math.max(d.income, d.expense)),
-    1000 // Fallback min ceiling
+    1000
   );
 
   // SVG Dimensions
@@ -238,7 +253,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
     setSuccess("");
 
     if (!formData.title.trim()) {
-      setError("Title is required.");
+      setError("Expense title is required.");
       return;
     }
     const amt = Number(formData.amount);
@@ -305,9 +320,9 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
   return (
     <div className="space-y-6">
       {/* Date Filter & Log Action Header */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white border p-4 rounded-xl shadow-sm">
-        {/* Date Tabs */}
-        <div className="flex bg-slate-50 p-1 rounded-lg gap-1 border w-full sm:w-auto overflow-x-auto">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm">
+        {/* Date Filter Range Tabs */}
+        <div className="flex bg-slate-100/80 p-1 rounded-xl gap-1 border border-slate-200/60 w-full sm:w-auto overflow-x-auto">
           {[
             { value: "today", label: "Today" },
             { value: "week", label: "7 Days" },
@@ -318,9 +333,9 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
             <button
               key={tab.value}
               onClick={() => setDateRange(tab.value as any)}
-              className={`text-xs px-3 py-1.5 font-bold rounded-md transition whitespace-nowrap ${
+              className={`text-xs px-3.5 py-1.5 font-bold rounded-lg transition whitespace-nowrap ${
                 dateRange === tab.value
-                  ? "bg-white text-slate-800 shadow-sm border border-slate-200"
+                  ? "bg-white text-slate-800 shadow-xs border border-slate-200"
                   : "text-slate-500 hover:text-slate-800"
               }`}
             >
@@ -331,24 +346,24 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
         <button
           onClick={() => openExpenseModal()}
-          className="w-full sm:w-auto h-10 px-4 flex items-center justify-center gap-2 rounded-lg text-white font-bold transition shadow-sm hover:brightness-95 text-xs uppercase tracking-wider shrink-0"
+          className="w-full sm:w-auto h-10 px-4 flex items-center justify-center gap-2 rounded-xl text-white font-bold transition shadow-sm hover:brightness-95 text-xs uppercase tracking-wider shrink-0 active-tap"
           style={{ backgroundColor: primaryColor }}
         >
           <Plus size={16} />
-          Log Business Expense
+          Log Expense
         </button>
       </div>
 
       {/* Custom Date Inputs */}
       {dateRange === "custom" && (
-        <div className="bg-white border rounded-xl p-4 shadow-sm grid grid-cols-2 gap-4 max-w-md">
+        <div className="bg-white border rounded-2xl p-4 shadow-sm grid grid-cols-2 gap-4 max-w-md animate-in slide-in-from-top-2 duration-200">
           <div className="space-y-1">
             <label className="block text-[10px] font-bold text-slate-400 uppercase">Start Date</label>
             <input
               type="date"
               value={customStartDate}
               onChange={(e) => setCustomStartDate(e.target.value)}
-              className="h-9 w-full border rounded-md px-3 text-xs outline-none focus:border-slate-400"
+              className="h-9 w-full border rounded-lg px-3 text-xs outline-none focus:border-slate-400"
             />
           </div>
           <div className="space-y-1">
@@ -357,81 +372,138 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
               type="date"
               value={customEndDate}
               onChange={(e) => setCustomEndDate(e.target.value)}
-              className="h-9 w-full border rounded-md px-3 text-xs outline-none focus:border-slate-400"
+              className="h-9 w-full border rounded-lg px-3 text-xs outline-none focus:border-slate-400"
             />
           </div>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50/80 border border-emerald-200 rounded-xl">
           <CheckCircle2 className="shrink-0 text-emerald-600" size={18} />
-          <span>{success}</span>
+          <span className="font-semibold">{success}</span>
         </div>
       )}
 
-      {/* Financial Aggregates Strip */}
-      <section className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        {/* Income Card */}
-        <div className="bg-white border rounded-xl p-4 shadow-sm flex items-center gap-4">
-          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
+      {/* Financial Cash Flow Aggregates Strip */}
+      <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Cash Inflow (Income) */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-1.5 text-emerald-600">
+              <ArrowUpRight size={14} />
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Cash Inflow</span>
+            </div>
+            <p className="text-2xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalIncome)}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Paid service invoices</p>
+          </div>
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
             <TrendingUp size={20} />
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Gross Income</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalIncome)}</p>
-          </div>
         </div>
 
-        {/* Expenses Card */}
-        <div className="bg-white border rounded-xl p-4 shadow-sm flex items-center gap-4">
-          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-rose-50 text-rose-600">
+        {/* Cash Outflow (Expenses) */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-1.5 text-rose-600">
+              <ArrowDownRight size={14} />
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Cash Outflow</span>
+            </div>
+            <p className="text-2xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalExpense)}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Logged operational costs</p>
+          </div>
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600">
             <TrendingDown size={20} />
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Expenses</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalExpense)}</p>
-          </div>
         </div>
 
-        {/* Net Profit Card */}
-        <div className={`bg-white border rounded-xl p-4 shadow-sm flex items-center gap-4 border-l-4 ${
+        {/* Net Cash Flow (Profit/Loss) */}
+        <div className={`bg-white border rounded-2xl p-4 shadow-xs flex items-center justify-between border-l-4 ${
           netProfit >= 0 ? "border-l-emerald-500" : "border-l-rose-500"
         }`}>
-          <div className={`h-11 w-11 rounded-lg flex items-center justify-center shrink-0 ${
+          <div>
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <span className="text-[10px] font-black uppercase tracking-wider">Net Profit / Loss</span>
+            </div>
+            <p className={`text-2xl font-extrabold mt-1 ${netProfit >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Inflow minus Outflow</p>
+          </div>
+          <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
             netProfit >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
           }`}>
             <Coins size={20} />
           </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Net Profit</p>
-            <p className={`text-xl font-extrabold mt-1 ${netProfit >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}
-            </p>
-          </div>
         </div>
 
-        {/* Margin Card */}
-        <div className="bg-white border rounded-xl p-4 shadow-sm flex items-center gap-4">
-          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
-            <DollarSign size={20} />
-          </div>
+        {/* Profit Margin & Expense Ratio */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Profit Margin</p>
-            <p className="text-xl font-extrabold text-slate-800 mt-1">{profitMargin}%</p>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Profit Margin</span>
+            <p className="text-2xl font-extrabold text-blue-900 mt-1">{profitMargin}%</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Expense ratio: {expenseRatio}%</p>
+          </div>
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
+            <DollarSign size={20} />
           </div>
         </div>
       </section>
 
+      {/* Category Expenses Breakdown */}
+      <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <PieChart size={16} className="text-blue-600" />
+              Expense Breakdown by Category
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Distribution of operational costs across business spending categories.
+            </p>
+          </div>
+          <span className="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
+            Total Outflow: {formatCurrency(totalExpense)}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {EXPENSE_CATEGORIES.map((cat) => {
+            const amount = categoryTotals[cat.value] || 0;
+            const pct = totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0;
+
+            return (
+              <div key={cat.value} className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded border ${cat.color}`}>
+                    {cat.label}
+                  </span>
+                  <span className="text-xs font-extrabold text-slate-700">{pct}%</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-800">{formatCurrency(amount)}</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-200/80 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-300 ${cat.barColor}`} 
+                    style={{ width: `${pct}%` }} 
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Visual Daily Profit & Cashflow Chart */}
-      <section className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
+      <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
         <div>
           <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
             <TrendingUp size={16} style={{ color: primaryColor }} />
-            Daily Cashflow (Income vs Expenses)
+            Daily Cash Flow Trend (Inflow vs Outflow)
           </h3>
           <p className="text-[11px] text-slate-400 mt-0.5">
-            Visualizing daily inflows and outflows over the selected {daysToDraw}-day range.
+            Visualizing daily cash inflows and outflows over the selected {daysToDraw}-day period.
           </p>
         </div>
 
@@ -460,7 +532,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                       textAnchor="end"
                       className="fill-slate-400 font-semibold text-[9px]"
                     >
-                      ₹{valueLabel >= 1000 ? (valueLabel / 1000).toFixed(1) + "k" : valueLabel}
+                      {valueLabel >= 1000 ? (valueLabel / 1000).toFixed(1) + "k" : valueLabel}
                     </text>
                   </g>
                 );
@@ -484,7 +556,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
                 return (
                   <g key={idx} className="group">
-                    <title>{`Date: ${day.label}\nIncome: ₹${day.income.toLocaleString()}\nExpenses: ₹${day.expense.toLocaleString()}`}</title>
+                    <title>{`Date: ${day.label}\nInflow: ${formatCurrency(day.income)}\nExpenses: ${formatCurrency(day.expense)}`}</title>
                     
                     {/* Hover column background */}
                     <rect
@@ -548,24 +620,24 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-6 text-[10px] font-bold text-slate-500 pt-2 border-t">
+        <div className="flex items-center justify-center gap-6 text-[10px] font-bold text-slate-500 pt-2 border-t border-slate-100">
           <div className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded bg-emerald-500 block" />
-            <span>Detaling Revenue (Inflow)</span>
+            <span>Revenue Inflow</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded bg-rose-500 block" />
-            <span>Operational Expenses (Outflow)</span>
+            <span>Operational Expenses Outflow</span>
           </div>
         </div>
       </section>
 
       {/* Transaction Ledger Table with Search & Filters */}
-      <section className="bg-white border rounded-xl shadow-sm overflow-hidden space-y-4 p-5">
-        <div className="border-b pb-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <section className="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden space-y-4 p-5">
+        <div className="border-b border-slate-100 pb-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Transaction History Ledger</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5">Chronological ledger of cash movements.</p>
+            <h3 className="text-sm font-bold text-slate-800">Cash Flow Transaction Ledger</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">Chronological record of all revenue inflows and operational expense outflows.</p>
           </div>
 
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -588,18 +660,18 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 setTypeFilter(e.target.value as any);
                 setCategoryFilter("ALL");
               }}
-              className="h-9 border rounded-lg px-2 text-xs font-bold text-slate-600 bg-white"
+              className="h-9 border rounded-lg px-2.5 text-xs font-bold text-slate-700 bg-white"
             >
               <option value="ALL">All Types</option>
-              <option value="INCOME">Income Only</option>
-              <option value="EXPENSE">Expenses Only</option>
+              <option value="INCOME">Inflow (Income)</option>
+              <option value="EXPENSE">Outflow (Expenses)</option>
             </select>
 
             {/* Category Filter */}
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="h-9 border rounded-lg px-2 text-xs font-bold text-slate-600 bg-white"
+              className="h-9 border rounded-lg px-2.5 text-xs font-bold text-slate-700 bg-white"
             >
               <option value="ALL">All Categories</option>
               {typeFilter !== "INCOME" && (
@@ -614,9 +686,9 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
               {typeFilter !== "EXPENSE" && (
                 <optgroup label="Payment Methods">
                   <option value="CASH">CASH Payments</option>
-                  <option value="UPI">UPI Payments</option>
-                  <option value="CARD">CARD Payments</option>
-                  <option value="BANK">BANK Payments</option>
+                  <option value="STC_PAY">STC Pay</option>
+                  <option value="CARD">CARD / Mada</option>
+                  <option value="BANK">BANK Transfer</option>
                 </optgroup>
               )}
             </select>
@@ -624,10 +696,10 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         </div>
 
         {/* Ledger Table */}
-        <div className="overflow-x-auto border rounded-xl">
+        <div className="overflow-x-auto border border-slate-200/80 rounded-xl">
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="bg-slate-50 border-b text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="bg-slate-50/80 border-b border-slate-200/60 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 <th className="py-3 px-4">Date</th>
                 <th className="py-3 px-4">Description</th>
                 <th className="py-3 px-4">Type / Category</th>
@@ -636,10 +708,10 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 <th className="py-3 px-4 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y text-xs font-medium text-slate-700">
+            <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {filteredTransactions.length > 0 ? (
                 filteredTransactions.map((tx) => {
-                  const dateStr = new Date(tx.date).toLocaleDateString("en-IN", {
+                  const dateStr = new Date(tx.date).toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
@@ -649,7 +721,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
                   if (tx.type === "INCOME") {
                     return (
-                      <tr key={tx.id} className="hover:bg-slate-50/30">
+                      <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="py-3 px-4 text-slate-400 whitespace-nowrap">{dateStr}</td>
                         <td className="py-3 px-4">
                           <div>
@@ -660,25 +732,25 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="inline-block px-2 py-0.5 text-[9px] font-extrabold tracking-wide uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Income
+                          <span className="inline-block px-2 py-0.5 text-[9px] font-black tracking-wide uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Inflow
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="font-extrabold text-slate-500">{tx.paymentMethod}</span>
+                          <span className="font-extrabold text-slate-600">{tx.paymentMethod}</span>
                         </td>
                         <td className="py-3 px-4 text-right font-extrabold text-emerald-600 whitespace-nowrap">
                           +{formatCurrency(tx.amount)}
                         </td>
-                        <td className="py-3 px-4 text-center text-slate-300 italic text-[10px]">
-                          Invoice Locked
+                        <td className="py-3 px-4 text-center text-slate-400 italic text-[10px]">
+                          Invoice Record
                         </td>
                       </tr>
                     );
                   } else {
                     const catObj = EXPENSE_CATEGORIES.find((c) => c.value === tx.category);
                     return (
-                      <tr key={tx.id} className="hover:bg-slate-50/30">
+                      <tr key={tx.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="py-3 px-4 text-slate-400 whitespace-nowrap">{dateStr}</td>
                         <td className="py-3 px-4">
                           <div>
@@ -691,27 +763,29 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-block px-2 py-0.5 text-[9px] font-extrabold tracking-wide uppercase rounded border ${catObj?.color || ""}`}>
-                            {tx.category}
+                          <span className={`inline-block px-2 py-0.5 text-[9px] font-black tracking-wide uppercase rounded border ${catObj?.color || ""}`}>
+                            {catObj?.label || tx.category}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-slate-400">
-                          Operational
+                        <td className="py-3 px-4 text-slate-400 text-xs">
+                          Operational Expense
                         </td>
                         <td className="py-3 px-4 text-right font-extrabold text-rose-600 whitespace-nowrap">
                           -{formatCurrency(tx.amount)}
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center gap-1.5">
                             <button
                               onClick={() => openExpenseModal(tx)}
-                              className="h-7 w-7 border rounded hover:bg-slate-50 flex items-center justify-center text-slate-600 transition"
+                              className="h-7 w-7 border border-slate-200 rounded-lg hover:bg-slate-50 flex items-center justify-center text-slate-600 transition active-tap"
+                              title="Edit Expense"
                             >
                               <Edit size={12} />
                             </button>
                             <button
                               onClick={() => handleDeleteExpense(tx.id)}
-                              className="h-7 w-7 border rounded hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition"
+                              className="h-7 w-7 border border-slate-200 rounded-lg hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition active-tap"
+                              title="Delete Expense"
                             >
                               <Trash2 size={12} />
                             </button>
@@ -733,28 +807,28 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         </div>
       </section>
 
-      {/* Log Expense Modal */}
+      {/* Log / Edit Expense Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fadeIn">
-          <div className="bg-white rounded-xl border shadow-xl w-full max-w-md overflow-hidden">
-            {/* Header */}
-            <div className="flex justify-between items-center px-5 py-4 border-b">
-              <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                <Coins size={18} style={{ color: primaryColor }} />
-                {editingExpense ? "Edit Expense Log" : "Log Business Expense"}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-md overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100">
+              <h4 className="font-bold text-slate-800 flex items-center gap-2 text-sm">
+                <Receipt size={18} style={{ color: primaryColor }} />
+                {editingExpense ? "Edit Expense Log" : "Log Operational Expense"}
               </h4>
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 transition"
+                className="text-slate-400 hover:text-slate-600 transition p-1 rounded-full hover:bg-slate-100"
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            {/* Form */}
+            {/* Modal Form */}
             <form onSubmit={handleExpenseSubmit} className="p-5 space-y-4">
               {error && (
-                <div className="flex items-center gap-3 p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-3 p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl">
                   <AlertCircle className="shrink-0" size={16} />
                   <span>{error}</span>
                 </div>
@@ -762,29 +836,29 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
               {/* Title */}
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Expense Title</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Expense Description / Title</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Purchase of foam wash chemicals"
+                  placeholder="e.g. Detailing shampoo bulk refill"
                   value={formData.title}
                   onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-                  className="h-10 w-full border rounded-md px-3 text-xs outline-none focus:border-slate-400"
+                  className="h-10 w-full border rounded-xl px-3 text-xs outline-none focus:border-slate-400"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Amount */}
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Amount (₹)</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Amount</label>
                   <input
                     type="number"
                     min="1"
                     required
-                    placeholder="e.g. 2500"
+                    placeholder="e.g. 350"
                     value={formData.amount}
                     onChange={(e) => setFormData((prev) => ({ ...prev, amount: e.target.value }))}
-                    className="h-10 w-full border rounded-md px-3 text-xs outline-none focus:border-slate-400"
+                    className="h-10 w-full border rounded-xl px-3 text-xs outline-none focus:border-slate-400"
                   />
                 </div>
 
@@ -796,7 +870,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                     required
                     value={formData.date}
                     onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-                    className="h-10 w-full border rounded-md px-3 text-xs outline-none focus:border-slate-400"
+                    className="h-10 w-full border rounded-xl px-3 text-xs outline-none focus:border-slate-400"
                   />
                 </div>
               </div>
@@ -807,7 +881,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                  className="h-10 w-full border rounded-md px-3 text-xs font-bold text-slate-600 bg-white"
+                  className="h-10 w-full border rounded-xl px-3 text-xs font-bold text-slate-700 bg-white"
                 >
                   {EXPENSE_CATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>
@@ -819,13 +893,13 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
 
               {/* Notes */}
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Internal Notes (Optional)</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Vendor / Notes (Optional)</label>
                 <textarea
                   rows={2}
-                  placeholder="Purchase bills reference, shop receipts info..."
+                  placeholder="Supplier reference, receipt details, or payment note..."
                   value={formData.notes}
                   onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-                  className="w-full border rounded-md px-3 py-2 text-xs outline-none focus:border-slate-400 resize-none"
+                  className="w-full border rounded-xl px-3 py-2 text-xs outline-none focus:border-slate-400 resize-none"
                 />
               </div>
 
@@ -834,18 +908,18 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="flex-1 h-10 border rounded-lg text-slate-600 font-bold transition hover:bg-slate-50 text-xs uppercase tracking-wide"
+                  className="flex-1 h-10 border border-slate-200 rounded-xl text-slate-600 font-bold transition hover:bg-slate-50 text-xs uppercase tracking-wide"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex-1 h-10 flex items-center justify-center gap-2 rounded-lg text-white font-bold transition hover:brightness-95 text-xs uppercase tracking-wide disabled:opacity-50"
+                  className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl text-white font-bold transition hover:brightness-95 text-xs uppercase tracking-wide disabled:opacity-50 active-tap"
                   style={{ backgroundColor: primaryColor }}
                 >
                   {isPending && <LoaderIcon />}
-                  {editingExpense ? "Update Expense" : "Log Outflow"}
+                  {editingExpense ? "Save Changes" : "Log Outflow"}
                 </button>
               </div>
             </form>

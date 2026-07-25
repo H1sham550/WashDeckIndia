@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, Coins, DollarSign, ArrowRight, BarChart2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Coins, DollarSign, ArrowRight, Receipt } from "lucide-react";
 
 interface DailyFinancial {
   label: string;
@@ -46,14 +46,14 @@ export function OwnerProfitLossCard({
         <div>
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-              <BarChart2 size={18} />
+              <Receipt size={18} />
             </div>
             <h2 className="text-base font-extrabold text-slate-800 tracking-tight">
-              Owner Profit & Loss Analytics
+              Expense & Cash Flow Tracker
             </h2>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Real-time financial performance, margins, and daily cashflow breakdown.
+            Real-time cash inflow, operational expenses, profit/loss, and margins.
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export function OwnerProfitLossCard({
           href="/dashboard/finance"
           className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline transition self-start sm:self-auto"
         >
-          <span>Full Finance Ledger</span>
+          <span>Full Expense Tracker</span>
           <ArrowRight size={13} />
         </Link>
       </div>

@@ -21,6 +21,7 @@ import {
   Bell,
   FileText,
   Settings,
+  Receipt,
 } from "lucide-react";
 import { useState } from "react";
 import { LogoutButton } from "./logout-button";
@@ -39,7 +40,7 @@ interface MobileBottomNavProps {
 
 const BOTTOM_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/queue", label: "Queue", icon: Clock },
+  { href: "/dashboard/finance", label: "Expenses", icon: Receipt },
   { href: "/dashboard/vehicles", label: "Customers", icon: Car },
 ];
 
@@ -56,6 +57,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
     {
       label: "Operations",
       items: [
+        { href: "/dashboard/queue", label: "Queue Management", icon: Clock },
         { href: "/dashboard/bookings", label: "Bookings & Appointments", icon: Calendar },
       ],
     },
@@ -67,9 +69,9 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
       ],
     },
     {
-      label: "Finance & Profit Loss",
+      label: "Expense Tracker & Cash Flow",
       items: [
-        { href: "/dashboard/finance", label: "Profit & Loss / Finance", icon: BarChart2 },
+        { href: "/dashboard/finance", label: "Expense Tracker", icon: Receipt },
         { href: "/dashboard/payments", label: "Payment Invoices", icon: CreditCard },
         { href: "/dashboard/inventory", label: "Inventory", icon: Package },
       ],

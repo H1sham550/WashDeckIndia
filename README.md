@@ -1,50 +1,48 @@
-# WashDeck Saudi — Vehicle-First Operations & Spa Management Platform
+# WashDeck Saudi — Vehicle-First Operations, Detailing & Expense Platform
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19.0-61DAFB?logo=react)](https://react.js.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?logo=prisma)](https://www.prisma.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react)](https://react.js.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.19-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?style=for-the-badge&logo=postgresql)](https://neon.tech/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 
-**WashDeck** is an enterprise vehicle-first operations, customer relationship management (CRM), and revenue retention platform engineered specifically for car wash, auto spa, detailing, and ceramic coating centers in Saudi Arabia and the GCC region.
+**WashDeck** is an enterprise vehicle-first operations platform, customer relationship management (CRM) suite, and financial cash-flow intelligence system engineered specifically for car washes, auto spas, detailing centers, and ceramic coating studios in Saudi Arabia and the GCC region.
 
-Unlike generic POS or simple invoicing applications, WashDeck's core philosophy centers around the **Vehicle Passport** — tracking each car's full service history, inspection notes, before/after media, and detailing timeline across all visits.
+Unlike generic point-of-sale (POS) systems, WashDeck places the **Vehicle Passport** at the core — tracking every car's full service history, inspection notes, before/after media, and detailing timeline across all station visits.
 
 ---
 
-## 🌟 Key Features & Architecture
+## 🌟 Core Features & Modules
 
-### 1. Store Header Banner & Store Branding
-- **Custom Store Banner**: Upload custom header banner images or logo/store title headers.
-- **Visual Identity**: Tailor primary brand colors, branch codes, and store badges.
-- **Top Action Bar**: Unified notification center, universal quick search, and multi-branch selectors embedded cleanly below the store banner.
+### 1. Expense Tracker & Cash Flow System
+- **Real-Time Cash Flow Metrics**: Monitor Gross Cash Inflow (paid service invoices), Cash Outflow (operational expenses), Net Cash Flow / Profit (Loss), Profit Margin %, and Expense Ratio %.
+- **Category Spending Distribution**: Interactive category breakdown cards with percentage bars for *Supplies & Chemicals*, *Utilities*, *Rent & Lease*, *Staff Salaries*, *Marketing*, *Equipment Repairs*, and *Miscellaneous*.
+- **Interactive Dual Trend Chart**: Responsive SVG graph analyzing daily revenue inflows versus operational expense outflows over 7-day and 30-day windows.
+- **Unified Ledger & CRUD Dialogs**: Full transaction ledger with instant search, date range selectors (Today, 7D, 30D, All Time, Custom), type filters, payment method badges, and real-time expense creation/edit dialogs with audit logging.
 
-### 2. Visual Vehicle Type Reference Selector
-- **Interactive Reference Guides**: Visual selection cards featuring car body-type illustrations, door counts, badges, and descriptions for:
-  - **Sedan** (4 doors + rear trunk)
-  - **SUV / Crossover** (High roof, 5-7 seats, high ground clearance)
+### 2. 1-Handed Mobile Navigation & Bottom Bar
+- **Operational Bottom Bar**: Optimized 5-item mobile bottom navigation bar featuring **Dashboard**, **Customers**, **Expenses** (Expense Tracker), central **+ (New Job Card)** intake button, and **Menu**.
+- **Operations Slide-Up Drawer**: Access live **Queue Management** and **Bookings** inside the slide-up store navigation drawer.
+- **Touch Gestures & RTL**: Built-in edge-swipe right gesture support (`SwipeBackProvider`) and automatic Right-to-Left (RTL) orientation for Saudi Arabia stations.
+
+### 3. Store Branding & Header Customization
+- **Branding Suite**: Upload custom square logos, horizontal header banners, invoice logos, and set primary brand color accents across all station panels.
+- **Top Utility Header**: Multi-branch station switcher, universal spotlight search (`Ctrl+K` / `Cmd+K`), and notification popover center.
+
+### 4. Visual Vehicle Type Reference Selector
+- **Interactive 2D Reference Cards**: Visual vehicle selection cards featuring body-type illustrations, door counts, badges, and descriptions for:
+  - **Sedan** (4 doors + trunk)
+  - **SUV / Crossover** (High roof, 5-7 seats)
   - **Hatchback** (Compact 2-box design)
   - **Motorcycle / Bike** (2-wheeler)
-  - **Luxury / Supercar** (Sports car, exotic, limousine)
-- Integrated into **Job Intake Wizards**, **Vehicle Registration Modals**, and **Public Online Booking**.
+  - **Luxury / Supercar** (Exotic, sports car)
+- Embedded in **Job Card Intake Wizard**, **Vehicle Registration Modals**, and **Public Online Booking**.
 
-### 3. Owner Profit & Loss (P&L) & Analyzing Chart
-- **Real-Time Financial Metrics**: Instant breakdown of Gross Inflow, Operational Expenses, Net Profit (+/-), and Profit Margin %.
-- **Daily Cashflow Chart**: SVG bar chart analyzing daily revenue vs. operational expenses over 7-day and 30-day windows.
-- **Expense Logging Ledger**: Categorize operational costs (Supplies, Rent, Salaries, Utilities, Equipment Repairs) with invoice linking.
-
-### 4. Single-Handed Mobile UX & App Movement
-- **Thumb-Friendly Controls**: Single-handed Close button positioned at the bottom right of search overlay modals.
-- **Edge Swipe Gesture Navigation**: Built-in touch gesture listeners (`SwipeBackProvider`) for edge-swiping right to go back seamlessly on mobile devices.
-- **Streamlined Mobile Bottom Bar**: Central floating `+` FAB for instant job card intake without redundant screen buttons.
-
-### 5. Team & Staff Management
-- **Role-Based Controls**: Distinct views for Store **Owner**, **Staff / Operator**, and **Super Admin**.
-- **Team Hub**: Direct navigation to Staff Members (`/dashboard/staff`), Add New Staff Modal (`?action=add`), and Attendance Logs (`/dashboard/attendance`).
-
-### 6. Universal Spotlight Search (Ctrl+K / Cmd+K)
-- Search across registration numbers, customer mobile numbers, customer names, job cards, and actions.
-- Text & icon padding protection preventing overflow or overlapping.
+### 5. Multi-Tenant Role & Subscription Controls
+- **Role Hierarchy**: Strict role separation between **Super Admin**, **Store Owner**, and **Front Desk Staff**.
+- **Feature Flags & Entitlements**: Plan-based feature access (Offers & Loyalty, Revenue Recovery, Analytics, Staff Management, Custom Branding).
+- **Super Admin Portal**: Platform-wide metrics (MRR/ARR), customer 360-degree view, subscription plan switcher, and station impersonation.
 
 ---
 
@@ -52,43 +50,43 @@ Unlike generic POS or simple invoicing applications, WashDeck's core philosophy 
 
 | Layer | Technology |
 | :--- | :--- |
-| **Framework** | Next.js 15.5 (App Router, Server Components & Route Handlers) |
+| **Framework** | Next.js 15.5 (App Router, Server Components & Server Actions) |
 | **Language** | TypeScript 5.6 |
-| **UI & Styling** | TailwindCSS 3.4, Lucide React Icons, Custom SVG Visualizations |
-| **Database** | PostgreSQL (Neon Cloud DB) |
+| **Styling** | TailwindCSS 3.4, Lucide React Icons, Custom SVG Visualizations |
+| **Database** | PostgreSQL (Neon Serverless Cloud DB) |
 | **ORM** | Prisma ORM 6.19.3 |
-| **Authentication** | Jose JWT / Role-Aware Session Cookies & Middleware Guards |
-| **Mobile App Wrapper** | Expo / React Native WebView with hardware-accelerated gestures |
-| **Deployment** | Vercel Serverless CDN |
+| **Security & Auth** | Jose JWT, Role-Aware Session Cookies, In-Memory Rate Limiting |
+| **Storage Provider** | Extensible Disk & Cloud Storage Provider (`LocalOrCloudStorageProvider`) |
+| **Deployment** | Vercel Serverless Platform |
 
 ---
 
-## 📂 Project Directory Structure
+## 📂 Repository Structure
 
 ```text
 WashDeskKod/
 ├── src/
-│   ├── app/                        # Next.js App Router Pages & API Routes
-│   │   ├── admin/                  # Super Admin management panel
-│   │   ├── api/                    # Serverless API route handlers
-│   │   ├── dashboard/              # Store Owner & Staff operations hub
+│   ├── app/                        # App Router Pages & API Routes
+│   │   ├── admin/                  # Super Admin management portal
+│   │   ├── api/                    # Serverless API endpoints (Auth, Expenses, Vehicles, Jobs)
+│   │   ├── dashboard/              # Store Owner & Staff operational dashboard
 │   │   │   ├── attendance/         # Staff attendance logs
 │   │   │   ├── bookings/           # Appointment scheduler
-│   │   │   ├── finance/            # Profit & Loss ledger
-│   │   │   ├── inventory/          # Detailing supplies inventory
-│   │   │   ├── jobs/               # Job card intake & details
+│   │   │   ├── finance/            # Expense Tracker & Cash Flow
+│   │   │   ├── inventory/          # Detailing inventory management
+│   │   │   ├── jobs/               # Job card intake wizard & details
 │   │   │   ├── queue/              # Live bay queue
-│   │   │   ├── settings/           # Store settings & branding
+│   │   │   ├── settings/           # Store settings & custom branding
 │   │   │   └── staff/              # Team management
-│   │   ├── globals.css             # Core design system tokens & styles
-│   │   └── layout.tsx              # Main dashboard shell & Store Header
+│   │   ├── globals.css             # Design tokens & core styles
+│   │   └── layout.tsx              # Root app layout
 │   ├── components/
-│   │   ├── admin/                  # Notification center, customers 360
-│   │   ├── brand/                  # WashDeck brand assets
-│   │   ├── dashboard/              # VehicleTypeSelector, OwnerProfitLossCard, etc.
-│   │   └── layout/                 # MobileBottomNav, AppSidebar, SwipeBackProvider
-│   ├── lib/                        # Auth, Prisma client, entitlement & helpers
-│   ├── locales/                    # English & Arabic i18n dictionaries
+│   │   ├── admin/                  # Customer 360 view, plan switcher, notification center
+│   │   ├── brand/                  # Official WashDeck logos & marks
+│   │   ├── dashboard/              # FinancePanel, OwnerProfitLossCard, VehicleTypeSelector, etc.
+│   │   ├── layout/                 # MobileBottomNav, AppSidebar, SwipeBackProvider
+│   │   └── ui/                     # Reusable UI primitives
+│   ├── lib/                        # Auth, Prisma client, Rate Limiter, Storage, Entitlements
 │   ├── repositories/               # Data access layer
 │   └── services/                   # Business logic layer
 ├── prisma/
@@ -99,15 +97,14 @@ WashDeskKod/
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Local Development Setup
 
 ### Prerequisites
-
 - **Node.js**: v18.0.0 or higher
 - **npm**: v9.0.0 or higher
-- **PostgreSQL Database**: Neon DB connection string or local PostgreSQL instance
+- **PostgreSQL**: Neon DB connection string or local PostgreSQL server
 
-### Setup Instructions
+### Step-by-Step Instructions
 
 1. **Clone the repository**:
    ```bash
@@ -121,25 +118,25 @@ WashDeskKod/
    ```
 
 3. **Configure Environment Variables**:
-   Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory (based on `.env.example`):
    ```env
-   DATABASE_URL="postgresql://user:password@ep-blue-dawn.neon.tech/neondb?sslmode=require"
-   DIRECT_URL="postgresql://user:password@ep-blue-dawn.neon.tech/neondb?sslmode=require"
-   JWT_SECRET="your-secure-jwt-secret"
-   NEXTAUTH_SECRET="your-secure-nextauth-secret"
+   DATABASE_URL="postgresql://user:password@host:port/neondb?sslmode=require"
+   DIRECT_URL="postgresql://user:password@host:port/neondb?sslmode=require"
+   SESSION_SECRET="your-long-random-secret-key"
+   APP_URL="http://localhost:3000"
    ```
 
 4. **Generate Prisma Client & Apply Database Schema**:
    ```bash
    npx prisma generate
-   npx prisma db push
+   npx prisma migrate deploy
    ```
 
-5. **Run Local Development Server**:
+5. **Start Local Development Server**:
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Access the dashboard at [http://localhost:3000](http://localhost:3000).
 
 6. **Build for Production**:
    ```bash
@@ -148,20 +145,12 @@ WashDeskKod/
 
 ---
 
-## 📱 Mobile App Wrapper Integration
+## 🛡️ Security & Multi-Tenancy
 
-The mobile application (`/App`) wraps the Next.js production web application using **React Native WebView**.
-
-- **Instant Cloud Sync**: Any update pushed to the web app automatically reflects inside the mobile app immediately without needing a new APK/IPA build.
-- **Hardware Back Handler**: Integrates Android hardware back button listener and iOS edge-swipe gestures.
-
----
-
-## 🔒 Security & Multi-Tenancy
-
-- **Station Isolation**: All queries pass through `station_id` filters to enforce strict multi-tenant data privacy.
-- **Role Guards**: Middleware and service wrappers restrict routes based on `SUPER_ADMIN`, `OWNER`, and `STAFF` roles.
-- **Audit Logs**: Critical operational actions (job creation, status transitions, expense edits, password resets) generate immutable audit records.
+- **Tenant Data Isolation**: Every operational query enforces station-level filtering (`where: { stationId }`).
+- **Production Session Guards**: Next.js middleware and `session.ts` enforce `SESSION_SECRET` configuration in production mode.
+- **API Rate Limiting**: In-memory rate limiting applied to sensitive endpoints (`/api/auth/login`, `/api/public/book`).
+- **Immutable Audit Trails**: Actions like job creation, expense edits, password resets, and plan modifications generate structured `AuditLog` records.
 
 ---
 

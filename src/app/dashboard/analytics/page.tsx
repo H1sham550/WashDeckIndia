@@ -1,13 +1,33 @@
-import { requireRole } from "@/lib/auth";
+import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isFeatureEnabled } from "@/lib/entitlement";
 import { getStationEntitlements, getCachedSubscriptionPlans } from "@/lib/entitlement";
 import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
-import { TrendingUp, Award, BarChart2, Sparkles, CreditCard, Car } from "lucide-react";
+import { TrendingUp, Award, BarChart2, Sparkles, CreditCard, Car, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 export default async function AnalyticsPage() {
-  const session = await requireRole(["OWNER"]);
+  const session = await requireStationUser();
   const stationId = session.stationId || "";
+
+  if (session.role !== "OWNER") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shadow-sm">
+          <ShieldAlert size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-slate-800">Store Owner Access Required</h2>
+        <p className="text-sm text-slate-500 max-w-md mx-auto font-medium">
+          Analytics and revenue intelligence dashboards are restricted to Store Owners. You are currently logged in as Staff ({session.name}).
+        </p>
+        <div>
+          <Link href="/dashboard" className="btn btn-primary inline-flex">
+            Back to Operations Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const [enabled, entitlements, allPlans] = await Promise.all([
     isFeatureEnabled(stationId, "analytics"),

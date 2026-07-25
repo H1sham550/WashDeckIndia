@@ -6,6 +6,7 @@ import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { StationSelector } from "@/components/dashboard/station-selector";
 import { SpotlightSearch } from "@/components/dashboard/spotlight-search";
 import { NotificationCenter } from "@/components/admin/notification-center";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { WashDeckLogo } from "@/components/brand/washdeck-logo";
 import { SwipeBackProvider } from "@/components/layout/swipe-back-provider";
 import { Sparkles, Building2 } from "lucide-react";
@@ -158,10 +159,11 @@ export default async function DashboardLayout({
                 </span>
               </div>
 
-              {/* Right actions - Search bar & Notifications (Logout moved to Settings) */}
+              {/* Right actions - Search bar, Notifications & Instant Sign Out */}
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-10">
                 <SpotlightSearch />
                 <NotificationCenter align="left" />
+                <LogoutButton />
               </div>
             </header>
           </div>

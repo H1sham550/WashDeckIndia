@@ -1,13 +1,34 @@
-import { requireRole } from "@/lib/auth";
+import { requireStationUser } from "@/lib/auth";
 import * as recoveryService from "@/services/recovery-service";
 import { RecoveryDashboard } from "@/components/dashboard/recovery-dashboard";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
+import { ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 export default async function RecoveryPage() {
-  const session = await requireRole(["OWNER"]);
+  const session = await requireStationUser();
+
+  if (session.role !== "OWNER") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shadow-sm">
+          <ShieldAlert size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-slate-800">Store Owner Access Required</h2>
+        <p className="text-sm text-slate-500 max-w-md mx-auto font-medium">
+          Revenue recovery and automated churn reduction campaigns are restricted to Store Owners. You are currently logged in as Staff ({session.name}).
+        </p>
+        <div>
+          <Link href="/dashboard" className="btn btn-primary inline-flex">
+            Back to Operations Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!session.stationId) {
     redirect("/login");

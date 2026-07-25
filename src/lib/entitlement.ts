@@ -259,41 +259,68 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
   };
 
   if (lifecycle !== "SUSPENDED") {
-    if (plan?.planFeatures) {
+    const planTier = currentPlanName || "Professional";
+    const isEnterprise = planTier === "Enterprise";
+    const isProfessional = planTier === "Professional" || isEnterprise;
+
+    // 1. Core operational capabilities enabled by default for all active plans
+    features["staff"] = true;
+    features["STAFF"] = true;
+    features["staff_management"] = true;
+    features["STAFF_MANAGEMENT"] = true;
+
+    features["finance"] = true;
+    features["FINANCE"] = true;
+    features["expense_tracking"] = true;
+    features["EXPENSE_TRACKING"] = true;
+
+    features["offers"] = isProfessional;
+    features["OFFERS"] = isProfessional;
+    features["loyalty_programs"] = isProfessional;
+    features["LOYALTY_PROGRAMS"] = isProfessional;
+
+    features["reports"] = true;
+    features["REPORTS"] = true;
+    features["service_reports"] = true;
+
+    features["recovery"] = isProfessional;
+    features["RECOVERY"] = isProfessional;
+    features["revenue_recovery"] = isProfessional;
+
+    features["analytics"] = isProfessional;
+    features["ANALYTICS"] = isProfessional;
+
+    features["branding"] = isProfessional || isEnterprise;
+    features["BRANDING"] = isProfessional || isEnterprise;
+    features["custom_branding"] = isProfessional || isEnterprise;
+
+    // 2. If explicit plan.planFeatures array exists in DB, apply plan configuration
+    if (plan?.planFeatures && plan.planFeatures.length > 0) {
       plan.planFeatures.forEach((pf: any) => {
         features[pf.featureKey.toLowerCase()] = pf.enabled;
         features[pf.featureKey.toUpperCase()] = pf.enabled;
       });
     }
 
-    const offersVal = features["loyalty_programs"] || features["LOYALTY_PROGRAMS"] || false;
-    features["offers"] = offersVal;
-    features["OFFERS"] = offersVal;
+    // 3. Re-sync aliases after plan.planFeatures application
+    if (features["staff_management"] !== undefined || features["STAFF_MANAGEMENT"] !== undefined) {
+      const sVal = features["staff_management"] ?? features["STAFF_MANAGEMENT"];
+      features["staff"] = sVal;
+      features["STAFF"] = sVal;
+    }
+    if (features["loyalty_programs"] !== undefined || features["LOYALTY_PROGRAMS"] !== undefined) {
+      const oVal = features["loyalty_programs"] ?? features["LOYALTY_PROGRAMS"];
+      features["offers"] = oVal;
+      features["OFFERS"] = oVal;
+    }
 
-    const reportsVal = features["service_reports"] || features["SERVICE_REPORTS"] || false;
-    features["reports"] = reportsVal;
-    features["REPORTS"] = reportsVal;
-
-    // Profit & Loss and Finance tracking is available for ALL plans
+    // Always keep finance & staff enabled by default for active stations
     features["finance"] = true;
     features["FINANCE"] = true;
+    features["staff"] = true;
+    features["STAFF"] = true;
 
-    const recoveryVal = features["revenue_recovery"] || features["REVENUE_RECOVERY"] || false;
-    features["recovery"] = recoveryVal;
-    features["RECOVERY"] = recoveryVal;
-
-    const analyticsVal = features["analytics"] || features["ANALYTICS"] || false;
-    features["analytics"] = analyticsVal;
-    features["ANALYTICS"] = analyticsVal;
-
-    const staffVal = features["staff_management"] || features["STAFF_MANAGEMENT"] || false;
-    features["staff"] = staffVal;
-    features["STAFF"] = staffVal;
-
-    const brandingVal = features["custom_branding"] || features["CUSTOM_BRANDING"] || false;
-    features["branding"] = brandingVal;
-    features["BRANDING"] = brandingVal;
-
+    // 4. Apply station specific featureOverrides from DB
     station.featureOverrides.forEach((override: any) => {
       const key = override.featureKey;
       const isEnabled = override.isEnabled;
@@ -301,15 +328,13 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       features[key.toLowerCase()] = isEnabled;
       features[key.toUpperCase()] = isEnabled;
 
-      if (key === "LOYALTY_PROGRAMS") {
+      if (key === "LOYALTY_PROGRAMS" || key === "OFFERS") {
         features["offers"] = isEnabled;
         features["OFFERS"] = isEnabled;
       }
       if (key === "SERVICE_REPORTS") {
         features["reports"] = isEnabled;
         features["REPORTS"] = isEnabled;
-        features["finance"] = isEnabled;
-        features["FINANCE"] = isEnabled;
       }
       if (key === "REVENUE_RECOVERY") {
         features["recovery"] = isEnabled;
@@ -319,17 +344,17 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
         features["analytics"] = isEnabled;
         features["ANALYTICS"] = isEnabled;
       }
-      if (key === "STAFF_MANAGEMENT") {
+      if (key === "STAFF_MANAGEMENT" || key === "STAFF") {
         features["staff"] = isEnabled;
         features["STAFF"] = isEnabled;
       }
-      if (key === "CUSTOM_BRANDING") {
+      if (key === "CUSTOM_BRANDING" || key === "BRANDING") {
         features["branding"] = isEnabled;
         features["BRANDING"] = isEnabled;
       }
     });
 
-    // Evaluate full FEATURE_REGISTRY against plan and overrides
+    // 5. Evaluate full FEATURE_REGISTRY against plan and overrides
     const overridesMap: Record<string, boolean> = {};
     station.featureOverrides.forEach((override: any) => {
       overridesMap[override.featureKey] = override.isEnabled;
@@ -360,10 +385,8 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       country: country?.code || "SA",
       currency: country?.currencyCode || "SAR",
       timezone: region?.timezone || "Asia/Riyadh",
-      locale: country?.defaultLocale || "en-SA",
-      isRTL: (country?.defaultLocale || "en-SA").startsWith("ar"),
-      vipSpendThreshold: 10000,
-      vipVisitThreshold: 5,
+      locale: country?.defaultLocale || "ar-SA",
+      isRTL: country?.isRTL ?? true,
     },
   };
 

@@ -1,8 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(req, "public-booking", 5, 60);
+    if (rateLimit.isRateLimited) {
+      return NextResponse.json(
+        { error: "Too many booking requests. Please wait a minute before submitting again." },
+        { status: 429 }
+      );
+    }
     const body = await req.json();
     const { stationSlugOrId, customerName, mobile, vehicleNumber, vehicleType, serviceName, scheduledAt, notes } = body;
 

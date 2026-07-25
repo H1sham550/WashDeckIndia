@@ -1,16 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/crypto";
 import { createSession } from "@/lib/session";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const loginSchema = z.object({
   identity: z.string().trim().min(1, "Identity is required"),
   password: z.string().min(1, "Password is required"),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(request, "auth-login", 5, 60);
+    if (rateLimit.isRateLimited) {
+      return NextResponse.json(
+        { ok: false, error: "Too many login attempts. Please wait 60 seconds before trying again." },
+        { status: 429 }
+      );
+    }
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
 

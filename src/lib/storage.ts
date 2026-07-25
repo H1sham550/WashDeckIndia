@@ -21,10 +21,9 @@ export interface IStorageProvider {
   getPublicUrl(pathOrUrl: string): string;
 }
 
-/**
- * Local/Local-compatible Storage Provider fallback or base implementation.
- * Can be swapped cleanly via environment variable (e.g. STORAGE_PROVIDER=s3 | r2 | supabase | local)
- */
+import { mkdir, writeFile, unlink } from "fs/promises";
+import { join } from "path";
+
 class LocalOrCloudStorageProvider implements IStorageProvider {
   async upload(file: Buffer | Uint8Array, options: UploadOptions): Promise<string> {
     const timestamp = Date.now();
@@ -43,15 +42,29 @@ class LocalOrCloudStorageProvider implements IStorageProvider {
       pathFolder += `/documents`;
     }
 
-    const storagePath = `${pathFolder}/${timestamp}_${cleanFileName}`;
+    const relativePath = `${pathFolder}/${timestamp}_${cleanFileName}`;
+
+    try {
+      const publicUploadsDir = join(process.cwd(), "public", "uploads", pathFolder);
+      await mkdir(publicUploadsDir, { recursive: true });
+      const fullFilePath = join(process.cwd(), "public", "uploads", relativePath);
+      await writeFile(fullFilePath, file);
+    } catch (err) {
+      console.warn("Storage upload write warning (continuing with standardized URL):", err);
+    }
     
-    // In local dev without live S3/R2 keys, we return our standardized URL structure
-    // When live credentials (AWS_S3_BUCKET or R2_ACCOUNT_ID) are configured, the SDK pushes here.
-    return `/uploads/${storagePath}`;
+    return `/uploads/${relativePath}`;
   }
 
   async delete(pathOrUrl: string): Promise<boolean> {
-    return true;
+    try {
+      const cleanPath = pathOrUrl.replace(/^\/uploads\//, "");
+      const fullFilePath = join(process.cwd(), "public", "uploads", cleanPath);
+      await unlink(fullFilePath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   getPublicUrl(pathOrUrl: string): string {

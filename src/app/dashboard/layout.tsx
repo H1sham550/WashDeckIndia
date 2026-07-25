@@ -51,7 +51,7 @@ export default async function DashboardLayout({
     <SwipeBackProvider>
       <div
         className="wd-app-shell"
-        dir="rtl"
+        dir={station?.isRTL ?? true ? "rtl" : "ltr"}
         style={{ "--primary-color": primaryColor } as React.CSSProperties}
       >
         {/* Impersonation banner */}

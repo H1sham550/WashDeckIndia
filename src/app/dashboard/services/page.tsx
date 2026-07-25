@@ -1,10 +1,10 @@
-import { requireRole } from "@/lib/auth";
+import { requireStationUser } from "@/lib/auth";
 import * as serviceService from "@/services/service-service";
 import { ServicesPanel } from "@/components/dashboard/services-panel";
 import { redirect } from "next/navigation";
 
 export default async function ServicesPage() {
-  const session = await requireRole(["OWNER"]);
+  const session = await requireStationUser();
 
   if (!session.stationId) {
     redirect("/login");

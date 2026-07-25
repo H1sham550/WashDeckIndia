@@ -77,14 +77,15 @@ export function AppSidebar({
         { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
         { href: "/dashboard/queue", label: "Queue", icon: Clock },
         { href: "/dashboard/bookings", label: "Bookings", icon: Calendar },
+        { href: "/dashboard/services", label: "Services & Pricing", icon: Wrench },
       ],
     },
     {
       label: "Customers",
       items: [
-        { href: "/dashboard/vehicles", label: "Customers", icon: Car },
+        { href: "/dashboard/vehicles", label: "Customers & Vehicles", icon: Car },
         ...(features.offers ? [{ href: "/dashboard/offers", label: "Offers & Loyalty", icon: Gift }] : []),
-        ...(features.recovery ? [{ href: "/dashboard/recovery", label: "Recovery", icon: RotateCcw }] : []),
+        ...(features.recovery && isOwner ? [{ href: "/dashboard/recovery", label: "Recovery", icon: RotateCcw }] : []),
       ],
     },
     {
@@ -92,16 +93,21 @@ export function AppSidebar({
       items: [
         { href: "/dashboard/finance", label: "Expense Tracker", icon: Receipt },
         { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
-        { href: "/dashboard/inventory", label: "Inventory", icon: Package },
       ],
       ownerOnly: true,
+    },
+    {
+      label: "Operations & Supplies",
+      items: [
+        { href: "/dashboard/inventory", label: "Inventory", icon: Package },
+        { href: "/dashboard/attendance", label: "Attendance", icon: ClipboardList },
+      ],
     },
     {
       label: "Team",
       items: [
         { href: "/dashboard/staff", label: "Staff Members", icon: Users },
         { href: "/dashboard/staff?action=add", label: "Add New Staff", icon: UserPlus },
-        { href: "/dashboard/attendance", label: "Attendance", icon: ClipboardList },
       ],
       ownerOnly: true,
     },
@@ -109,8 +115,8 @@ export function AppSidebar({
       label: "System",
       items: [
         { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
-        ...(features.analytics ? [{ href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 }] : []),
-        { href: "/dashboard/audit", label: "Audit Log", icon: FileText },
+        ...(features.analytics && isOwner ? [{ href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 }] : []),
+        ...(isOwner ? [{ href: "/dashboard/audit", label: "Audit Log", icon: FileText }] : []),
         { href: "/dashboard/settings", label: "Settings", icon: Settings },
       ],
     },

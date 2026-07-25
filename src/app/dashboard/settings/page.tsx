@@ -1,10 +1,10 @@
-import { requireRole } from "@/lib/auth";
+import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "@/components/dashboard/settings-form";
 import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
-  const session = await requireRole(["OWNER"]);
+  const session = await requireStationUser();
 
   let station: any = null;
   try {

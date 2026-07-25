@@ -74,7 +74,7 @@ export default async function AdminLayout({
 
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 z-10">
             <KeyboardShortcuts />
-            <NotificationCenter />
+            <NotificationCenter align="right" />
             <div className="lg:hidden pl-1 border-l border-slate-100">
               <LogoutButton />
             </div>

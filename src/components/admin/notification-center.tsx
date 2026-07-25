@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import { Bell, CheckCircle2, AlertTriangle, Clock, ShieldAlert, Sparkles, X } from "lucide-react";
 import { formatRelativeTime } from "@/lib/currency";
 
-export function NotificationCenter() {
+interface NotificationCenterProps {
+  align?: "left" | "right";
+}
+
+export function NotificationCenter({ align = "right" }: NotificationCenterProps) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([
     {
@@ -39,6 +43,8 @@ export function NotificationCenter() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
+  const alignClass = align === "left" ? "sm:left-0 sm:right-auto" : "sm:right-0 sm:left-auto";
+
   return (
     <div className="relative">
       <button
@@ -53,7 +59,7 @@ export function NotificationCenter() {
       </button>
 
       {open && (
-        <div className="fixed sm:absolute inset-0 sm:inset-auto sm:left-0 rtl:sm:left-0 rtl:sm:right-auto sm:top-full sm:mt-2 z-[200] flex items-start justify-center sm:block pt-2 sm:pt-0 px-2 sm:px-0">
+        <div className={`fixed sm:absolute inset-0 sm:inset-auto ${alignClass} sm:top-full sm:mt-2 z-[200] flex items-start justify-center sm:block pt-2 sm:pt-0 px-2 sm:px-0`}>
           {/* Backdrop Overlay for closing on outside click */}
           <div
             className="fixed inset-0 bg-slate-900/40 sm:bg-transparent backdrop-blur-xs sm:backdrop-blur-none"

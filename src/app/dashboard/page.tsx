@@ -26,15 +26,19 @@ export default async function DashboardPage() {
   const stationId = session.stationId || "";
   const isOwner = session.role === "OWNER";
 
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  sevenDaysAgo.setHours(0, 0, 0, 0);
 
   const [entitlements, summary, expenses] = await Promise.all([
     getStationEntitlements(stationId),
     jobCardService.getDashboardSummary(stationId),
     isOwner
       ? prisma.expense.findMany({
-          where: { stationId },
+          where: {
+            stationId,
+            date: { gte: sevenDaysAgo },
+          },
           orderBy: { date: "desc" },
         }).catch(() => [])
       : Promise.resolve([]),

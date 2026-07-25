@@ -6,13 +6,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {
-    optimizePackageImports: ["lucide-react", "recharts", "date-fns", "jose"],
+    optimizePackageImports: ["lucide-react", "recharts", "jose"],
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
 };
 

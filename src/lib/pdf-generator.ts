@@ -370,7 +370,7 @@ export function generateReportPDF(data: PDFData): Buffer {
   }
 
   // Trailer
-  let trailer = `trailer\n<< /Size ${offsets.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  const trailer = `trailer\n<< /Size ${offsets.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
 
   appendToPDF(xref + trailer);
 

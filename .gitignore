@@ -5,7 +5,11 @@ dist
 coverage
 .env
 .env*.local
+.env.vercel
 *.tsbuildinfo
 prisma/dev.db
 
 .vercel
+system_credentials.txt
+Test Cred.txt
+*.txt.bak

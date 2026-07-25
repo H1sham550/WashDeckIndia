@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { TrendingUp, TrendingDown, Coins, DollarSign, ArrowRight, Receipt } from "lucide-react";
+import { formatCurrency } from "@/lib/currency";
 
 interface DailyFinancial {
   label: string;
@@ -75,7 +76,7 @@ export function OwnerProfitLossCard({
             <TrendingUp size={14} className="text-emerald-500" />
           </div>
           <p className="text-lg font-extrabold text-slate-800 mt-1">
-            {currency}{totalIncome.toLocaleString()}
+            {formatCurrency(totalIncome)}
           </p>
         </div>
 
@@ -86,7 +87,7 @@ export function OwnerProfitLossCard({
             <TrendingDown size={14} className="text-rose-500" />
           </div>
           <p className="text-lg font-extrabold text-slate-800 mt-1">
-            {currency}{totalExpense.toLocaleString()}
+            {formatCurrency(totalExpense)}
           </p>
         </div>
 
@@ -97,7 +98,7 @@ export function OwnerProfitLossCard({
             <Coins size={14} className={netProfit >= 0 ? "text-emerald-600" : "text-rose-600"} />
           </div>
           <p className={`text-lg font-extrabold mt-1 ${netProfit >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
-            {netProfit >= 0 ? "+" : ""}{currency}{netProfit.toLocaleString()}
+            {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}
           </p>
         </div>
 

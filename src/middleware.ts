@@ -5,7 +5,13 @@ import { sessionCookieName, type SessionUser } from "@/lib/session";
 const protectedPrefixes = ["/dashboard", "/admin"];
 
 function getSecret() {
-  const secret = process.env.SESSION_SECRET || "washdeck-local-development-fallback-secret-key-32-chars";
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("CRITICAL SECURITY RISK: SESSION_SECRET is not configured in production environment.");
+    }
+    return new TextEncoder().encode("washdeck-local-development-fallback-secret-key-32-chars");
+  }
   return new TextEncoder().encode(secret);
 }
 

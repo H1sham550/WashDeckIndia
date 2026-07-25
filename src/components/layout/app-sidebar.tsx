@@ -25,6 +25,7 @@ import {
   Receipt,
 } from "lucide-react";
 import { WashDeckLogo } from "@/components/brand/washdeck-logo";
+import { LogoutButton } from "./logout-button";
 
 interface AppSidebarProps {
   isOwner: boolean;
@@ -196,11 +197,11 @@ export function AppSidebar({
         })}
       </nav>
 
-      {/* Collapse Toggle */}
-      <div className="border-t p-2">
+      {/* Footer controls: Collapse Toggle & Logout */}
+      <div className="border-t p-2 space-y-1">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="wd-nav-item w-full justify-center"
+          className="wd-nav-item w-full justify-center text-slate-500 hover:text-slate-900"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
@@ -208,10 +209,12 @@ export function AppSidebar({
           ) : (
             <>
               <ChevronLeft size={14} strokeWidth={1.75} />
-              <span className="text-xs">Collapse</span>
+              <span className="text-xs font-bold">Collapse</span>
             </>
           )}
         </button>
+
+        <LogoutButton collapsed={collapsed} />
       </div>
     </aside>
   );

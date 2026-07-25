@@ -159,11 +159,10 @@ export default async function DashboardLayout({
                 </span>
               </div>
 
-              {/* Right actions - Search bar, Notifications & Instant Sign Out */}
+              {/* Right actions - Search bar & Notifications */}
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-10">
                 <SpotlightSearch />
                 <NotificationCenter align="left" />
-                <LogoutButton />
               </div>
             </header>
           </div>

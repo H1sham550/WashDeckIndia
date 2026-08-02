@@ -65,7 +65,7 @@ export default async function AdminLayout({
         {/* Top Control Bar - Extended Store Owner Theme Header Banner (2-Row Layout) */}
         <header className="sticky top-0 z-30 w-full shadow-lg">
           <div
-            className="relative overflow-hidden border-b border-white/15"
+            className="relative border-b border-white/15"
             style={{ background: "linear-gradient(135deg, #1D4ED8 0%, #0b192c 100%)" }}
           >
             {/* Background Glows */}

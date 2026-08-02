@@ -19,6 +19,13 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    const currentPath = window.location.pathname;
+    const isRootPath = currentPath === "/dashboard" || currentPath === "/dashboard/" || currentPath === "/admin" || currentPath === "/admin/";
+
+    if (isRootPath) {
+      window.history.pushState({ isRootGuard: true }, "", window.location.href);
+    }
+
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
       const touch = e.touches[0];
@@ -63,10 +70,11 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
           }
 
           // 2. If at root dashboard/admin landing page, prevent accidental logout by showing confirmation prompt
-          const currentPath = window.location.pathname;
-          const isRootPath = currentPath === "/dashboard" || currentPath === "/dashboard/" || currentPath === "/admin" || currentPath === "/admin/";
+          const path = window.location.pathname;
+          const isRoot = path === "/dashboard" || path === "/dashboard/" || path === "/admin" || path === "/admin/";
 
-          if (isRootPath) {
+          if (isRoot) {
+            window.history.pushState({ isRootGuard: true }, "", window.location.href);
             setShowLogoutConfirm(true);
             touchStartRef.current = null;
             return;
@@ -81,17 +89,19 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
       touchStartRef.current = null;
     };
 
-    const handlePopState = () => {
+    const handlePopState = (e: PopStateEvent) => {
       const activeCloseBtn = document.querySelector<HTMLButtonElement>("[data-modal-close-btn]");
       if (activeCloseBtn) {
         activeCloseBtn.click();
+        window.history.pushState({ isRootGuard: true }, "", window.location.href);
         return;
       }
 
-      const currentPath = window.location.pathname;
-      const isRootPath = currentPath === "/dashboard" || currentPath === "/dashboard/" || currentPath === "/admin" || currentPath === "/admin/";
+      const path = window.location.pathname;
+      const isRoot = path === "/dashboard" || path === "/dashboard/" || path === "/admin" || path === "/admin/";
 
-      if (isRootPath) {
+      if (isRoot) {
+        window.history.pushState({ isRootGuard: true }, "", window.location.href);
         setShowLogoutConfirm(true);
       }
     };

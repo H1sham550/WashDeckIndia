@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Filter,
@@ -60,10 +61,14 @@ const COUNTRY_FLAGS: Record<string, string> = {
 };
 
 export function CustomersPanel({ stations }: CustomersPanelProps) {
-  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get("search") || searchParams.get("stationId") || "";
+  const initialAction = searchParams.get("action");
+
+  const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [planFilter, setPlanFilter] = useState("ALL");
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(initialAction === "new");
   const [, startTransition] = useTransition();
 
   // Collect unique plan names

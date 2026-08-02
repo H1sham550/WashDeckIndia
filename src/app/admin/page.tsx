@@ -139,7 +139,7 @@ export default async function AdminPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href={"/admin/stations/new" as any}
+            href={"/admin/customers?action=new" as any}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm shadow-slate-900/10"
           >
             + Create Station
@@ -193,7 +193,7 @@ export default async function AdminPage() {
               </p>
             </div>
             <Link
-              href={"/admin/stations" as any}
+              href={"/admin/customers" as any}
               className="text-xs font-bold text-wd-teal-700 hover:text-wd-teal-800 transition-colors"
             >
               View All →
@@ -231,7 +231,7 @@ export default async function AdminPage() {
                       >
                         <td className="py-3 px-4">
                           <Link
-                            href={(`/admin/stations/${station.id}`) as any}
+                            href={(`/admin/customers?search=${encodeURIComponent(station.name)}`) as any}
                             className="font-bold text-slate-800 hover:text-wd-teal-700 transition-colors"
                           >
                             {station.name}
@@ -312,7 +312,7 @@ export default async function AdminPage() {
                         </p>
                       </div>
                       <Link
-                        href={(`/admin/stations/${station.id}`) as any}
+                        href={(`/admin/customers?search=${encodeURIComponent(station.name)}`) as any}
                         className="text-[11px] font-bold text-slate-800 hover:text-amber-900 ml-2"
                       >
                         Manage →

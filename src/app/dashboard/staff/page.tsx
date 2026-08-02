@@ -55,11 +55,10 @@ export default async function StaffPage() {
     ]);
     staff = res[0];
     station = res[1];
-  } catch {
-    staff = [
-      { id: "u-1", name: "Fahad Al-Qahtani", email: "fahad@washdeck.sa", role: "OWNER", status: "ACTIVE", createdAt: new Date() },
-      { id: "u-2", name: "Youssef Al-Sayed", email: "youssef@washdeck.sa", role: "STAFF", status: "ACTIVE", createdAt: new Date() },
-    ];
+  } catch (err) {
+    console.error("Failed to fetch staff data:", err);
+    staff = [];
+    station = null;
   }
 
   const activePlanName = station?.stationSubscriptions[0]?.subscription.name ?? "Standard Pro";

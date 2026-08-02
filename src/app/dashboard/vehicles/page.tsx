@@ -22,43 +22,9 @@ export default async function VehiclesPage() {
       orderBy: { createdAt: "desc" },
       take: 10,
     });
-  } catch {
-    initialVehicles = [
-      {
-        id: "v-mock-1",
-        vehicleNumber: "KSA 4492",
-        vehicleType: "SUV",
-        brand: "Toyota",
-        model: "Land Cruiser",
-        color: "Pearl White",
-        tags: [],
-        contacts: [
-          {
-            id: "vc-1",
-            isPrimary: true,
-            label: "Owner",
-            customer: { id: "cust-1", name: "Tariq Al-Mansoor", mobile: "0501234567", email: "tariq@example.com" },
-          },
-        ],
-      },
-      {
-        id: "v-mock-2",
-        vehicleNumber: "KSA 8810",
-        vehicleType: "SEDAN",
-        brand: "Porsche",
-        model: "Taycan",
-        color: "Chalk",
-        tags: [],
-        contacts: [
-          {
-            id: "vc-2",
-            isPrimary: true,
-            label: "Owner",
-            customer: { id: "cust-2", name: "Sara Al-Harbi", mobile: "0543219876", email: "sara@example.com" },
-          },
-        ],
-      },
-    ];
+  } catch (err) {
+    console.error("Failed to fetch vehicles:", err);
+    initialVehicles = [];
   }
 
   const serializedVehicles = initialVehicles.map((v: any) => ({

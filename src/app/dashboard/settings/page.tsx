@@ -16,27 +16,13 @@ export default async function SettingsPage() {
         country: true,
       },
     });
-  } catch {
-    station = {
-      name: "Apex Luxury Detailing",
-      branding: {
-        squareLogoUrl: "/brand/washdeck-shield-logo.png",
-        primaryColor: "#1D4ED8",
-        businessPhone: "+966 50 123 4567",
-        businessEmail: "info@apexdetaillabs.sa",
-        businessAddress: "King Fahd Road, Riyadh, Saudi Arabia",
-      },
-      settings: {
-        vipSpendThreshold: 10000,
-        vipVisitThreshold: 5,
-        bookingLeadTime: 120,
-      },
-      country: { defaultLocale: "ar-SA", currencyCode: "SAR" },
-    };
+  } catch (err) {
+    console.error("Failed to fetch station settings:", err);
+    station = null;
   }
 
-  const b = station.branding || ({} as any);
-  const s = station.settings || ({} as any);
+  const b = station?.branding || ({} as any);
+  const s = station?.settings || ({} as any);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -48,7 +34,7 @@ export default async function SettingsPage() {
       </div>
       <SettingsForm
         station={{
-          name: station.name,
+          name: station?.name || "",
           logoUrl: b.squareLogoUrl || "",
           bannerUrl: b.bookingCoverUrl || "",
           primaryColor: b.primaryColor || "#0f766e",
@@ -67,8 +53,8 @@ export default async function SettingsPage() {
           paymentReminderTemplate: "Hi {customerName}, friendly reminder that payment of {amount} is pending for vehicle {vehicleNumber}.",
           dueForVisitReminderTemplate: "Hi {customerName}, your vehicle {vehicleNumber} is due for its next service visit. We hope to see you soon!",
           rewardEligibleTemplate: "Congratulations {customerName}! Your vehicle {vehicleNumber} has unlocked a loyalty reward. Redeem it on your next visit!",
-          locale: station.country?.defaultLocale || "en-SA",
-          currency: station.country?.currencyCode || "SAR",
+          locale: station?.country?.defaultLocale || "en-SA",
+          currency: station?.country?.currencyCode || "SAR",
         }}
       />
     </div>

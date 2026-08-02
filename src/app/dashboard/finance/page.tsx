@@ -79,21 +79,10 @@ export default async function FinancePage() {
     ]);
     paidInvoices = res[0];
     expenses = res[1];
-  } catch {
-    paidInvoices = [
-      {
-        id: "inv-1",
-        jobCardId: "jc-1",
-        invoiceNumber: "INV-88192",
-        finalAmount: 1850,
-        createdAt: new Date(),
-        payments: [{ method: "CARD" }],
-        jobCard: { vehicle: { vehicleNumber: "KSA 4492" }, customer: { name: "Tariq Al-Mansoor" } },
-      },
-    ];
-    expenses = [
-      { id: "exp-1", title: "Detailing Shampoo & Foam Supplies", category: "SUPPLIES", amount: 350, date: new Date(), notes: "Chemical Guys Bulk Refill" },
-    ];
+  } catch (err) {
+    console.error("Failed to fetch finance data:", err);
+    paidInvoices = [];
+    expenses = [];
   }
 
   const incomes = paidInvoices.map((inv) => ({

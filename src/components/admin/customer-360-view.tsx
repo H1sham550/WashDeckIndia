@@ -907,21 +907,14 @@ export function Customer360View({
               </h3>
 
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 text-xs">
-                {[
-                  { title: "Subscription Renewed (+30 Days)", subtitle: "Monthly SaaS Pro Plan activated by Super Admin", time: "Today, 11:42 AM", color: "bg-emerald-500" },
-                  { title: "Owner Logged In", subtitle: `Authenticated from Chrome / ${owner?.email ?? "Owner"}`, time: "Yesterday, 04:15 PM", color: "bg-blue-500" },
-                  { title: "Job Card #JC-1092 Created", subtitle: "Vehicle BMW X5 processed by Staff User", time: "Yesterday, 02:30 PM", color: "bg-slate-600" },
-                  { title: "Invoice #INV-2026-06 Generated", subtitle: "Monthly renewal fee ₹2,999 finalized", time: "25 Jun 2026", color: "bg-purple-500" },
-                  { title: "Payment Confirmed", subtitle: "Bank transfer verification successful", time: "25 Jun 2026", color: "bg-emerald-600" },
-                  { title: "Staff User Added", subtitle: "Front desk operator account initialized", time: "18 Jun 2026", color: "bg-slate-600" },
-                  { title: "Station Profile Initialized", subtitle: `Initial creation wizard completed for ${station.name}`, time: "12 Jun 2026", color: "bg-emerald-600" },
-                  ...auditLogs.map((lg) => ({
+                {(auditLogs.length > 0 ? auditLogs.map((lg) => ({
                     title: lg.action,
                     subtitle: `${lg.entityType} action performed by ${lg.actor?.name ?? "System"}`,
                     time: formatRelativeTime(lg.createdAt),
                     color: "bg-slate-500",
-                  })),
-                ].map((ev, i) => (
+                  })) : [
+                    { title: "No Activity Yet", subtitle: "Audit events will appear here as station operations are performed.", time: "—", color: "bg-slate-300" },
+                  ]).map((ev, i) => (
                   <div key={i} className="flex items-start gap-3 pb-4 border-b border-slate-100 last:border-0 last:pb-0">
                     <div className={cn("w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 shadow-sm", ev.color)} />
                     <div className="flex-1 min-w-0">

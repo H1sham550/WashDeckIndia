@@ -27,34 +27,10 @@ export default async function BookingsPage() {
     ]);
     station = res[0];
     bookings = res[1];
-  } catch {
-    station = { slug: "apex-detailing", name: "Apex Luxury Detailing" };
-    bookings = [
-      {
-        id: "b-1",
-        customerName: "Tariq Al-Mansoor",
-        mobile: "0501234567",
-        vehicleNumber: "KSA 4492",
-        vehicleType: "SUV",
-        serviceName: "Ceramic Coating Detail",
-        scheduledAt: new Date(Date.now() + 7200000),
-        status: "CONFIRMED",
-        notes: "Customer requested extra interior steam sanitization",
-        createdAt: new Date(),
-      },
-      {
-        id: "b-2",
-        customerName: "Sara Al-Harbi",
-        mobile: "0543219876",
-        vehicleNumber: "KSA 8810",
-        vehicleType: "SEDAN",
-        serviceName: "Express Wash & Wax",
-        scheduledAt: new Date(Date.now() + 18000000),
-        status: "PENDING",
-        notes: "Arriving around 4 PM",
-        createdAt: new Date(),
-      },
-    ];
+  } catch (err) {
+    console.error("Failed to fetch bookings:", err);
+    station = null;
+    bookings = [];
   }
 
   // Serialize dates for client component

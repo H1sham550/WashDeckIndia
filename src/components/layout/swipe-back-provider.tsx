@@ -45,6 +45,14 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
           (touchStartRef.current.x < 40 && deltaX > 70) ||
           (touchStartRef.current.x > window.innerWidth - 40 && deltaX < -70)
         ) {
+          // If any modal (search bar, menu drawer) is open, close it cleanly without navigating the underlying page!
+          const activeCloseBtn = document.querySelector<HTMLButtonElement>("[data-modal-close-btn]");
+          if (activeCloseBtn) {
+            activeCloseBtn.click();
+            touchStartRef.current = null;
+            return;
+          }
+
           if (window.history.length > 1) {
             router.back();
           }
@@ -53,12 +61,21 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
       touchStartRef.current = null;
     };
 
+    const handlePopState = () => {
+      const activeCloseBtn = document.querySelector<HTMLButtonElement>("[data-modal-close-btn]");
+      if (activeCloseBtn) {
+        activeCloseBtn.click();
+      }
+    };
+
     window.addEventListener("touchstart", handleTouchStart, { passive: true, capture: true });
     window.addEventListener("touchend", handleTouchEnd, { passive: true, capture: true });
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
       window.removeEventListener("touchstart", handleTouchStart, { capture: true } as any);
       window.removeEventListener("touchend", handleTouchEnd, { capture: true } as any);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [router]);
 

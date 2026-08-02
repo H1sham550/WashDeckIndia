@@ -436,7 +436,7 @@ export function SpotlightSearch() {
             </div>
 
             {/* Modal Footer with Single-Handed Bottom-Right Close Button */}
-            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium" dir="ltr">
               <div className="hidden sm:flex items-center gap-3">
                 <span>
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">↑↓</kbd> to navigate
@@ -449,11 +449,12 @@ export function SpotlightSearch() {
                 </span>
               </div>
 
-              {/* Single-Handed Close Button (Positioned at bottom right) */}
+              {/* Single-Handed Close Button (Physical Bottom-Right Placement) */}
               <div className="w-full sm:w-auto flex items-center justify-end">
                 <button
+                  data-modal-close-btn="spotlight-search"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
                   title="Close search modal"
                 >
                   <X size={14} />

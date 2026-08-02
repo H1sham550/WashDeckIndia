@@ -126,6 +126,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="font-bold text-slate-800 text-base">Store Navigation</h2>
               <button
+                data-modal-close-btn="mobile-nav"
                 onClick={() => setShowMoreMenu(false)}
                 className="p-2 -mr-2 text-slate-500 hover:bg-slate-100 rounded-full"
               >

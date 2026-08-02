@@ -6,6 +6,7 @@ import { LogoutButton } from "@/components/layout/logout-button";
 import { CommandPalette } from "@/components/admin/command-palette";
 import { KeyboardShortcuts } from "@/components/admin/keyboard-shortcuts";
 import { NotificationCenter } from "@/components/admin/notification-center";
+import { ShieldCheck } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -61,43 +62,66 @@ export default async function AdminLayout({
 
       {/* ── Main content area ────────────────────────────────────── */}
       <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen min-w-0">
-        {/* Top Control Bar - Extended Store Owner Theme Header Banner */}
-        <header className="sticky top-0 z-30 w-full shadow-md">
+        {/* Top Control Bar - Extended Store Owner Theme Header Banner (2-Row Layout) */}
+        <header className="sticky top-0 z-30 w-full shadow-lg">
           <div
-            className="px-4 py-3 sm:px-6 flex items-center justify-between gap-3 text-white border-b border-white/15 backdrop-blur-md"
+            className="relative overflow-hidden border-b border-white/15"
             style={{ background: "linear-gradient(135deg, #1D4ED8 0%, #0b192c 100%)" }}
           >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              {/* Logo on mobile only */}
-              <div className="lg:hidden flex-shrink-0">
-                <WashDeckLogo variant="icon" className="h-8 w-8 object-contain" />
-              </div>
-              
-              <div className="hidden sm:block min-w-0">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-base font-black text-white truncate tracking-tight">
-                    WashDeck Super Admin Portal
-                  </h1>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/25">
-                    Super Admin Control
-                  </span>
+            {/* Background Glows */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Extended Banner Header - Row 1: Super Admin Branding & Title */}
+            <div className="relative z-10 px-4 py-4 sm:px-6 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                {/* High Contrast Logo Badge Container */}
+                <div className="h-11 w-11 sm:h-14 sm:w-14 rounded-2xl bg-white p-2 border border-white/30 flex items-center justify-center shrink-0 shadow-md">
+                  <WashDeckLogo variant="icon" className="h-full w-full object-contain" />
                 </div>
-                <p className="text-[11px] text-white/80 font-medium truncate">
-                  Global Multi-Station Platform Administration
-                </p>
+
+                {/* Super Admin Title & Sub-details */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h1 className="text-base sm:text-2xl font-black text-white tracking-tight leading-snug">
+                      WashDeck Super Admin Portal
+                    </h1>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 shrink-0">
+                      <ShieldCheck size={10} />
+                      SUPER ADMIN
+                    </span>
+                  </div>
+                  <p className="text-xs text-white/80 font-medium truncate mt-0.5">
+                    Global Multi-Station Platform Administration • Master Control
+                  </p>
+                </div>
               </div>
 
-              {/* Global Command Palette */}
-              <div className="flex-1 max-w-md">
-                <CommandPalette stations={stations} />
+              {/* Shortcuts & Action Controls (Top Left) */}
+              <div className="flex items-center gap-2 shrink-0">
+                <KeyboardShortcuts />
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-10">
-              <KeyboardShortcuts />
-              <NotificationCenter align="right" />
-              <div className="lg:hidden pl-1 border-l border-white/20">
-                <LogoutButton />
+            {/* Extended Banner Header - Row 2: Navbar Action Strip (RTL Aligned) */}
+            <div className="relative z-10 px-4 py-2.5 sm:px-6 flex items-center justify-between gap-3 border-t border-white/15 bg-white/10 backdrop-blur-md">
+              {/* Right Side (RTL): Notifications at Far Right, Search adjacent to it */}
+              <div className="flex items-center gap-2.5 flex-1 max-w-xl">
+                <NotificationCenter align="right" />
+                <div className="flex-1 min-w-0">
+                  <CommandPalette stations={stations} />
+                </div>
+              </div>
+
+              {/* Left Side (RTL): Super Admin Session Info & Logout */}
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 text-xs text-white font-bold">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>{session.name}</span>
+                </div>
+                <div className="lg:hidden">
+                  <LogoutButton />
+                </div>
               </div>
             </div>
           </div>

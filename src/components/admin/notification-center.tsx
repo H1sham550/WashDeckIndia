@@ -109,6 +109,20 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
     }
   }
 
+  useEffect(() => {
+    if (!open) return;
+    const handlePopState = () => {
+      setOpen(false);
+    };
+    try {
+      window.history.pushState({ notifOpen: true }, "");
+    } catch {}
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [open]);
+
   const alignClass = align === "left" ? "sm:left-0 sm:right-auto" : "sm:right-0 sm:left-auto";
 
   return (
@@ -147,12 +161,13 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
                 {unreadCount > 0 && (
                   <button
                     onClick={markAllRead}
-                    className="text-[11px] font-extrabold text-teal-800 hover:text-teal-950 hover:underline"
+                    className="text-[11px] font-extrabold text-blue-700 hover:text-blue-950 hover:underline"
                   >
                     Mark all read
                   </button>
                 )}
                 <button
+                  data-modal-close-btn="notification-center"
                   onClick={() => setOpen(false)}
                   className="p-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
                 >

@@ -59,7 +59,7 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 flex-1 rounded-xl transition-all duration-150 active-tap px-1",
                 active
-                  ? "text-teal-950 bg-teal-100/90 font-black shadow-xs"
+                  ? "text-wd-blue-700 bg-wd-blue-50 font-black shadow-xs"
                   : "text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-bold"
               )}
             >
@@ -92,7 +92,7 @@ export function AdminNav({ mobile = false }: AdminNavProps) {
             className={cn(
               "group flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-150 active-tap",
               active
-                ? "bg-teal-700 text-white shadow-sm font-extrabold"
+                ? "bg-wd-blue-600 text-white shadow-sm font-extrabold"
                 : "text-slate-800 hover:bg-slate-100 hover:text-slate-950"
             )}
           >

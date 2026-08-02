@@ -61,22 +61,44 @@ export default async function AdminLayout({
 
       {/* ── Main content area ────────────────────────────────────── */}
       <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen min-w-0">
-        {/* Top Control Bar (Desktop & Mobile) */}
-        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-xs px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2 w-full">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            {/* Logo on mobile only - clean shield icon without text */}
-            <div className="lg:hidden flex-shrink-0">
-              <WashDeckLogo variant="icon" className="h-8 w-8 object-contain" />
-            </div>
-            {/* Global Command Palette */}
-            <CommandPalette stations={stations} />
-          </div>
+        {/* Top Control Bar - Extended Store Owner Theme Header Banner */}
+        <header className="sticky top-0 z-30 w-full shadow-md">
+          <div
+            className="px-4 py-3 sm:px-6 flex items-center justify-between gap-3 text-white border-b border-white/15 backdrop-blur-md"
+            style={{ background: "linear-gradient(135deg, #1D4ED8 0%, #0b192c 100%)" }}
+          >
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {/* Logo on mobile only */}
+              <div className="lg:hidden flex-shrink-0">
+                <WashDeckLogo variant="icon" className="h-8 w-8 object-contain" />
+              </div>
+              
+              <div className="hidden sm:block min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-base font-black text-white truncate tracking-tight">
+                    WashDeck Super Admin Portal
+                  </h1>
+                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/25">
+                    Super Admin Control
+                  </span>
+                </div>
+                <p className="text-[11px] text-white/80 font-medium truncate">
+                  Global Multi-Station Platform Administration
+                </p>
+              </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 z-10">
-            <KeyboardShortcuts />
-            <NotificationCenter align="right" />
-            <div className="lg:hidden pl-1 border-l border-slate-100">
-              <LogoutButton />
+              {/* Global Command Palette */}
+              <div className="flex-1 max-w-md">
+                <CommandPalette stations={stations} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-10">
+              <KeyboardShortcuts />
+              <NotificationCenter align="right" />
+              <div className="lg:hidden pl-1 border-l border-white/20">
+                <LogoutButton />
+              </div>
             </div>
           </div>
         </header>

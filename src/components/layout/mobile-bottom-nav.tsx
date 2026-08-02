@@ -123,12 +123,13 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
           <div
             className="relative bg-white w-full max-h-[85vh] rounded-t-2xl shadow-xl flex flex-col animate-in slide-in-from-bottom-full duration-200"
           >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="font-bold text-slate-800 text-base">Store Navigation</h2>
+            <div className="flex items-center justify-between p-4 border-b text-slate-800 dir-ltr">
+              <h2 className="font-bold text-base">Store Navigation</h2>
               <button
                 data-modal-close-btn="mobile-nav"
                 onClick={() => setShowMoreMenu(false)}
-                className="p-2 -mr-2 text-slate-500 hover:bg-slate-100 rounded-full"
+                className="p-2 -mr-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all active:scale-95 shrink-0"
+                title="Close navigation"
               >
                 <X size={20} />
               </button>
@@ -169,10 +170,20 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                 );
               })}
 
-              {/* Logout Button inside Menu */}
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              {/* Single-Handed Bottom Close Bar */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500">Account Session</span>
                 <LogoutButton />
+              </div>
+              <div className="pt-2 flex justify-end">
+                <button
+                  data-modal-close-btn="mobile-nav"
+                  onClick={() => setShowMoreMenu(false)}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
+                >
+                  <X size={14} />
+                  <span>إغلاق / Close Menu</span>
+                </button>
               </div>
             </div>
           </div>

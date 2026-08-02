@@ -69,7 +69,7 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
             return;
           }
 
-          // 2. If at root dashboard/admin landing page, prevent accidental logout by showing confirmation prompt
+          // 2. Navigation Priority: Root pages (/dashboard, /admin) show logout confirmation prompt
           const path = window.location.pathname;
           const isRoot = path === "/dashboard" || path === "/dashboard/" || path === "/admin" || path === "/admin/";
 
@@ -80,9 +80,23 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
             return;
           }
 
-          // 3. Otherwise safely go back
+          // 3. Sub-tabs (like /dashboard/finance, /dashboard/services, etc.) priority: ALWAYS go back to /dashboard first
+          if (path.startsWith("/dashboard/")) {
+            router.push("/dashboard");
+            touchStartRef.current = null;
+            return;
+          }
+          if (path.startsWith("/admin/")) {
+            router.push("/admin");
+            touchStartRef.current = null;
+            return;
+          }
+
+          // 4. Otherwise safely navigate back in history
           if (window.history.length > 1) {
             router.back();
+          } else {
+            router.push("/dashboard");
           }
         }
       }
@@ -103,6 +117,17 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
       if (isRoot) {
         window.history.pushState({ isRootGuard: true }, "", window.location.href);
         setShowLogoutConfirm(true);
+        return;
+      }
+
+      if (path.startsWith("/dashboard/")) {
+        router.push("/dashboard");
+        return;
+      }
+
+      if (path.startsWith("/admin/")) {
+        router.push("/admin");
+        return;
       }
     };
 

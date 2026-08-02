@@ -131,13 +131,6 @@ export default async function DashboardLayout({
                   </p>
                 </div>
               </div>
-
-              {/* Role Badge (Top Left in RTL) */}
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-md text-white border border-white/20">
-                  {session.role}
-                </span>
-              </div>
             </div>
 
             {/* Extended Banner Header - Row 2: Navbar Action Strip (RTL Aligned) */}

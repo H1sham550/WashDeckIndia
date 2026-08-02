@@ -146,9 +146,10 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
             onClick={() => setOpen(false)}
           />
 
-          {/* Notification Panel Card */}
-          <div className="relative z-[210] w-full sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 animate-in fade-in zoom-in-95 duration-150 text-right" dir="rtl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          {/* Notification Panel Card - Pinned Header & Bottom Close Bar */}
+          <div className="relative z-[210] w-full sm:w-96 max-h-[85vh] sm:max-h-[80vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-right" dir="rtl">
+            {/* Pinned Header (Always Visible at Top) */}
+            <div className="flex items-center justify-between p-3.5 border-b border-slate-100 bg-white flex-shrink-0 shadow-xs">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-slate-900">الإشعارات / Notifications</h3>
                 {unreadCount > 0 && (
@@ -169,14 +170,16 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
                 <button
                   data-modal-close-btn="notification-center"
                   onClick={() => setOpen(false)}
-                  className="p-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors active:scale-95 shrink-0"
+                  title="Close notifications"
                 >
-                  <X size={16} />
+                  <X size={18} />
                 </button>
               </div>
             </div>
 
-            <div className="divide-y divide-slate-100 max-h-[65vh] sm:max-h-80 overflow-y-auto py-2 -webkit-overflow-scrolling-touch">
+            {/* Scrollable Notification List Body */}
+            <div className="flex-1 overflow-y-auto divide-y divide-slate-100 p-3 -webkit-overflow-scrolling-touch">
               {loading && !hasFetched ? (
                 <div className="py-8 text-center text-slate-400">
                   <Loader2 size={20} className="animate-spin mx-auto mb-2" />
@@ -211,6 +214,18 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
                   </div>
                 ))
               )}
+            </div>
+
+            {/* Mobile Bottom Bar with Single-Handed Bottom-Right Close Button */}
+            <div className="sm:hidden flex-shrink-0 p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end" dir="ltr">
+              <button
+                data-modal-close-btn="notification-center"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
+              >
+                <X size={14} />
+                <span>إغلاق / Close</span>
+              </button>
             </div>
           </div>
         </div>

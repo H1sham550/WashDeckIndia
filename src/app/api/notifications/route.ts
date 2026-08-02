@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     // --- Dynamic Notifications Sync ---
 
-    // 1. Payment Pending
+    // 1. Payment Pending (Deduplicated 24-hour window)
     const unpaidCount = await prisma.invoice.count({
       where: {
         jobCard: { stationId, isDeleted: false },
@@ -18,7 +18,11 @@ export async function GET(request: NextRequest) {
     });
     if (unpaidCount > 0) {
       const exists = await prisma.notification.findFirst({
-        where: { stationId, title: "Outstanding Payments Pending", isRead: false },
+        where: {
+          stationId,
+          title: "Outstanding Payments Pending",
+          createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        },
       });
       if (!exists) {
         await prisma.notification.create({
@@ -32,7 +36,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 2. Staff Limit
+    // 2. Staff Limit (Deduplicated 24-hour window)
     const staffCount = await prisma.user.count({
       where: { stationId, isDeleted: false, role: { in: ["OWNER", "STAFF"] } },
     });
@@ -51,7 +55,11 @@ export async function GET(request: NextRequest) {
     const allowedStaff = station?.stationSubscriptions[0]?.subscription.staffLimit ?? 5;
     if (staffCount >= allowedStaff) {
       const exists = await prisma.notification.findFirst({
-        where: { stationId, title: "Staff Limit Reached", isRead: false },
+        where: {
+          stationId,
+          title: "Staff Limit Reached",
+          createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+        },
       });
       if (!exists) {
         await prisma.notification.create({

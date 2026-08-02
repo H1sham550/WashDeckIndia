@@ -21,7 +21,7 @@ export default async function LoginPage() {
           <div className="mb-10">
             <div className="bg-white rounded-2xl px-6 py-4 shadow-xl inline-block border border-white/10 transition-all hover:shadow-2xl">
               <img
-                src="/brand/washdeck-shield-logo.png"
+                src="/brand/washdeck-logo-transparent.png"
                 alt="WashDeck - Professional Car Wash Management"
                 className="h-16 w-auto max-w-[260px] object-contain"
                 suppressHydrationWarning
@@ -73,7 +73,7 @@ export default async function LoginPage() {
           <div className="mb-8 lg:hidden flex justify-start">
             <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-md border border-slate-200 inline-block">
               <img
-                src="/brand/washdeck-shield-logo.png"
+                src="/brand/washdeck-logo-transparent.png"
                 alt="WashDeck - Professional Car Wash Management"
                 className="h-16 sm:h-20 w-auto max-w-[280px] sm:max-w-[340px] object-contain"
                 suppressHydrationWarning

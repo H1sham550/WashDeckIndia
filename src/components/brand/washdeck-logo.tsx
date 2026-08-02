@@ -64,7 +64,7 @@ export function WashDeckLogo({
         priority={priority}
         suppressHydrationWarning
         className={cn(
-          "h-10 w-auto object-contain mix-blend-multiply brightness-[1.15] contrast-[1.15] hidden md:block",
+          "h-10 w-auto object-contain",
           className
         )}
       />

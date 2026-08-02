@@ -7,6 +7,7 @@ import { LogOut, X, AlertTriangle } from "lucide-react";
 export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const justNavigatedToRootRef = useRef(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -82,11 +83,13 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
 
           // 3. Sub-tabs (like /dashboard/finance, /dashboard/services, etc.) priority: ALWAYS go back to /dashboard first
           if (path.startsWith("/dashboard/")) {
+            justNavigatedToRootRef.current = true;
             router.push("/dashboard");
             touchStartRef.current = null;
             return;
           }
           if (path.startsWith("/admin/")) {
+            justNavigatedToRootRef.current = true;
             router.push("/admin");
             touchStartRef.current = null;
             return;
@@ -96,6 +99,7 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
           if (window.history.length > 1) {
             router.back();
           } else {
+            justNavigatedToRootRef.current = true;
             router.push("/dashboard");
           }
         }
@@ -116,16 +120,23 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
 
       if (isRoot) {
         window.history.pushState({ isRootGuard: true }, "", window.location.href);
+        if (justNavigatedToRootRef.current) {
+          justNavigatedToRootRef.current = false;
+          return; // Navigated from sub-tab to root -> Do NOT show logout prompt on first arrival
+        }
+        // User performed a second backswipe while on root -> Show logout prompt
         setShowLogoutConfirm(true);
         return;
       }
 
       if (path.startsWith("/dashboard/")) {
+        justNavigatedToRootRef.current = true;
         router.push("/dashboard");
         return;
       }
 
       if (path.startsWith("/admin/")) {
+        justNavigatedToRootRef.current = true;
         router.push("/admin");
         return;
       }

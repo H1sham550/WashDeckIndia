@@ -170,21 +170,23 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                 );
               })}
 
-              {/* Single-Handed Bottom Close Bar */}
+              {/* Account Session & Logout inside scroll list */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500">Account Session</span>
                 <LogoutButton />
               </div>
-              <div className="pt-2 flex justify-end">
-                <button
-                  data-modal-close-btn="mobile-nav"
-                  onClick={() => setShowMoreMenu(false)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
-                >
-                  <X size={14} />
-                  <span>إغلاق / Close Menu</span>
-                </button>
-              </div>
+            </div>
+
+            {/* Pinned Bottom-Right Close Button (Immediately Visible at Bottom Right) */}
+            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end dir-ltr">
+              <button
+                data-modal-close-btn="mobile-nav"
+                onClick={() => setShowMoreMenu(false)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
+              >
+                <X size={14} />
+                <span>إغلاق / Close Menu</span>
+              </button>
             </div>
           </div>
         </div>

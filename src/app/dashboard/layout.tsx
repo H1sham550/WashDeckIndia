@@ -9,6 +9,7 @@ import { NotificationCenter } from "@/components/admin/notification-center";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { WashDeckLogo } from "@/components/brand/washdeck-logo";
 import { SwipeBackProvider } from "@/components/layout/swipe-back-provider";
+import { ClickFeedbackProvider } from "@/components/layout/click-feedback-provider";
 import { Sparkles, Building2 } from "lucide-react";
 
 export default async function DashboardLayout({
@@ -49,7 +50,8 @@ export default async function DashboardLayout({
     : undefined;
 
   return (
-    <SwipeBackProvider>
+    <ClickFeedbackProvider>
+      <SwipeBackProvider>
       <div
         className="wd-app-shell"
         dir={station?.isRTL ?? true ? "rtl" : "ltr"}
@@ -97,8 +99,8 @@ export default async function DashboardLayout({
               />
             )}
 
-            {/* Banner Header Info Strip */}
-            <div className="relative z-10 px-4 py-3 sm:px-6 flex items-center justify-between gap-3">
+            {/* Unified Banner Header Strip */}
+            <div className="relative z-10 px-4 py-3 sm:px-6 flex items-center justify-between gap-3 border-b border-white/15 bg-white/10 backdrop-blur-md">
               <div className="flex items-center gap-3 min-w-0">
                 {/* Store Custom Logo / Brand Icon */}
                 <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-white/10 backdrop-blur-md p-1.5 border border-white/20 flex items-center justify-center shrink-0 shadow-sm">
@@ -123,25 +125,18 @@ export default async function DashboardLayout({
                       <Sparkles size={10} />
                       {station?.branchCode || "MAIN"}
                     </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 hidden min-[480px]:inline-flex">
+                      {session.role}
+                    </span>
                   </div>
                   <p className="text-[11px] text-white/80 font-medium truncate">
-                    {session.role === "OWNER" ? "Store Management Portal • Owner POV" : "Operator Intake Center"}
+                    {session.role === "OWNER" ? "Store Management Portal" : "Operator Intake Center"}
                   </p>
                 </div>
               </div>
 
-              {/* Station Badge / Plan Tag */}
+              {/* Header Right Actions - Search, Notifications & Multi-station switcher */}
               <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/20">
-                  {planLabel || "Pro Store"}
-                </span>
-              </div>
-            </div>
-
-            {/* ── Action Navigation Bar directly below Store Banner ── */}
-            <header className="wd-topbar border-t border-white/15 bg-white/95 backdrop-blur-md">
-              {/* Station selector + role badge */}
-              <div className="flex items-center gap-2 flex-1 min-w-0">
                 <StationSelector
                   currentStation={{
                     id: station?.id || session.stationId,
@@ -150,21 +145,10 @@ export default async function DashboardLayout({
                   }}
                   userStations={userStations}
                 />
-
-                <span
-                  className="badge badge-neutral hidden sm:inline-flex flex-shrink-0"
-                  style={{ fontSize: 10 }}
-                >
-                  {session.role}
-                </span>
-              </div>
-
-              {/* Right actions - Search bar & Notifications */}
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0 z-10">
                 <SpotlightSearch />
                 <NotificationCenter align="left" />
               </div>
-            </header>
+            </div>
           </div>
 
           {/* Page content */}
@@ -177,5 +161,6 @@ export default async function DashboardLayout({
         <MobileBottomNav isOwner={isOwner} features={entitlements.features} />
       </div>
     </SwipeBackProvider>
+    </ClickFeedbackProvider>
   );
 }

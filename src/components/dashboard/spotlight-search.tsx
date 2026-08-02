@@ -91,6 +91,20 @@ export function SpotlightSearch() {
   ];
 
   useEffect(() => {
+    if (!isOpen) return;
+    const handlePopState = () => {
+      setIsOpen(false);
+    };
+    try {
+      window.history.pushState({ spotlightSearchOpen: true }, "");
+    } catch {}
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -184,13 +198,13 @@ export function SpotlightSearch() {
       {/* Trigger Button in Topbar */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200/80 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all text-slate-600 text-xs font-semibold group active-tap shrink-0"
+        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-white/20 bg-white/15 hover:bg-white/25 backdrop-blur-md transition-all text-white text-xs font-semibold group active:scale-95 shrink-0"
         title="Universal Search (Ctrl+K / Cmd+K)"
       >
-        <Search size={14} className="text-slate-400 group-hover:text-slate-600 transition-colors shrink-0" />
-        <span className="hidden sm:inline">Quick Search & Actions...</span>
+        <Search size={14} className="text-white/80 group-hover:text-white transition-colors shrink-0" />
+        <span className="hidden sm:inline">Quick Search...</span>
         <span className="inline sm:hidden text-[11px] font-bold">Search</span>
-        <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-400">
+        <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 border border-white/20 text-white">
           ⌘K
         </kbd>
       </button>
@@ -434,17 +448,18 @@ export function SpotlightSearch() {
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">Esc</kbd> to close
                 </span>
               </div>
-              <span className="sm:hidden text-slate-500 font-semibold">Universal Search</span>
 
-              {/* Single-Handed Close Button (Bottom Right) */}
-              <button
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shadow-md transition-all active-tap shrink-0 ml-auto"
-                title="Close search modal"
-              >
-                <X size={14} />
-                <span>إغلاق / Close</span>
-              </button>
+              {/* Single-Handed Close Button (Positioned at bottom right) */}
+              <div className="w-full sm:w-auto flex items-center justify-end">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
+                  title="Close search modal"
+                >
+                  <X size={14} />
+                  <span>إغلاق / Close</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -53,12 +53,12 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
       touchStartRef.current = null;
     };
 
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true, capture: true });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true, capture: true });
 
     return () => {
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchstart", handleTouchStart, { capture: true } as any);
+      window.removeEventListener("touchend", handleTouchEnd, { capture: true } as any);
     };
   }, [router]);
 

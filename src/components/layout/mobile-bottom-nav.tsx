@@ -23,7 +23,7 @@ import {
   Settings,
   Receipt,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogoutButton } from "./logout-button";
 
 interface MobileBottomNavProps {
@@ -47,6 +47,20 @@ const BOTTOM_NAV = [
 export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
   const pathname = usePathname();
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  useEffect(() => {
+    if (!showMoreMenu) return;
+    const handlePopState = () => {
+      setShowMoreMenu(false);
+    };
+    try {
+      window.history.pushState({ mobileMenuOpen: true }, "");
+    } catch {}
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [showMoreMenu]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;

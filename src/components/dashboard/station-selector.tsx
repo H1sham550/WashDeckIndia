@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Building2, ChevronDown, Check, Plus } from "lucide-react";
+import { Building2, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StationOption {
@@ -21,34 +21,30 @@ export function StationSelector({
 }: StationSelectorProps) {
   const [open, setOpen] = useState(false);
 
-  // If user only has 1 station and no options, just show static pill
+  // If user only has 1 station, hide selector to avoid duplicating shop name in header
   if (userStations.length <= 1) {
-    return (
-      <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 border border-slate-200 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-800 shadow-xs min-w-0">
-        <Building2 size={14} className="text-blue-600 flex-shrink-0" />
-        <span className="truncate max-w-[95px] min-[380px]:max-w-[130px] sm:max-w-[200px]">{currentStation.name}</span>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div className="relative min-w-0">
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 shadow-xs transition-colors active-tap min-w-0"
+        className="flex items-center gap-1.5 sm:gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-xs transition-all active:scale-95 shrink-0"
+        title="Switch station location"
       >
-        <Building2 size={14} className="text-blue-600 flex-shrink-0" />
-        <span className="truncate max-w-[95px] min-[380px]:max-w-[130px] sm:max-w-[200px]">{currentStation.name}</span>
+        <Building2 size={14} className="text-white/80 shrink-0" />
+        <span className="truncate text-[11px] sm:text-xs">Switch Location</span>
         <ChevronDown
           size={14}
-          className={cn("text-slate-400 transition-transform flex-shrink-0", open && "rotate-180")}
+          className={cn("text-white/70 transition-transform shrink-0", open && "rotate-180")}
         />
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-slide-up">
+          <div className="absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 text-slate-800">
             <p className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50 mb-1">
               Switch Station Location
             </p>
@@ -75,7 +71,7 @@ export function StationSelector({
                       <p className="truncate">{st.name}</p>
                       <p className="text-[10px] text-slate-400 truncate">@{st.slug}</p>
                     </div>
-                    {isCurrent && <Check size={14} className="text-blue-600 flex-shrink-0" />}
+                    {isCurrent && <Check size={14} className="text-blue-600 shrink-0" />}
                   </button>
                 );
               })}

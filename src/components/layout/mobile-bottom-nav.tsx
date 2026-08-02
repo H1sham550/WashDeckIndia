@@ -178,7 +178,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
             </div>
 
             {/* Pinned Bottom-Right Close Button (Immediately Visible at Bottom Right) */}
-            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end dir-ltr">
+            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-start">
               <button
                 data-modal-close-btn="mobile-nav"
                 onClick={() => setShowMoreMenu(false)}

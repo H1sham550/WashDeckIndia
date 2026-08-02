@@ -84,12 +84,14 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
           // 3. Sub-tabs (like /dashboard/finance, /dashboard/services, etc.) priority: ALWAYS go back to /dashboard first
           if (path.startsWith("/dashboard/")) {
             justNavigatedToRootRef.current = true;
+            try { sessionStorage.setItem("just_returned_root", "true"); } catch {}
             router.push("/dashboard");
             touchStartRef.current = null;
             return;
           }
           if (path.startsWith("/admin/")) {
             justNavigatedToRootRef.current = true;
+            try { sessionStorage.setItem("just_returned_root", "true"); } catch {}
             router.push("/admin");
             touchStartRef.current = null;
             return;
@@ -100,6 +102,7 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
             router.back();
           } else {
             justNavigatedToRootRef.current = true;
+            try { sessionStorage.setItem("just_returned_root", "true"); } catch {}
             router.push("/dashboard");
           }
         }
@@ -120,10 +123,20 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
 
       if (isRoot) {
         window.history.pushState({ isRootGuard: true }, "", window.location.href);
-        if (justNavigatedToRootRef.current) {
+        
+        let wasSubtabReturn = false;
+        try {
+          if (sessionStorage.getItem("just_returned_root") === "true") {
+            wasSubtabReturn = true;
+            sessionStorage.removeItem("just_returned_root");
+          }
+        } catch {}
+
+        if (justNavigatedToRootRef.current || wasSubtabReturn) {
           justNavigatedToRootRef.current = false;
-          return; // Navigated from sub-tab to root -> Do NOT show logout prompt on first arrival
+          return; // Landing on /dashboard from subtab -> ZERO LOGOUT PROMPTS!
         }
+
         // User performed a second backswipe while on root -> Show logout prompt
         setShowLogoutConfirm(true);
         return;
@@ -131,12 +144,14 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
 
       if (path.startsWith("/dashboard/")) {
         justNavigatedToRootRef.current = true;
+        try { sessionStorage.setItem("just_returned_root", "true"); } catch {}
         router.push("/dashboard");
         return;
       }
 
       if (path.startsWith("/admin/")) {
         justNavigatedToRootRef.current = true;
+        try { sessionStorage.setItem("just_returned_root", "true"); } catch {}
         router.push("/admin");
         return;
       }

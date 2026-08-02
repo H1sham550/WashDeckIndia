@@ -387,7 +387,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       branchCode: station.branchCode,
       onboardingStatus: "COMPLETED",
       logoUrl: station.branding?.squareLogoUrl || null,
-      bannerUrl: (station.branding as any)?.bannerUrl || null,
+      bannerUrl: station.branding?.bookingCoverUrl || null,
       primaryColor: station.branding?.primaryColor || "#0F172A",
       dueForVisitThreshold: 30,
       country: country?.code || "SA",

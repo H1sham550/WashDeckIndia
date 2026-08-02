@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { clearStationEntitlementCache } from "@/lib/entitlement";
 
 export async function getStationById(id: string) {
   return prisma.station.findFirst({
@@ -96,6 +97,21 @@ export async function updateStationBranding(id: string, data: UpdateStationInput
       businessAddress: data.address !== undefined ? data.address : undefined
     }
   });
+
+  if (data.defaultEta !== undefined || data.vipSpendThreshold !== undefined || data.vipVisitThreshold !== undefined) {
+    await prisma.stationSettings.upsert({
+      where: { stationId: id },
+      create: {
+        stationId: id,
+        bookingLeadTime: data.defaultEta,
+      },
+      update: {
+        bookingLeadTime: data.defaultEta !== undefined ? data.defaultEta : undefined,
+      },
+    });
+  }
+
+  clearStationEntitlementCache(id);
 
   return getStationById(id);
 }

@@ -123,19 +123,11 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
           <div
             className="relative bg-white w-full max-h-[85vh] rounded-t-2xl shadow-xl flex flex-col animate-in slide-in-from-bottom-full duration-200"
           >
-            <div className="flex items-center justify-between p-4 border-b text-slate-800 dir-ltr">
+            <div className="flex items-center p-4 border-b text-slate-800">
               <h2 className="font-bold text-base">Store Navigation</h2>
-              <button
-                data-modal-close-btn="mobile-nav"
-                onClick={() => setShowMoreMenu(false)}
-                className="p-2 -mr-2 text-slate-500 hover:bg-slate-100 rounded-full transition-all active:scale-95 shrink-0"
-                title="Close navigation"
-              >
-                <X size={20} />
-              </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-[calc(2rem+env(safe-area-inset-bottom,0px))]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
               {navSections.map((section) => {
                 if (section.ownerOnly && !isOwner) return null;
                 if (section.items.length === 0) return null;
@@ -170,16 +162,11 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                   </div>
                 );
               })}
-
-              {/* Account Session & Logout inside scroll list */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500">Account Session</span>
-                <LogoutButton />
-              </div>
             </div>
 
-            {/* Pinned Bottom-Right Close Button (Immediately Visible at Bottom Right) */}
-            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-start">
+            {/* Pinned Footer Bar: Sign Out on far left, Close Menu on far right */}
+            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              <LogoutButton />
               <button
                 data-modal-close-btn="mobile-nav"
                 onClick={() => setShowMoreMenu(false)}

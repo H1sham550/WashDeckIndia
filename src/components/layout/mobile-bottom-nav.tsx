@@ -165,7 +165,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
             </div>
 
             {/* Pinned Footer Bar: Sign Out on far left, Close Menu on far right */}
-            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+            <div className="flex-shrink-0 p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between dir-ltr">
               <LogoutButton />
               <button
                 data-modal-close-btn="mobile-nav"

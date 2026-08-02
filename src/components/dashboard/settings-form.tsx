@@ -395,7 +395,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="defaultEta">Default Service ETA (Minutes)</label>
-                  <div className="relative">
+                  <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
                     <input
                       id="defaultEta"
                       type="number"
@@ -403,16 +403,16 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.defaultEta}
                       onChange={(e) => setFormData((prev) => ({ ...prev, defaultEta: Number(e.target.value) || 120 }))}
-                      className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
                     />
-                    <span className="absolute right-3 top-3 text-xs text-slate-400 font-semibold">mins</span>
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">mins</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Standard target duration assigned to new jobs on the intake wizard.</p>
                 </div>
 
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="reportExpiryDays">Report Link Validity (Days)</label>
-                  <div className="relative">
+                  <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
                     <input
                       id="reportExpiryDays"
                       type="number"
@@ -420,9 +420,9 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.reportExpiryDays}
                       onChange={(e) => setFormData((prev) => ({ ...prev, reportExpiryDays: Number(e.target.value) || 30 }))}
-                      className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
                     />
-                    <span className="absolute right-3 top-3 text-xs text-slate-400 font-semibold">days</span>
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">days</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Number of days online vehicle health check reports stay accessible for customers.</p>
                 </div>
@@ -438,7 +438,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="dueForVisitThreshold">Due For Next Visit Threshold (Days)</label>
-                  <div className="relative">
+                  <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
                     <input
                       id="dueForVisitThreshold"
                       type="number"
@@ -446,16 +446,16 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.dueForVisitThreshold}
                       onChange={(e) => setFormData((prev) => ({ ...prev, dueForVisitThreshold: Number(e.target.value) || 30 }))}
-                      className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
                     />
-                    <span className="absolute right-3 top-3 text-xs text-slate-400 font-semibold">days</span>
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">days</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Days since last visit after which a vehicle is marked as "Due for Visit" on dashboard.</p>
                 </div>
 
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="lostCustomerThresholdDays">Lost Customer Threshold (Days)</label>
-                  <div className="relative">
+                  <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
                     <input
                       id="lostCustomerThresholdDays"
                       type="number"
@@ -463,9 +463,9 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.lostCustomerThresholdDays}
                       onChange={(e) => setFormData((prev) => ({ ...prev, lostCustomerThresholdDays: Number(e.target.value) || 60 }))}
-                      className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
                     />
-                    <span className="absolute right-3 top-3 text-xs text-slate-400 font-semibold">days</span>
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">days</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Days of inactivity after which a customer is flagged as "Churned/Lost" in retention marketing.</p>
                 </div>

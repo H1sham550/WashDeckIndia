@@ -2,9 +2,30 @@ import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "@/components/dashboard/settings-form";
 import { redirect } from "next/navigation";
+import { ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 export default async function SettingsPage() {
   const session = await requireStationUser();
+
+  if (session.role !== "OWNER") {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shadow-sm">
+          <ShieldAlert size={24} />
+        </div>
+        <h2 className="text-xl font-bold text-slate-800">Store Owner Access Required</h2>
+        <p className="text-sm text-slate-500 max-w-md mx-auto font-medium">
+          Station branding, operational parameters, and messaging template configurations are restricted to Store Owners. You are currently logged in as Staff ({session.name}).
+        </p>
+        <div>
+          <Link href="/dashboard" className="btn btn-primary inline-flex">
+            Back to Operations Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   let station: any = null;
   try {

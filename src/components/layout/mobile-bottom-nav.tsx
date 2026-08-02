@@ -104,9 +104,9 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
       label: "System & Settings",
       items: [
         { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
-        ...(features.analytics ? [{ href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 }] : []),
-        { href: "/dashboard/audit", label: "Audit Log", icon: FileText },
-        { href: "/dashboard/settings", label: "Settings", icon: Settings },
+        ...(features.analytics && isOwner ? [{ href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 }] : []),
+        ...(isOwner ? [{ href: "/dashboard/audit", label: "Audit Log", icon: FileText }] : []),
+        ...(isOwner ? [{ href: "/dashboard/settings", label: "Settings", icon: Settings }] : []),
       ],
     },
   ];
@@ -153,6 +153,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                           <Link
                             key={item.href}
                             href={item.href as any}
+                            prefetch={true}
                             onClick={() => setShowMoreMenu(false)}
                             className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-colors ${
                               active
@@ -203,6 +204,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
               <Link
                 key={href}
                 href={href as any}
+                prefetch={true}
                 className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${
                   active ? "text-blue-700 font-bold" : "text-slate-700 hover:text-slate-900 font-semibold"
                 }`}

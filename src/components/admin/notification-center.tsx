@@ -17,31 +17,42 @@ interface NotificationCenterProps {
   align?: "left" | "right";
 }
 
+let cachedNotificationList: { data: NotificationItem[]; fetchedAt: number } | null = null;
+
 export function NotificationCenter({ align = "right" }: NotificationCenterProps) {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(
+    cachedNotificationList ? cachedNotificationList.data : []
+  );
   const [loading, setLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+  const [hasFetched, setHasFetched] = useState(!!cachedNotificationList);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (force = false) => {
+    const now = Date.now();
+    if (!force && cachedNotificationList && now - cachedNotificationList.fetchedAt < 30000) {
+      setNotifications(cachedNotificationList.data);
+      setHasFetched(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/notifications");
       if (res.ok) {
         const data = await res.json();
         if (data.ok && Array.isArray(data.notifications)) {
-          setNotifications(
-            data.notifications.map((n: any) => ({
-              id: n.id,
-              title: n.title,
-              message: n.message,
-              priority: n.priority || "LOW",
-              isRead: n.isRead,
-              createdAt: n.createdAt,
-            }))
-          );
+          const list = data.notifications.map((n: any) => ({
+            id: n.id,
+            title: n.title,
+            message: n.message,
+            priority: n.priority || "LOW",
+            isRead: n.isRead,
+            createdAt: n.createdAt,
+          }));
+          cachedNotificationList = { data: list, fetchedAt: now };
+          setNotifications(list);
         }
       }
     } catch (err) {
@@ -52,15 +63,15 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
     }
   }, []);
 
-  // Fetch notifications on first mount (for unread badge count)
+  // Fetch notifications on first mount (using cache if fresh)
   useEffect(() => {
-    fetchNotifications();
+    fetchNotifications(false);
   }, [fetchNotifications]);
 
-  // Re-fetch when dropdown is opened
+  // Re-fetch with fresh data when dropdown is opened
   useEffect(() => {
     if (open) {
-      fetchNotifications();
+      fetchNotifications(true);
     }
   }, [open, fetchNotifications]);
 

@@ -118,7 +118,7 @@ export function AppSidebar({
         { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
         ...(features.analytics && isOwner ? [{ href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 }] : []),
         ...(isOwner ? [{ href: "/dashboard/audit", label: "Audit Log", icon: FileText }] : []),
-        { href: "/dashboard/settings", label: "Settings", icon: Settings },
+        ...(isOwner ? [{ href: "/dashboard/settings", label: "Settings", icon: Settings }] : []),
       ],
     },
   ];
@@ -180,6 +180,7 @@ export function AppSidebar({
                   <Link
                     key={item.href}
                     href={item.href as any}
+                    prefetch={true}
                     className={`wd-nav-item ${active ? "active font-black" : "font-bold text-slate-900 hover:text-slate-950"}`}
                     title={collapsed ? item.label : undefined}
                   >

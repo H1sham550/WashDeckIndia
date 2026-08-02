@@ -130,7 +130,17 @@ import { cache } from "react";
 
 const dashboardSummaryCache = new Map<string, { data: any; expiresAt: number }>();
 const operationsBoardCache = new Map<string, { data: any; expiresAt: number }>();
-const CACHE_TTL_MS = 4000; // 4-second memory cache for instant page switching
+const CACHE_TTL_MS = 30000; // 30-second memory cache for instant tab switching
+
+export function invalidateDashboardCache(stationId?: string) {
+  if (stationId) {
+    dashboardSummaryCache.delete(stationId);
+    operationsBoardCache.delete(stationId);
+  } else {
+    dashboardSummaryCache.clear();
+    operationsBoardCache.clear();
+  }
+}
 
 export const getOperationsBoardData = cache(async (stationId: string) => {
   const now = Date.now();

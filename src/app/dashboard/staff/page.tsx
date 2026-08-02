@@ -1,6 +1,7 @@
 import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StaffPanel } from "@/components/dashboard/staff-panel";
+import { getCached } from "@/lib/cache";
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
@@ -28,38 +29,21 @@ export default async function StaffPage() {
 
   const stationId = session.stationId || "";
 
-  let staff: any[] = [];
-  let station: any = null;
-
-  try {
+  const { staff, station } = await getCached(`staff_page_${stationId}`, 15, async () => {
     const res = await Promise.all([
       prisma.user.findMany({
-        where: {
-          stationId,
-          isDeleted: false,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        where: { stationId, isDeleted: false },
+        orderBy: { createdAt: "desc" },
       }),
       prisma.station.findUnique({
         where: { id: stationId },
         include: {
-          stationSubscriptions: {
-            include: {
-              subscription: true,
-            },
-          },
+          stationSubscriptions: { include: { subscription: true } },
         },
       }),
     ]);
-    staff = res[0];
-    station = res[1];
-  } catch (err) {
-    console.error("Failed to fetch staff data:", err);
-    staff = [];
-    station = null;
-  }
+    return { staff: res[0], station: res[1] };
+  }).catch(() => ({ staff: [], station: null }));
 
   const activePlanName = station?.stationSubscriptions[0]?.subscription.name ?? "Standard Pro";
   const allowedStaff = station?.stationSubscriptions[0]?.subscription.staffLimit ?? 10;

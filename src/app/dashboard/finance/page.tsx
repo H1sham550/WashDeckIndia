@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { FinancePanel } from "@/components/dashboard/finance-panel";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { getStationEntitlements, getCachedSubscriptionPlans } from "@/lib/entitlement";
+import { getCached } from "@/lib/cache";
 import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
@@ -34,56 +35,35 @@ export default async function FinancePage() {
     redirect("/login");
   }
 
-  const [entitlements, station] = await Promise.all([
-    getStationEntitlements(session.stationId),
-    prisma.station.findUnique({
-      where: { id: session.stationId },
-      include: { branding: true },
-    }),
-  ]);
+  const entitlements = await getStationEntitlements(session.stationId);
 
   if (!entitlements.stationMetadata) {
     redirect("/login");
   }
 
-  let paidInvoices: any[] = [];
-  let expenses: any[] = [];
-
-  try {
-    const res = await Promise.all([
+  const { paidInvoices, expenses } = await getCached(`finance_data_${session.stationId}`, 15, async () => {
+    const [invoices, exps] = await Promise.all([
       prisma.invoice.findMany({
         where: {
           stationId: session.stationId,
           status: "PAID",
-          jobCard: {
-            isDeleted: false,
-          },
+          jobCard: { isDeleted: false },
         },
         include: {
           jobCard: {
-            include: {
-              vehicle: true,
-              customer: true,
-            },
+            include: { vehicle: true, customer: true },
           },
           payments: true,
         },
         orderBy: { createdAt: "desc" },
       }),
       prisma.expense.findMany({
-        where: {
-          stationId: session.stationId,
-        },
+        where: { stationId: session.stationId },
         orderBy: { date: "desc" },
       }),
     ]);
-    paidInvoices = res[0];
-    expenses = res[1];
-  } catch (err) {
-    console.error("Failed to fetch finance data:", err);
-    paidInvoices = [];
-    expenses = [];
-  }
+    return { paidInvoices: invoices, expenses: exps };
+  }).catch(() => ({ paidInvoices: [], expenses: [] }));
 
   const incomes = paidInvoices.map((inv) => ({
     id: inv.id,
@@ -107,7 +87,7 @@ export default async function FinancePage() {
     type: "EXPENSE" as const,
   }));
 
-  const b = station?.branding || ({} as any);
+  const primaryColor = entitlements.stationMetadata?.primaryColor || "#0f766e";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
@@ -120,7 +100,7 @@ export default async function FinancePage() {
       <FinancePanel 
         initialIncomes={incomes} 
         initialExpenses={serializedExpenses} 
-        primaryColor={b.primaryColor || "#0f766e"} 
+        primaryColor={primaryColor} 
       />
     </div>
   );

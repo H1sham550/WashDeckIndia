@@ -1,9 +1,12 @@
 import * as serviceRepository from "@/repositories/service-repository";
 import type { VehicleType } from "@prisma/client";
 import { checkStationStatus } from "@/lib/subscription-guard";
+import { getCached, invalidateCache } from "@/lib/cache";
 
 export async function getStationServices(stationId: string) {
-  return serviceRepository.getServicesByStation(stationId);
+  return getCached(`station_services_${stationId}`, 30, () =>
+    serviceRepository.getServicesByStation(stationId)
+  );
 }
 
 export async function createServiceWithPrices(
@@ -74,7 +77,9 @@ export async function deleteService(stationId: string, serviceId: string) {
 
 // Templates
 export async function getStationTemplates(stationId: string) {
-  return serviceRepository.getServiceTemplatesByStation(stationId);
+  return getCached(`station_templates_${stationId}`, 30, () =>
+    serviceRepository.getServiceTemplatesByStation(stationId)
+  );
 }
 
 export async function createTemplate(

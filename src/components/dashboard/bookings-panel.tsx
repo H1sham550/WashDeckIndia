@@ -233,7 +233,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
   return (
     <div className="space-y-5 text-slate-800">
       {/* ── HEADER & PRIMARY ACTIONS ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
             <span>Appointment Manager</span>
@@ -256,18 +256,18 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
             className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-300 shadow-2xs transition-all active:translate-y-px shrink-0"
           >
             <Calendar size={14} className="text-slate-500" />
-            <span>Schedule Appointment</span>
+            <span>Schedule</span>
           </button>
         </div>
       </div>
 
       {/* ── NEW BOOKING PORTAL CARD (100-140px compact enterprise card) ── */}
-      <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4 shadow-2xs flex flex-col gap-3">
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-10 h-10 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 shrink-0">
             <Calendar size={18} />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-900">Booking Portal</span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-semibold">
@@ -281,7 +281,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
           </div>
         </div>
 
-        <div className="flex items-center flex-wrap sm:flex-nowrap gap-2 shrink-0">
+        <div className="grid grid-cols-2 sm:flex sm:items-center sm:flex-wrap gap-2">
           <button
             type="button"
             onClick={() => {
@@ -289,7 +289,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
               setCopied(true);
               setTimeout(() => setCopied(false), 2500);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
           >
             {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
             <span>{copied ? "Copied" : "Copy Link"}</span>
@@ -299,7 +299,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
             href={`/book/${rawSlugToUse}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
           >
             <span>Open</span>
             <ExternalLink size={13} />
@@ -308,16 +308,16 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
           <button
             type="button"
             onClick={() => setQrModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
           >
             <QrCode size={13} />
-            <span>Show QR Code</span>
+            <span>QR Code</span>
           </button>
 
           <button
             type="button"
             onClick={() => setSettingsModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white hover:bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-white hover:bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 transition-colors"
           >
             <Settings size={13} />
             <span>Edit Settings</span>
@@ -326,52 +326,52 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
       </div>
 
       {/* ── KPI STRIP (Compact White Cards, No Gradients, Minimalist) ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">Today&apos;s Bookings</span>
+      <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
+          <span className="text-[10px] font-semibold text-slate-500 leading-tight">Today&apos;s Bookings</span>
           <div className="flex items-baseline justify-between mt-1.5">
             <span className="text-xl font-bold tracking-tight text-slate-900">{stats.today}</span>
-            <span className="text-[11px] font-medium text-slate-400">Total</span>
+            <span className="text-[10px] font-medium text-slate-400">Total</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">Confirmed</span>
+        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
+          <span className="text-[10px] font-semibold text-slate-500 leading-tight">Confirmed</span>
           <div className="flex items-baseline justify-between mt-1.5">
             <span className="text-xl font-bold tracking-tight text-blue-600">{stats.confirmed}</span>
-            <span className="text-[11px] font-medium text-blue-500">Ready</span>
+            <span className="text-[10px] font-medium text-blue-500">Ready</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">Checked In</span>
+        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
+          <span className="text-[10px] font-semibold text-slate-500 leading-tight">Checked In</span>
           <div className="flex items-baseline justify-between mt-1.5">
             <span className="text-xl font-bold tracking-tight text-emerald-600">{stats.checkedIn}</span>
-            <span className="text-[11px] font-medium text-emerald-600">On-site</span>
+            <span className="text-[10px] font-medium text-emerald-600">On-site</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">Completed</span>
+        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
+          <span className="text-[10px] font-semibold text-slate-500 leading-tight">Completed</span>
           <div className="flex items-baseline justify-between mt-1.5">
             <span className="text-xl font-bold tracking-tight text-slate-900">{stats.completed}</span>
-            <span className="text-[11px] font-medium text-slate-400">Done</span>
+            <span className="text-[10px] font-medium text-slate-400">Done</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">Cancelled</span>
+        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
+          <span className="text-[10px] font-semibold text-slate-500 leading-tight">Cancelled</span>
           <div className="flex items-baseline justify-between mt-1.5">
             <span className="text-xl font-bold tracking-tight text-slate-500">{stats.cancelled}</span>
-            <span className="text-[11px] font-medium text-slate-400">Dropped</span>
+            <span className="text-[10px] font-medium text-slate-400">Dropped</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-2xs flex flex-col justify-between">
-          <span className="text-[11px] font-semibold text-slate-500">Walk-ins Today</span>
+        <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
+          <span className="text-[10px] font-semibold text-slate-500 leading-tight">Walk-ins Today</span>
           <div className="flex items-baseline justify-between mt-1.5">
             <span className="text-xl font-bold tracking-tight text-indigo-600">{stats.walkIns}</span>
-            <span className="text-[11px] font-medium text-indigo-500">Direct</span>
+            <span className="text-[10px] font-medium text-indigo-500">Direct</span>
           </div>
         </div>
       </div>

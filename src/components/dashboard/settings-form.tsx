@@ -73,6 +73,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
     data.append("file", file);
 
     try {
+      // Step 1: Upload file and get URL
       const response = await fetch("/api/upload", {
         method: "POST",
         body: data,
@@ -83,8 +84,25 @@ export function SettingsForm({ station }: SettingsFormProps) {
         throw new Error(result.error || "Failed to upload file.");
       }
 
-      setFormData((prev) => ({ ...prev, [field]: result.url }));
-      setSuccess("Image uploaded successfully! Remember to save changes.");
+      // Step 2: Update local state with new URL
+      const newUrl = result.url;
+      const updatedFormData = { ...formData, [field]: newUrl };
+      setFormData(updatedFormData);
+
+      // Step 3: Auto-save immediately to the database
+      const saveResponse = await fetch("/api/station/branding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedFormData),
+      });
+
+      const saveResult = await saveResponse.json();
+      if (!saveResponse.ok || !saveResult.ok) {
+        // Upload succeeded but save failed — still update local state, show warning
+        setSuccess(`${field === "logoUrl" ? "Logo" : "Banner"} uploaded. Save manually to persist.`);
+      } else {
+        setSuccess(`${field === "logoUrl" ? "Logo" : "Banner"} updated and saved successfully!`);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to upload file.");
     } finally {
@@ -396,6 +414,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="defaultEta">Default Service ETA (Minutes)</label>
                   <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-e shrink-0">mins</span>
                     <input
                       id="defaultEta"
                       type="number"
@@ -403,9 +422,8 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.defaultEta}
                       onChange={(e) => setFormData((prev) => ({ ...prev, defaultEta: Number(e.target.value) || 120 }))}
-                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
+                      className="h-11 flex-1 min-w-0 px-3 text-sm outline-none border-none bg-transparent text-right"
                     />
-                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">mins</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Standard target duration assigned to new jobs on the intake wizard.</p>
                 </div>
@@ -413,6 +431,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="reportExpiryDays">Report Link Validity (Days)</label>
                   <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-e shrink-0">days</span>
                     <input
                       id="reportExpiryDays"
                       type="number"
@@ -420,9 +439,8 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.reportExpiryDays}
                       onChange={(e) => setFormData((prev) => ({ ...prev, reportExpiryDays: Number(e.target.value) || 30 }))}
-                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
+                      className="h-11 flex-1 min-w-0 px-3 text-sm outline-none border-none bg-transparent text-right"
                     />
-                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">days</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Number of days online vehicle health check reports stay accessible for customers.</p>
                 </div>
@@ -439,6 +457,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="dueForVisitThreshold">Due For Next Visit Threshold (Days)</label>
                   <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-e shrink-0">days</span>
                     <input
                       id="dueForVisitThreshold"
                       type="number"
@@ -446,9 +465,8 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.dueForVisitThreshold}
                       onChange={(e) => setFormData((prev) => ({ ...prev, dueForVisitThreshold: Number(e.target.value) || 30 }))}
-                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
+                      className="h-11 flex-1 min-w-0 px-3 text-sm outline-none border-none bg-transparent text-right"
                     />
-                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">days</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Days since last visit after which a vehicle is marked as "Due for Visit" on dashboard.</p>
                 </div>
@@ -456,6 +474,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="lostCustomerThresholdDays">Lost Customer Threshold (Days)</label>
                   <div className="flex items-center border rounded-md overflow-hidden bg-white focus-within:border-[var(--primary-color)] dir-ltr">
+                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-e shrink-0">days</span>
                     <input
                       id="lostCustomerThresholdDays"
                       type="number"
@@ -463,9 +482,8 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       required
                       value={formData.lostCustomerThresholdDays}
                       onChange={(e) => setFormData((prev) => ({ ...prev, lostCustomerThresholdDays: Number(e.target.value) || 60 }))}
-                      className="h-11 flex-1 px-3 text-sm outline-none border-none bg-transparent"
+                      className="h-11 flex-1 min-w-0 px-3 text-sm outline-none border-none bg-transparent text-right"
                     />
-                    <span className="px-3 py-2 text-xs text-slate-500 bg-slate-50 font-bold border-s shrink-0">days</span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Days of inactivity after which a customer is flagged as "Churned/Lost" in retention marketing.</p>
                 </div>

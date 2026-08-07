@@ -61,9 +61,16 @@ export default async function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-xs" style={{ color: "#334155" }}>
-          © {new Date().getFullYear()} WashDeck. Professional Edition.
-        </p>
+        <div className="space-y-1.5">
+          <p className="text-xs" style={{ color: "#334155" }}>
+            &copy; {new Date().getFullYear()} WashDeck. Professional Edition.
+          </p>
+          <div className="flex items-center gap-3 text-xs" style={{ color: "#475569" }}>
+            <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
+            <span>&middot;</span>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+          </div>
+        </div>
       </div>
 
       {/* Right Panel — Login Form */}
@@ -96,6 +103,11 @@ export default async function LoginPage() {
           <p className="mt-6 text-xs text-center" style={{ color: "#94A3B8" }}>
             Having trouble? Contact your station administrator.
           </p>
+          <div className="mt-4 flex items-center justify-center gap-3 text-[11px]" style={{ color: "#CBD5E1" }}>
+            <a href="/terms" className="hover:text-slate-600 transition-colors">Terms of Service</a>
+            <span>&middot;</span>
+            <a href="/privacy" className="hover:text-slate-600 transition-colors">Privacy Policy</a>
+          </div>
         </div>
       </div>
     </main>

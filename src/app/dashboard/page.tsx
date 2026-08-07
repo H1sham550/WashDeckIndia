@@ -18,6 +18,7 @@ import * as jobCardService from "@/services/job-card-service";
 import { getStationEntitlements } from "@/lib/entitlement";
 import { VehicleSearch } from "@/components/dashboard/vehicle-search";
 import { OwnerProfitLossCard } from "@/components/dashboard/owner-profit-loss-card";
+import { DailyEodSummaryCard } from "@/components/dashboard/daily-eod-summary-card";
 
 export const dynamic = "force-dynamic";
 
@@ -196,6 +197,32 @@ export default async function DashboardPage() {
           <p className="text-xl mt-2 tracking-tight" style={{ fontWeight: 600 }}>{todayBookings.length}</p>
         </Link>
       </div>
+
+      {/* ── Nightly 10:00 PM EOD Summary Briefing (Store Owner POV) ── */}
+      {isOwner && (
+        <DailyEodSummaryCard
+          currency={currency}
+          stationName={entitlements.stationMetadata?.name || "WashDeck Station"}
+          todayCarsCount={
+            summary.recentDeliveredJobs.filter((j: any) => new Date(j.createdAt).toDateString() === new Date().toDateString()).length +
+            summary.counts.completed +
+            summary.counts.inProgress
+          }
+          todayRevenue={revenueToday}
+          todayExpenses={expenses
+            .filter((e: any) => new Date(e.date).toDateString() === new Date().toDateString())
+            .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0)}
+          todayExpensesList={expenses
+            .filter((e: any) => new Date(e.date).toDateString() === new Date().toDateString())
+            .map((e: any) => ({
+              id: e.id,
+              category: e.category,
+              amount: Number(e.amount || 0),
+              description: e.description,
+            }))}
+          activeStaffCount={1}
+        />
+      )}
 
       {/* ── Owner Profit & Loss Analyzing Chart Widget (Owner POV) ── */}
       {isOwner && (

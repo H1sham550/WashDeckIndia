@@ -46,7 +46,14 @@ export async function createSession(user: SessionUser) {
 
 export async function destroySession() {
   const cookieStore = await cookies();
-  cookieStore.delete(cookieName);
+  cookieStore.set(cookieName, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
+    expires: new Date(0),
+  });
 }
 
 export async function getSession(): Promise<SessionUser | null> {

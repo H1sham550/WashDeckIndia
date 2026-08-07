@@ -39,7 +39,7 @@ type IncomeTransaction = {
 type ExpenseTransaction = {
   id: string;
   title: string;
-  category: "SUPPLIES" | "UTILITIES" | "RENT" | "SALARIES" | "MARKETING" | "REPAIRS" | "OTHER";
+  category: "ELECTRICITY" | "WATER" | "SUPPLIES" | "UTILITIES" | "RENT" | "SALARIES" | "MARKETING" | "REPAIRS" | "OTHER";
   amount: number;
   date: string;
   notes: string;
@@ -55,12 +55,14 @@ type FinancePanelProps = {
 };
 
 const EXPENSE_CATEGORIES = [
-  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500", hexColor: "#F59E0B" },
-  { value: "UTILITIES", label: "Utilities (Water/Power)", color: "bg-blue-50 text-blue-700 border-blue-200", barColor: "bg-blue-500", hexColor: "#3B82F6" },
+  { value: "ELECTRICITY", label: "Electricity Bill", color: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500", hexColor: "#F59E0B" },
+  { value: "WATER", label: "Water Bill / Supply", color: "bg-cyan-50 text-cyan-700 border-cyan-200", barColor: "bg-cyan-500", hexColor: "#06B6D4" },
+  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-emerald-50 text-emerald-700 border-emerald-200", barColor: "bg-emerald-500", hexColor: "#10B981" },
+  { value: "UTILITIES", label: "Internet & Phone Utilities", color: "bg-blue-50 text-blue-700 border-blue-200", barColor: "bg-blue-500", hexColor: "#3B82F6" },
   { value: "RENT", label: "Rent & Lease", color: "bg-indigo-50 text-indigo-700 border-indigo-200", barColor: "bg-indigo-500", hexColor: "#6366F1" },
-  { value: "SALARIES", label: "Staff Salaries", color: "bg-purple-50 text-purple-700 border-purple-200", barColor: "bg-purple-500", hexColor: "#A855F7" },
+  { value: "SALARIES", label: "Staff Salaries & Commissions", color: "bg-purple-50 text-purple-700 border-purple-200", barColor: "bg-purple-500", hexColor: "#A855F7" },
   { value: "MARKETING", label: "Marketing & Ads", color: "bg-pink-50 text-pink-700 border-pink-200", barColor: "bg-pink-500", hexColor: "#EC4899" },
-  { value: "REPAIRS", label: "Equipment Repairs", color: "bg-orange-50 text-orange-700 border-orange-200", barColor: "bg-orange-500", hexColor: "#F97316" },
+  { value: "REPAIRS", label: "Equipment Maintenance & Repairs", color: "bg-orange-50 text-orange-700 border-orange-200", barColor: "bg-orange-500", hexColor: "#F97316" },
   { value: "OTHER", label: "Other Operational", color: "bg-slate-50 text-slate-700 border-slate-200", barColor: "bg-slate-500", hexColor: "#64748B" }
 ];
 
@@ -955,13 +957,29 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 </div>
               )}
 
+              {/* Category (FIRST OPTION AT TOP) */}
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Expense Category</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value as any }))}
+                  className="h-10 w-full border rounded-xl px-3 text-xs font-bold text-slate-700 bg-white border-slate-300 focus:border-slate-500"
+                >
+                  {EXPENSE_CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Title */}
               <div className="space-y-1">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Expense Description / Title</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Detailing shampoo bulk refill"
+                  placeholder="e.g. Electricity bill for main wash bay"
                   value={formData.title}
                   onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                   className="h-10 w-full border rounded-xl px-3 text-xs outline-none focus:border-slate-400"
@@ -994,22 +1012,6 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                     className="h-10 w-full border rounded-xl px-3 text-xs outline-none focus:border-slate-400"
                   />
                 </div>
-              </div>
-
-              {/* Category */}
-              <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wide">Expense Category</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
-                  className="h-10 w-full border rounded-xl px-3 text-xs font-bold text-slate-700 bg-white"
-                >
-                  {EXPENSE_CATEGORIES.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               {/* Notes */}

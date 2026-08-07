@@ -2,10 +2,9 @@ import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { FinancePanel } from "@/components/dashboard/finance-panel";
-import { isFeatureEnabled } from "@/lib/feature-flags";
-import { getStationEntitlements, getCachedSubscriptionPlans } from "@/lib/entitlement";
+import { DailyEodSummaryCard } from "@/components/dashboard/daily-eod-summary-card";
+import { getStationEntitlements } from "@/lib/entitlement";
 import { getCached } from "@/lib/cache";
-import { UpgradeLock } from "@/components/dashboard/upgrade-lock";
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
@@ -41,29 +40,42 @@ export default async function FinancePage() {
     redirect("/login");
   }
 
-  const { paidInvoices, expenses } = await getCached(`finance_data_${session.stationId}`, 15, async () => {
-    const [invoices, exps] = await Promise.all([
-      prisma.invoice.findMany({
-        where: {
-          stationId: session.stationId,
-          status: "PAID",
-          jobCard: { isDeleted: false },
-        },
-        include: {
-          jobCard: {
-            include: { vehicle: true, customer: true },
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const [{ paidInvoices, expenses }, todayCarsCount, activeStaffCount] = await Promise.all([
+    getCached(`finance_data_${session.stationId}`, 15, async () => {
+      const [invoices, exps] = await Promise.all([
+        prisma.invoice.findMany({
+          where: {
+            stationId: session.stationId,
+            status: "PAID",
+            jobCard: { isDeleted: false },
           },
-          payments: true,
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.expense.findMany({
-        where: { stationId: session.stationId },
-        orderBy: { date: "desc" },
-      }),
-    ]);
-    return { paidInvoices: invoices, expenses: exps };
-  }).catch(() => ({ paidInvoices: [], expenses: [] }));
+          include: {
+            jobCard: {
+              include: { vehicle: true, customer: true },
+            },
+            payments: true,
+          },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.expense.findMany({
+          where: { stationId: session.stationId },
+          orderBy: { date: "desc" },
+        }),
+      ]);
+      return { paidInvoices: invoices, expenses: exps };
+    }).catch(() => ({ paidInvoices: [], expenses: [] })),
+    prisma.jobCard.count({
+      where: { stationId: session.stationId, createdAt: { gte: todayStart, lte: todayEnd }, isDeleted: false },
+    }).catch(() => 0),
+    prisma.user.count({
+      where: { stationId: session.stationId, role: "STAFF", isDeleted: false },
+    }).catch(() => 0),
+  ]);
 
   const incomes = paidInvoices.map((inv) => ({
     id: inv.id,
@@ -87,7 +99,15 @@ export default async function FinancePage() {
     type: "EXPENSE" as const,
   }));
 
+  const todayKey = new Date().toDateString();
+  const todayExpensesList = expenses.filter((e) => new Date(e.date).toDateString() === todayKey);
+  const todayExpensesTotal = todayExpensesList.reduce((sum, e) => sum + Number(e.amount), 0);
+  const todayRevenueTotal = paidInvoices
+    .filter((inv) => new Date(inv.createdAt).toDateString() === todayKey)
+    .reduce((sum, inv) => sum + Number(inv.finalAmount), 0);
+
   const primaryColor = entitlements.stationMetadata?.primaryColor || "#0f766e";
+  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "ر.س ";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
@@ -97,6 +117,23 @@ export default async function FinancePage() {
           Log operational costs, track detailing revenues, and monitor full station cash flow & net profit/loss in real-time.
         </p>
       </div>
+
+      {/* Daily EOD Nightly Summary Briefing Card */}
+      <DailyEodSummaryCard
+        currency={currency}
+        stationName={entitlements.stationMetadata?.name || "WashDeck Station"}
+        todayCarsCount={todayCarsCount}
+        todayRevenue={todayRevenueTotal}
+        todayExpenses={todayExpensesTotal}
+        todayExpensesList={todayExpensesList.map((e) => ({
+          id: e.id,
+          category: e.category,
+          amount: Number(e.amount),
+          description: e.title || e.notes,
+        }))}
+        activeStaffCount={activeStaffCount}
+      />
+
       <FinancePanel 
         initialIncomes={incomes} 
         initialExpenses={serializedExpenses} 

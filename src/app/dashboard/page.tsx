@@ -209,27 +209,7 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* ── Nightly 10:00 PM EOD Summary Briefing (Store Owner POV) ── */}
-      {isOwner && (
-        <DailyEodSummaryCard
-          currency={currency}
-          stationName={entitlements.stationMetadata?.name || "WashDeck Station"}
-          todayCarsCount={todayDbJobsCount}
-          todayRevenue={revenueToday}
-          todayExpenses={expenses
-            .filter((e: any) => new Date(e.date).toDateString() === new Date().toDateString())
-            .reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0)}
-          todayExpensesList={expenses
-            .filter((e: any) => new Date(e.date).toDateString() === new Date().toDateString())
-            .map((e: any) => ({
-              id: e.id,
-              category: e.category,
-              amount: Number(e.amount || 0),
-              description: e.description,
-            }))}
-          activeStaffCount={activeStaffCount}
-        />
-      )}
+
 
       {/* ── Owner Profit & Loss Analyzing Chart Widget (Owner POV) ── */}
       {isOwner && (

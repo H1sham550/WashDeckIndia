@@ -93,6 +93,8 @@ enum NoteType {
 }
 
 enum ExpenseCategory {
+  ELECTRICITY
+  WATER
   SUPPLIES
   UTILITIES
   RENT

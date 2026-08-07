@@ -55,13 +55,13 @@ type FinancePanelProps = {
 };
 
 const EXPENSE_CATEGORIES = [
-  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500" },
-  { value: "UTILITIES", label: "Utilities (Water/Power)", color: "bg-blue-50 text-blue-700 border-blue-200", barColor: "bg-blue-500" },
-  { value: "RENT", label: "Rent & Lease", color: "bg-indigo-50 text-indigo-700 border-indigo-200", barColor: "bg-indigo-500" },
-  { value: "SALARIES", label: "Staff Salaries", color: "bg-purple-50 text-purple-700 border-purple-200", barColor: "bg-purple-500" },
-  { value: "MARKETING", label: "Marketing & Ads", color: "bg-pink-50 text-pink-700 border-pink-200", barColor: "bg-pink-500" },
-  { value: "REPAIRS", label: "Equipment Repairs", color: "bg-orange-50 text-orange-700 border-orange-200", barColor: "bg-orange-500" },
-  { value: "OTHER", label: "Other Operational", color: "bg-slate-50 text-slate-700 border-slate-200", barColor: "bg-slate-500" }
+  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500", hexColor: "#F59E0B" },
+  { value: "UTILITIES", label: "Utilities (Water/Power)", color: "bg-blue-50 text-blue-700 border-blue-200", barColor: "bg-blue-500", hexColor: "#3B82F6" },
+  { value: "RENT", label: "Rent & Lease", color: "bg-indigo-50 text-indigo-700 border-indigo-200", barColor: "bg-indigo-500", hexColor: "#6366F1" },
+  { value: "SALARIES", label: "Staff Salaries", color: "bg-purple-50 text-purple-700 border-purple-200", barColor: "bg-purple-500", hexColor: "#A855F7" },
+  { value: "MARKETING", label: "Marketing & Ads", color: "bg-pink-50 text-pink-700 border-pink-200", barColor: "bg-pink-500", hexColor: "#EC4899" },
+  { value: "REPAIRS", label: "Equipment Repairs", color: "bg-orange-50 text-orange-700 border-orange-200", barColor: "bg-orange-500", hexColor: "#F97316" },
+  { value: "OTHER", label: "Other Operational", color: "bg-slate-50 text-slate-700 border-slate-200", barColor: "bg-slate-500", hexColor: "#64748B" }
 ];
 
 export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: FinancePanelProps) {
@@ -450,186 +450,307 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         </div>
       </section>
 
-      {/* Category Expenses Breakdown */}
-      <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      {/* ── 1. PROPER PIE / DONUT CHART: EXPENSE BREAKDOWN BY CATEGORY ── */}
+      <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
             <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <PieChart size={16} className="text-blue-600" />
-              Expense Breakdown by Category
+              <PieChart size={18} className="text-blue-600" />
+              Expense Distribution (Category Pie Chart)
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Distribution of operational costs across business spending categories.
+              Visual category distribution of operational expenses for the selected period.
             </p>
           </div>
-          <span className="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">
+          <span className="text-xs font-extrabold text-slate-800 bg-slate-100 px-3 py-1.5 rounded-xl self-start sm:self-auto border border-slate-200">
             Total Outflow: {formatCurrency(totalExpense)}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {EXPENSE_CATEGORIES.map((cat) => {
-            const amount = categoryTotals[cat.value] || 0;
-            const pct = totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0;
+        {totalExpense === 0 ? (
+          <div className="py-12 text-center text-slate-400 text-xs font-medium bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+            No operational expenses logged for this time period.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Donut / Pie Chart SVG */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center p-2 relative">
+              <div className="relative w-56 h-56 flex items-center justify-center">
+                <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
+                  {(() => {
+                    const radius = 55;
+                    const circumference = 2 * Math.PI * radius; // ~345.575
+                    let accumulatedOffset = 0;
+
+                    const activeCategories = EXPENSE_CATEGORIES.map((cat) => {
+                      const amt = categoryTotals[cat.value] || 0;
+                      const pct = amt / totalExpense;
+                      return { ...cat, amt, pct };
+                    }).filter((c) => c.amt > 0);
+
+                    return activeCategories.map((cat) => {
+                      const strokeDash = cat.pct * circumference;
+                      const gap = circumference - strokeDash;
+                      const offset = accumulatedOffset;
+                      accumulatedOffset += strokeDash;
+
+                      return (
+                        <circle
+                          key={cat.value}
+                          cx="80"
+                          cy="80"
+                          r={radius}
+                          fill="transparent"
+                          stroke={cat.hexColor}
+                          strokeWidth="22"
+                          strokeDasharray={`${strokeDash} ${gap}`}
+                          strokeDashoffset={-offset}
+                          className="transition-all duration-500 hover:opacity-85 cursor-pointer"
+                        >
+                          <title>{`${cat.label}: ${formatCurrency(cat.amt)} (${Math.round(cat.pct * 100)}%)`}</title>
+                        </circle>
+                      );
+                    });
+                  })()}
+                </svg>
+
+                {/* Donut Hole Text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none p-4">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Spent</span>
+                  <span className="text-base font-extrabold text-slate-900 tracking-tight leading-tight mt-0.5">
+                    {formatCurrency(totalExpense)}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                    {EXPENSE_CATEGORIES.filter((c) => (categoryTotals[c.value] || 0) > 0).length} Categories
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Category Breakdown Cards */}
+            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {EXPENSE_CATEGORIES.map((cat) => {
+                const amount = categoryTotals[cat.value] || 0;
+                const pct = totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0;
+
+                return (
+                  <div
+                    key={cat.value}
+                    className={`p-3 rounded-xl border transition-all ${
+                      amount > 0 ? "bg-white border-slate-200/90 shadow-2xs" : "bg-slate-50/40 border-slate-100 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+                          style={{ backgroundColor: cat.hexColor }}
+                        />
+                        <span className="text-xs font-bold text-slate-800 truncate max-w-[130px]">{cat.label}</span>
+                      </div>
+                      <span className="text-xs font-black text-slate-700">{pct}%</span>
+                    </div>
+
+                    <div className="flex items-baseline justify-between mt-1">
+                      <span className="text-sm font-extrabold text-slate-900">{formatCurrency(amount)}</span>
+                    </div>
+
+                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mt-2">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%`, backgroundColor: cat.hexColor }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── 2. EXPENSE & NET CASH FLOW GROWTH GRAPH ── */}
+      <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <TrendingUp size={18} className="text-emerald-600" />
+                Cumulative Cash Flow & Expense Growth Graph
+              </h3>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Trajectory and growth curve comparing revenue inflow vs operational expense run-rate over {daysToDraw} days.
+            </p>
+          </div>
+
+          {/* Growth Stat Badges */}
+          {(() => {
+            // Calculate growth stats
+            const mid = Math.floor(chartData.length / 2);
+            const firstHalfExp = chartData.slice(0, mid).reduce((s, d) => s + d.expense, 0);
+            const secondHalfExp = chartData.slice(mid).reduce((s, d) => s + d.expense, 0);
+            
+            let growthPct = 0;
+            if (firstHalfExp > 0) {
+              growthPct = Math.round(((secondHalfExp - firstHalfExp) / firstHalfExp) * 100);
+            }
+
+            const avgDailyExpense = chartData.length > 0 ? Math.round(totalExpense / chartData.length) : 0;
+            const maxSingleDayExp = Math.max(...chartData.map((d) => d.expense), 0);
 
             return (
-              <div key={cat.value} className="p-3.5 rounded-xl bg-slate-50/60 border border-slate-100 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded border ${cat.color}`}>
-                    {cat.label}
-                  </span>
-                  <span className="text-xs font-extrabold text-slate-700">{pct}%</span>
+              <div className="flex items-center gap-2 flex-wrap text-xs">
+                <div className={`px-2.5 py-1 rounded-lg border font-bold flex items-center gap-1 ${
+                  growthPct <= 0
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-amber-50 text-amber-700 border-amber-200"
+                }`}>
+                  <span>Expense Growth:</span>
+                  <span>{growthPct > 0 ? `+${growthPct}%` : `${growthPct}%`}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-slate-800">{formatCurrency(amount)}</span>
+                <div className="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-bold">
+                  Avg Daily: {formatCurrency(avgDailyExpense)}
                 </div>
-                <div className="h-1.5 w-full bg-slate-200/80 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-300 ${cat.barColor}`} 
-                    style={{ width: `${pct}%` }} 
-                  />
+                <div className="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-bold">
+                  Peak Day: {formatCurrency(maxSingleDayExp)}
                 </div>
               </div>
             );
-          })}
-        </div>
-      </section>
-
-      {/* Visual Daily Profit & Cashflow Chart */}
-      <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
-        <div>
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-            <TrendingUp size={16} style={{ color: primaryColor }} />
-            Daily Cash Flow Trend (Inflow vs Outflow)
-          </h3>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            Visualizing daily cash inflows and outflows over the selected {daysToDraw}-day period.
-          </p>
+          })()}
         </div>
 
-        {/* Pure Responsive SVG Chart */}
-        <div className="w-full overflow-x-auto pt-2">
-          <div className="min-w-[500px] max-w-3xl mx-auto">
-            <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto select-none">
-              {/* Horizontal Gridlines */}
-              {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-                const yPos = paddingY + chartHeight - ratio * chartHeight;
-                const valueLabel = Math.round(ratio * maxChartVal);
-                return (
-                  <g key={ratio} className="opacity-40">
-                    <line
-                      x1={paddingX}
-                      y1={yPos}
-                      x2={svgWidth - 20}
-                      y2={yPos}
-                      stroke="#cbd5e1"
-                      strokeWidth={1}
-                      strokeDasharray="4 4"
-                    />
-                    <text
-                      x={paddingX - 8}
-                      y={yPos + 4}
-                      textAnchor="end"
-                      className="fill-slate-400 font-semibold text-[9px]"
-                    >
-                      {valueLabel >= 1000 ? (valueLabel / 1000).toFixed(1) + "k" : valueLabel}
-                    </text>
-                  </g>
-                );
-              })}
+        {/* Growth Line & Trajectory SVG Chart */}
+        {(() => {
+          const gSvgW = 600;
+          const gSvgH = 220;
+          const gPadX = 50;
+          const gPadY = 25;
+          const gW = gSvgW - gPadX - 20;
+          const gH = gSvgH - gPadY - 25;
 
-              {/* Day Columns & Bars */}
-              {chartData.map((day, idx) => {
-                const colWidth = chartWidth / daysToDraw;
-                const colX = paddingX + idx * colWidth;
-                
-                // Income Bar
-                const incHeight = (day.income / maxChartVal) * chartHeight;
-                const incY = paddingY + chartHeight - incHeight;
-                
-                // Expense Bar
-                const expHeight = (day.expense / maxChartVal) * chartHeight;
-                const expY = paddingY + chartHeight - expHeight;
+          // Calculate cumulative totals for smooth growth curve
+          let cumInc = 0;
+          let cumExp = 0;
+          const points = chartData.map((d, idx) => {
+            cumInc += d.income;
+            cumExp += d.expense;
+            return {
+              label: d.label,
+              income: d.income,
+              expense: d.expense,
+              cumInc,
+              cumExp,
+              idx,
+            };
+          });
 
-                const barW = Math.max(colWidth * 0.3, 4);
-                const spaceBetween = 2;
+          const maxCum = Math.max(...points.map((p) => Math.max(p.cumInc, p.cumExp)), 1000);
 
-                return (
-                  <g key={idx} className="group">
-                    <title>{`Date: ${day.label}\nInflow: ${formatCurrency(day.income)}\nExpenses: ${formatCurrency(day.expense)}`}</title>
-                    
-                    {/* Hover column background */}
-                    <rect
-                      x={colX}
-                      y={paddingY}
-                      width={colWidth}
-                      height={chartHeight}
-                      className="fill-slate-50/0 group-hover:fill-slate-50/60 transition-colors cursor-pointer"
-                    />
+          // SVG coordinates generators
+          const getX = (idx: number) => gPadX + (idx / Math.max(points.length - 1, 1)) * gW;
+          const getIncY = (val: number) => gPadY + gH - (val / maxCum) * gH;
+          const getExpY = (val: number) => gPadY + gH - (val / maxCum) * gH;
 
-                    {/* Income Bar (Emerald) */}
-                    {day.income > 0 && (
-                      <rect
-                        x={colX + colWidth / 2 - barW - spaceBetween}
-                        y={incY}
-                        width={barW}
-                        height={incHeight}
-                        rx={2}
-                        className="fill-emerald-500 hover:fill-emerald-600 transition-colors"
-                      />
-                    )}
+          // Generate SVG Path d strings for lines & areas
+          const incLineD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getIncY(p.cumInc)}`).join(" ");
+          const incAreaD = `${incLineD} L ${getX(points.length - 1)} ${gPadY + gH} L ${getX(0)} ${gPadY + gH} Z`;
 
-                    {/* Expense Bar (Rose) */}
-                    {day.expense > 0 && (
-                      <rect
-                        x={colX + colWidth / 2 + spaceBetween}
-                        y={expY}
-                        width={barW}
-                        height={expHeight}
-                        rx={2}
-                        className="fill-rose-500 hover:fill-rose-600 transition-colors"
-                      />
-                    )}
+          const expLineD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getExpY(p.cumExp)}`).join(" ");
+          const expAreaD = `${expLineD} L ${getX(points.length - 1)} ${gPadY + gH} L ${getX(0)} ${gPadY + gH} Z`;
 
-                    {/* X Axis Date Label */}
-                    {(daysToDraw === 7 || idx % 5 === 0 || idx === daysToDraw - 1) && (
-                      <text
-                        x={colX + colWidth / 2}
-                        y={svgHeight - 10}
-                        textAnchor="middle"
-                        className="fill-slate-500 font-semibold text-[9px]"
-                      >
-                        {day.label}
-                      </text>
-                    )}
-                  </g>
-                );
-              })}
+          return (
+            <div className="w-full overflow-x-auto">
+              <div className="min-w-[520px] max-w-3xl mx-auto">
+                <svg viewBox={`0 0 ${gSvgW} ${gSvgH}`} className="w-full h-auto select-none">
+                  <defs>
+                    <linearGradient id="incGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                    </linearGradient>
+                    <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
 
-              {/* X Axis Line */}
-              <line
-                x1={paddingX}
-                y1={paddingY + chartHeight}
-                x2={svgWidth - 20}
-                y2={paddingY + chartHeight}
-                stroke="#94a3b8"
-                strokeWidth={1}
-              />
-            </svg>
-          </div>
-        </div>
+                  {/* Horizontal Grid lines */}
+                  {[0, 0.33, 0.66, 1].map((r) => {
+                    const y = gPadY + gH - r * gH;
+                    const val = Math.round(r * maxCum);
+                    return (
+                      <g key={r}>
+                        <line
+                          x1={gPadX}
+                          y1={y}
+                          x2={gSvgW - 15}
+                          y2={y}
+                          stroke="#e2e8f0"
+                          strokeWidth="1"
+                          strokeDasharray="3 3"
+                        />
+                        <text
+                          x={gPadX - 8}
+                          y={y + 4}
+                          textAnchor="end"
+                          className="fill-slate-400 font-semibold text-[9px]"
+                        >
+                          {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val}
+                        </text>
+                      </g>
+                    );
+                  })}
 
-        {/* Legend */}
-        <div className="flex items-center justify-center gap-6 text-[10px] font-bold text-slate-500 pt-2 border-t border-slate-100">
-          <div className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded bg-emerald-500 block" />
-            <span>Revenue Inflow</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded bg-rose-500 block" />
-            <span>Operational Expenses Outflow</span>
-          </div>
-        </div>
+                  {/* Area Fills */}
+                  <path d={incAreaD} fill="url(#incGrad)" />
+                  <path d={expAreaD} fill="url(#expGrad)" />
+
+                  {/* Smooth Lines */}
+                  <path d={incLineD} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d={expLineD} fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="5 3" />
+
+                  {/* Data Point Circles */}
+                  {points.map((p, i) => {
+                    const x = getX(i);
+                    const yInc = getIncY(p.cumInc);
+                    const yExp = getExpY(p.cumExp);
+
+                    return (
+                      <g key={i} className="group">
+                        <title>{`Date: ${p.label}\nCumulative Inflow: ${formatCurrency(p.cumInc)} (Daily: +${formatCurrency(p.income)})\nCumulative Expense: ${formatCurrency(p.cumExp)} (Daily: +${formatCurrency(p.expense)})`}</title>
+
+                        {/* Income Point */}
+                        <circle cx={x} cy={yInc} r="4" fill="#10b981" stroke="#ffffff" strokeWidth="2" className="group-hover:r-6 transition-all cursor-pointer" />
+
+                        {/* Expense Point */}
+                        <circle cx={x} cy={yExp} r="4" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" className="group-hover:r-6 transition-all cursor-pointer" />
+
+                        {/* X-axis Label */}
+                        {(points.length <= 7 || i % 4 === 0 || i === points.length - 1) && (
+                          <text x={x} y={gSvgH - 8} textAnchor="middle" className="fill-slate-500 font-bold text-[9px]">
+                            {p.label}
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* Legend */}
+                <div className="flex items-center justify-center gap-6 text-[11px] font-bold text-slate-600 pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-emerald-500 block" />
+                    <span>Cumulative Revenue Growth</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-0.5 bg-rose-500 border-t-2 border-dashed border-rose-500 block" />
+                    <span>Cumulative Expense Trajectory</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </section>
 
       {/* Transaction Ledger Table with Search & Filters */}

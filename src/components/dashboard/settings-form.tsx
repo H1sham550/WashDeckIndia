@@ -52,7 +52,7 @@ type SettingsFormProps = {
 
 export function SettingsForm({ station }: SettingsFormProps) {
   const [formData, setFormData] = useState(station);
-  const [activeTab, setActiveTab] = useState<"branding" | "operations" | "communication" | "localization">("branding");
+  const [activeTab, setActiveTab] = useState<"branding" | "theme_preview" | "operations" | "communication" | "localization">("branding");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -177,6 +177,20 @@ export function SettingsForm({ station }: SettingsFormProps) {
         >
           <Palette size={16} style={{ color: activeTab === "branding" ? formData.primaryColor : undefined }} />
           Branding & Identity
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("theme_preview")}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold rounded-lg transition-all ${
+            activeTab === "theme_preview"
+              ? "bg-white shadow-sm text-slate-800 border-b-2"
+              : "text-slate-500 hover:text-slate-800 hover:bg-white/40"
+          }`}
+          style={activeTab === "theme_preview" ? { borderBottomColor: formData.primaryColor } : {}}
+        >
+          <Sparkles size={16} style={{ color: activeTab === "theme_preview" ? formData.primaryColor : undefined }} />
+          UI Color Schemes
         </button>
 
         <button
@@ -395,6 +409,95 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     placeholder="29AAAAA1111A1Z1"
                     className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)] uppercase"
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* UI COLOR SCHEMES & THEME PREVIEW TAB */}
+        {activeTab === "theme_preview" && (
+          <div className="space-y-6">
+            <div className="bg-white border rounded-xl p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <Sparkles size={20} style={{ color: formData.primaryColor }} />
+                    Station UI Color Schemes & Theme Switcher
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Preview how your WashDeck Operations Dashboard looks under different curated color themes. Select a theme below to preview in real-time.
+                  </p>
+                </div>
+              </div>
+
+              {/* Curated Theme Preset Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 pt-2">
+                {[
+                  { name: "Emerald Teal", color: "#0f766e", badge: "Default Saudi" },
+                  { name: "Royal Sapphire", color: "#2563eb", badge: "High Tech" },
+                  { name: "Amethyst Detailing", color: "#7c3aed", badge: "Luxury Studio" },
+                  { name: "Crimson Speed", color: "#dc2626", badge: "Express Wash" },
+                  { name: "Obsidian Gold", color: "#d97706", badge: "Champagne Gold" },
+                ].map((theme) => (
+                  <div
+                    key={theme.color}
+                    onClick={() => setFormData((prev) => ({ ...prev, primaryColor: theme.color }))}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition flex flex-col justify-between ${
+                      formData.primaryColor.toLowerCase() === theme.color.toLowerCase()
+                        ? "ring-2 ring-slate-800 shadow-md bg-white border-slate-400"
+                        : "bg-slate-50/70 border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full shrink-0 shadow-sm border border-black/10" style={{ backgroundColor: theme.color }} />
+                      <span className="font-extrabold text-xs text-slate-800">{theme.name}</span>
+                    </div>
+                    <div className="mt-3">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                        {theme.badge}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Interactive Theme Preview Card */}
+            <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl space-y-4 border border-slate-800">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-xl flex items-center justify-center font-black text-white" style={{ backgroundColor: formData.primaryColor }}>
+                    WD
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-extrabold text-white">Live Dashboard Header Preview</h4>
+                    <p className="text-[11px] text-slate-400">Current Theme Color: {formData.primaryColor}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white shadow-sm transition"
+                  style={{ backgroundColor: formData.primaryColor }}
+                >
+                  + New Intake
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Queue Status</span>
+                  <p className="text-lg font-black text-white mt-1">14 Vehicles</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Active Theme</span>
+                  <p className="text-sm font-black mt-1 font-mono" style={{ color: formData.primaryColor }}>
+                    {formData.primaryColor}
+                  </p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Efficiency</span>
+                  <p className="text-lg font-black text-emerald-400 mt-1">98%</p>
                 </div>
               </div>
             </div>

@@ -116,6 +116,18 @@ export function LoginForm() {
           )}
         </button>
       </form>
+
+      <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+        <p className="text-xs text-slate-500 font-medium">
+          New to WashDeck?{" "}
+          <a
+            href="/register"
+            className="font-bold text-teal-700 hover:text-teal-800 hover:underline transition"
+          >
+            Register Store Account (1 Month FREE)
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

@@ -3,10 +3,19 @@ import { LoginForm } from "@/components/auth/login-form";
 import { getSession } from "@/lib/session";
 import { LayoutDashboard, Clock, CreditCard, Users } from "lucide-react";
 
-export default async function LoginPage() {
-  const session = await getSession();
-  if (session) {
-    redirect(session.role === "SUPER_ADMIN" ? "/admin" : "/dashboard");
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ logged_out?: string }>;
+}) {
+  const params = await searchParams;
+  const isLoggedOut = Boolean(params?.logged_out);
+
+  if (!isLoggedOut) {
+    const session = await getSession();
+    if (session) {
+      redirect(session.role === "SUPER_ADMIN" ? "/admin" : "/dashboard");
+    }
   }
 
   return (

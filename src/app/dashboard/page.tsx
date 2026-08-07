@@ -31,7 +31,12 @@ export default async function DashboardPage() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   sevenDaysAgo.setHours(0, 0, 0, 0);
 
-  const [entitlements, summary, expenses] = await Promise.all([
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const [entitlements, summary, expenses, activeStaffCount, todayDbJobsCount] = await Promise.all([
     getStationEntitlements(stationId),
     jobCardService.getDashboardSummary(stationId),
     isOwner
@@ -43,6 +48,12 @@ export default async function DashboardPage() {
           orderBy: { date: "desc" },
         }).catch(() => [])
       : Promise.resolve([]),
+    prisma.user.count({
+      where: { stationId, role: "STAFF", isDeleted: false },
+    }).catch(() => 0),
+    prisma.jobCard.count({
+      where: { stationId, createdAt: { gte: todayStart, lte: todayEnd }, isDeleted: false },
+    }).catch(() => 0),
   ]);
 
   const revenueToday = summary.revenueToday;
@@ -203,11 +214,7 @@ export default async function DashboardPage() {
         <DailyEodSummaryCard
           currency={currency}
           stationName={entitlements.stationMetadata?.name || "WashDeck Station"}
-          todayCarsCount={
-            summary.recentDeliveredJobs.filter((j: any) => new Date(j.createdAt).toDateString() === new Date().toDateString()).length +
-            summary.counts.completed +
-            summary.counts.inProgress
-          }
+          todayCarsCount={todayDbJobsCount}
           todayRevenue={revenueToday}
           todayExpenses={expenses
             .filter((e: any) => new Date(e.date).toDateString() === new Date().toDateString())
@@ -220,7 +227,7 @@ export default async function DashboardPage() {
               amount: Number(e.amount || 0),
               description: e.description,
             }))}
-          activeStaffCount={1}
+          activeStaffCount={activeStaffCount}
         />
       )}
 

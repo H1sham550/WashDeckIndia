@@ -15,17 +15,13 @@ export default function TermsPage() {
   return (
     <main className="min-h-screen bg-[#F8F9FA]">
       {/* Header */}
-      <header className="bg-[#0F172A] border-b border-white/10">
-        <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
-          <Link href={"/login" as any} className="inline-flex items-center gap-3">
-            <img
-              src="/brand/washdeck-logo-transparent.png"
-              alt="WashDeck"
-              className="h-8 w-auto object-contain"
-            />
+      <header className="bg-[#0F172A] border-b border-white/10 sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href={"/login" as any} className="inline-flex items-center gap-2 text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-xl border border-slate-700 transition">
+            <span>← Return to Sign In</span>
           </Link>
-          <div className="flex items-center gap-4 text-xs font-semibold text-slate-400">
-            <Link href={"/terms" as any} className="text-white">Terms of Service</Link>
+          <div className="flex items-center gap-4 text-xs font-bold text-slate-300">
+            <Link href={"/terms" as any} className="text-white underline underline-offset-4">Terms of Service</Link>
             <Link href={"/privacy" as any} className="hover:text-white transition-colors">Privacy Policy</Link>
           </div>
         </div>

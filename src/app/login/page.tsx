@@ -109,13 +109,13 @@ export default async function LoginPage({
           {/* Login Form */}
           <LoginForm />
 
-          <p className="mt-6 text-xs text-center" style={{ color: "#94A3B8" }}>
+          <p className="mt-6 text-xs text-center font-medium text-slate-500">
             Having trouble? Contact your station administrator.
           </p>
-          <div className="mt-4 flex items-center justify-center gap-3 text-[11px]" style={{ color: "#CBD5E1" }}>
-            <a href="/terms" className="hover:text-slate-600 transition-colors">Terms of Service</a>
-            <span>&middot;</span>
-            <a href="/privacy" className="hover:text-slate-600 transition-colors">Privacy Policy</a>
+          <div className="mt-4 flex items-center justify-center gap-3 text-xs font-bold text-slate-600">
+            <a href="/terms" className="hover:text-slate-900 hover:underline transition-colors">Terms of Service</a>
+            <span className="text-slate-400">&middot;</span>
+            <a href="/privacy" className="hover:text-slate-900 hover:underline transition-colors">Privacy Policy</a>
           </div>
         </div>
       </div>

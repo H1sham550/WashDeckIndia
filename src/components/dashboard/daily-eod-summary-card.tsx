@@ -1,57 +1,122 @@
 "use client";
 
-import React, { useState } from "react";
-import { Moon, Car, TrendingUp, TrendingDown, DollarSign, Users, Share2, Check, Clock } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Moon, Car, TrendingUp, TrendingDown, DollarSign, Share2, Check, Calendar as CalendarIcon, History } from "lucide-react";
 import { formatCurrency } from "@/lib/currency";
+
+interface IncomeItem {
+  id: string;
+  amount: number;
+  date: string;
+  vehicleNumber?: string;
+  customerName?: string;
+}
 
 interface ExpenseItem {
   id: string;
+  title?: string;
   category: string;
   amount: number;
-  description: string | null;
+  date: string;
+  notes?: string;
 }
 
 interface DailyEodSummaryProps {
   currency: string;
   stationName: string;
+  allIncomes: IncomeItem[];
+  allExpenses: ExpenseItem[];
   todayCarsCount: number;
-  todayRevenue: number;
-  todayExpenses: number;
-  todayExpensesList: ExpenseItem[];
   activeStaffCount: number;
 }
 
 export function DailyEodSummaryCard({
   currency,
   stationName,
+  allIncomes,
+  allExpenses,
   todayCarsCount,
-  todayRevenue,
-  todayExpenses,
-  todayExpensesList,
   activeStaffCount,
 }: DailyEodSummaryProps) {
   const [copied, setCopied] = useState(false);
-  const netProfit = todayRevenue - todayExpenses;
-  const todayDateStr = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  const [selectedDateStr, setSelectedDateStr] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+
+  // Helper to normalize Date string comparison (YYYY-MM-DD)
+  const getFormattedDateString = (d: Date) => {
+    return d.toISOString().split("T")[0];
+  };
+
+  const todayIsoStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  // Filter incomes & expenses for selected date
+  const { dayIncomes, dayExpenses, dayRevenue, dayExpensesTotal, dayNetProfit } = useMemo(() => {
+    const targetDateStr = selectedDateStr;
+
+    const filteredIncomes = allIncomes.filter((inc) => {
+      const incDate = new Date(inc.date).toISOString().split("T")[0];
+      return incDate === targetDateStr;
+    });
+
+    const filteredExpenses = allExpenses.filter((exp) => {
+      const expDate = new Date(exp.date).toISOString().split("T")[0];
+      return expDate === targetDateStr;
+    });
+
+    const rev = filteredIncomes.reduce((sum, i) => sum + Number(i.amount), 0);
+    const expTotal = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+    return {
+      dayIncomes: filteredIncomes,
+      dayExpenses: filteredExpenses,
+      dayRevenue: rev,
+      dayExpensesTotal: expTotal,
+      dayNetProfit: rev - expTotal,
+    };
+  }, [selectedDateStr, allIncomes, allExpenses]);
+
+  // Cars count for selected date
+  const selectedCarsCount = useMemo(() => {
+    if (selectedDateStr === todayIsoStr) {
+      return todayCarsCount;
+    }
+    return dayIncomes.length;
+  }, [selectedDateStr, todayIsoStr, todayCarsCount, dayIncomes]);
+
+  const displayDateText = useMemo(() => {
+    const [y, m, d] = selectedDateStr.split("-").map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    return dateObj.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }, [selectedDateStr]);
+
+  const isTodaySelected = selectedDateStr === todayIsoStr;
+
+  // Quick Preset Date Handlers
+  const handleSetQuickDate = (offsetDays: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() - offsetDays);
+    setSelectedDateStr(d.toISOString().split("T")[0]);
+  };
 
   // Generate clean WhatsApp / Text briefing snippet for Store Owners
   const handleCopySummary = () => {
-    const summaryText = `🌙 *${stationName} — Daily EOD Summary (10:00 PM)*
-📅 Date: ${todayDateStr}
+    const summaryText = `🌙 *${stationName} — EOD Summary Report*
+📅 Date: ${displayDateText} ${isTodaySelected ? "(Today)" : "(Historical Record)"}
 
-🚗 *Cars Washed Today:* ${todayCarsCount}
-💰 *Gross Revenue Today:* ${formatCurrency(todayRevenue)}
-💸 *Daily Operational Expenses:* ${formatCurrency(todayExpenses)}
-📈 *Net Daily Profit:* ${formatCurrency(netProfit)}
-👥 *Staff On Shift Today:* ${activeStaffCount}
+🚗 *Cars Washed:* ${selectedCarsCount}
+💰 *Gross Revenue:* ${formatCurrency(dayRevenue)}
+💸 *Operational Expenses:* ${formatCurrency(dayExpensesTotal)}
+📈 *Net Daily Profit:* ${formatCurrency(dayNetProfit)}
+👥 *Staff On Shift:* ${activeStaffCount}
 
-${todayExpensesList.length > 0 ? `*Today's Expense Breakdown:*
-${todayExpensesList.map((e) => `• ${e.category}: ${formatCurrency(e.amount)} (${e.description || "General"})`).join("\n")}` : "• No expenses logged today."}
+${dayExpenses.length > 0 ? `*Expense Breakdown:*
+${dayExpenses.map((e) => `• ${e.category}: ${formatCurrency(e.amount)} (${e.title || e.notes || "General"})`).join("\n")}` : "• No expenses logged for this date."}
 
 Generated by WashDeck Operations.`;
 
@@ -63,8 +128,8 @@ Generated by WashDeck Operations.`;
 
   return (
     <div className="bg-slate-900 text-white border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      {/* Header Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
             <Moon size={20} />
@@ -72,23 +137,74 @@ Generated by WashDeck Operations.`;
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-extrabold text-white tracking-tight">
-                Nightly EOD Summary (10:00 PM)
+                Nightly EOD Summary & History
               </h2>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold">
-                Daily Report
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                isTodaySelected
+                  ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                  : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+              }`}>
+                {isTodaySelected ? "Today's Live Report" : "Historical Summary"}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">{todayDateStr}</p>
+            <p className="text-xs text-slate-400 mt-0.5">{displayDateText}</p>
           </div>
         </div>
 
-        <button
-          onClick={handleCopySummary}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white rounded-xl text-xs font-bold border border-slate-700 transition shadow-sm self-start sm:self-auto shrink-0"
-        >
-          {copied ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />}
-          <span>{copied ? "Copied Briefing!" : "Share / Copy EOD Report"}</span>
-        </button>
+        {/* Date Selector & Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Date Pills */}
+          <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+            <button
+              type="button"
+              onClick={() => handleSetQuickDate(0)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                isTodaySelected
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetQuickDate(1)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                selectedDateStr === new Date(Date.now() - 86400000).toISOString().split("T")[0]
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              Yesterday
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetQuickDate(3)}
+              className="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition hidden sm:inline-block"
+            >
+              3 Days Ago
+            </button>
+          </div>
+
+          {/* Custom Date Picker */}
+          <div className="relative flex items-center">
+            <input
+              type="date"
+              value={selectedDateStr}
+              max={todayIsoStr}
+              onChange={(e) => e.target.value && setSelectedDateStr(e.target.value)}
+              className="h-9 px-3 bg-slate-800 border border-slate-700 text-white text-xs font-bold rounded-xl outline-none focus:border-blue-500 transition cursor-pointer"
+            />
+          </div>
+
+          <button
+            onClick={handleCopySummary}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white rounded-xl text-xs font-bold border border-slate-700 transition shadow-sm"
+          >
+            {copied ? <Check size={14} className="text-emerald-400" /> : <Share2 size={14} />}
+            <span>{copied ? "Copied Report!" : "Share / Copy"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Grid Metrics */}
@@ -96,72 +212,77 @@ Generated by WashDeck Operations.`;
         {/* Cars Processed */}
         <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-black uppercase tracking-wider">Cars Today</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">Cars Serviced</span>
             <Car size={15} className="text-blue-400" />
           </div>
-          <p className="text-xl font-black text-white mt-1">{todayCarsCount}</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Vehicles serviced today</p>
+          <p className="text-xl font-black text-white mt-1">{selectedCarsCount}</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Vehicles washed on date</p>
         </div>
 
-        {/* Today's Revenue */}
+        {/* Daily Revenue */}
         <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-black uppercase tracking-wider">Daily Revenue</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">Gross Revenue</span>
             <TrendingUp size={15} className="text-emerald-400" />
           </div>
           <p className="text-xl font-black text-emerald-400 mt-1">
-            {formatCurrency(todayRevenue)}
+            {formatCurrency(dayRevenue)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Gross inflow today</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Total inflow on date</p>
         </div>
 
         {/* Daily Expenses */}
         <div className="p-3.5 rounded-xl bg-slate-800/80 border border-slate-700/60">
           <div className="flex items-center justify-between text-slate-400">
-            <span className="text-[10px] font-black uppercase tracking-wider">Daily Expenses</span>
+            <span className="text-[10px] font-black uppercase tracking-wider">Total Expenses</span>
             <TrendingDown size={15} className="text-rose-400" />
           </div>
           <p className="text-xl font-black text-rose-400 mt-1">
-            {formatCurrency(todayExpenses)}
+            {formatCurrency(dayExpensesTotal)}
           </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">{todayExpensesList.length} expenses logged</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">{dayExpenses.length} expenses logged</p>
         </div>
 
-        {/* Net Daily Profit */}
-        <div className={`p-3.5 rounded-xl border ${netProfit >= 0 ? "bg-emerald-950/40 border-emerald-800/50" : "bg-rose-950/40 border-rose-800/50"}`}>
+        {/* Net Profit */}
+        <div className={`p-3.5 rounded-xl border ${dayNetProfit >= 0 ? "bg-emerald-950/40 border-emerald-800/50" : "bg-rose-950/40 border-rose-800/50"}`}>
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-[10px] font-black uppercase tracking-wider">Net Profit</span>
-            <DollarSign size={15} className={netProfit >= 0 ? "text-emerald-400" : "text-rose-400"} />
+            <DollarSign size={15} className={dayNetProfit >= 0 ? "text-emerald-400" : "text-rose-400"} />
           </div>
-          <p className={`text-xl font-black mt-1 ${netProfit >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-            {formatCurrency(netProfit)}
+          <p className={`text-xl font-black mt-1 ${dayNetProfit >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+            {formatCurrency(dayNetProfit)}
           </p>
           <p className="text-[10px] text-slate-400 mt-0.5">Revenue minus expenses</p>
         </div>
       </div>
 
-      {/* Expense Detail Breakdown (if any logged today) */}
-      {todayExpensesList.length > 0 && (
+      {/* Expense Detail Breakdown for Selected Date */}
+      {dayExpenses.length > 0 ? (
         <div className="pt-2 border-t border-slate-800">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-            Today's Itemized Expenses
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+            <History size={13} className="text-blue-400" />
+            <span>Itemized Expenses for {displayDateText}</span>
           </p>
           <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-            {todayExpensesList.map((expense) => (
+            {dayExpenses.map((expense) => (
               <div
                 key={expense.id}
                 className="flex items-center justify-between p-2 rounded-lg bg-slate-800/50 text-xs border border-slate-700/40"
               >
                 <div>
                   <span className="font-bold text-slate-200">{expense.category}</span>
-                  {expense.description && (
-                    <span className="text-slate-400 text-[11px] ml-2">({expense.description})</span>
+                  {(expense.title || expense.notes) && (
+                    <span className="text-slate-400 text-[11px] ml-2">({expense.title || expense.notes})</span>
                   )}
                 </div>
                 <span className="font-bold text-rose-400">{formatCurrency(expense.amount)}</span>
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 font-medium">
+          No expenses recorded for {displayDateText}.
         </div>
       )}
     </div>

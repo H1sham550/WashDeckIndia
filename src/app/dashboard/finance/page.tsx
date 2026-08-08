@@ -118,26 +118,20 @@ export default async function FinancePage() {
         </p>
       </div>
 
-      {/* Daily EOD Nightly Summary Briefing Card */}
-      <DailyEodSummaryCard
-        currency={currency}
-        stationName={entitlements.stationMetadata?.name || "WashDeck Station"}
-        todayCarsCount={todayCarsCount}
-        todayRevenue={todayRevenueTotal}
-        todayExpenses={todayExpensesTotal}
-        todayExpensesList={todayExpensesList.map((e) => ({
-          id: e.id,
-          category: e.category,
-          amount: Number(e.amount),
-          description: e.title || e.notes,
-        }))}
-        activeStaffCount={activeStaffCount}
-      />
-
       <FinancePanel 
         initialIncomes={incomes} 
         initialExpenses={serializedExpenses} 
         primaryColor={primaryColor} 
+      />
+
+      {/* Daily EOD Nightly Summary Briefing & History Card */}
+      <DailyEodSummaryCard
+        currency={currency}
+        stationName={entitlements.stationMetadata?.name || "WashDeck Station"}
+        allIncomes={incomes}
+        allExpenses={serializedExpenses}
+        todayCarsCount={todayCarsCount}
+        activeStaffCount={activeStaffCount}
       />
     </div>
   );

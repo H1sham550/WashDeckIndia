@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose/jwt/verify";
 import { sessionCookieName, type SessionUser } from "@/lib/session";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const protectedPrefixes = ["/dashboard", "/admin"];
 
@@ -17,6 +18,32 @@ function getSecret() {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // 1. Global API & Route Rate Limiting Protection
+  if (pathname.startsWith("/api/")) {
+    const isAuthRoute = pathname.startsWith("/api/auth/");
+    const maxReqs = isAuthRoute ? 10 : 100; // Strict 10 req/min on auth, 100 req/min on standard APIs
+    const windowSecs = 60;
+    
+    const rateLimit = checkRateLimit(request, `api-global-${pathname}`, maxReqs, windowSecs);
+    if (rateLimit.isRateLimited) {
+      return new NextResponse(
+        JSON.stringify({
+          error: "Too many requests. Rate limit exceeded.",
+          retryAfterSeconds: Math.ceil((rateLimit.resetTimeMs - Date.now()) / 1000),
+        }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": String(Math.ceil((rateLimit.resetTimeMs - Date.now()) / 1000)),
+          },
+        }
+      );
+    }
+  }
+
+  // 2. Protected UI Page Access Control
   const isProtected = protectedPrefixes.some((prefix) => pathname.startsWith(prefix)) || 
                       pathname === "/reset-password" || 
                       pathname === "/onboarding";
@@ -35,7 +62,7 @@ export async function middleware(request: NextRequest) {
   try {
     const { payload } = await jwtVerify<SessionUser>(token, secret);
 
-    // 1. Enforce password reset if temporary
+    // Enforce password reset if temporary
     if (payload.isTempPassword) {
       if (pathname !== "/reset-password") {
         return NextResponse.redirect(new URL("/reset-password", request.url));
@@ -43,12 +70,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // 2. Prevent access to reset-password if already changed
+    // Prevent access to reset-password if already changed
     if (pathname === "/reset-password") {
       return NextResponse.redirect(new URL(payload.role === "SUPER_ADMIN" ? "/admin" : "/dashboard", request.url));
     }
 
-    // 3. Super Admin vs Owner/Staff role redirection
+    // Super Admin vs Owner/Staff role redirection
     if (pathname.startsWith("/admin") && payload.role !== "SUPER_ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
@@ -64,5 +91,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/reset-password", "/onboarding"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/reset-password", "/onboarding", "/api/:path*"],
 };
+

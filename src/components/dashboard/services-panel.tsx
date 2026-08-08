@@ -366,7 +366,7 @@ export function ServicesPanel({ services: initialServices, templates: initialTem
                       <div key={vType as string} className="bg-slate-50 p-2 rounded-lg border border-slate-100">
                         <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide">{label as string}</span>
                         <span className="block text-sm font-extrabold text-slate-700 mt-1">
-                          ₹{priceObj ? priceObj.price : "-"}
+                          SAR {priceObj ? priceObj.price : "-"}
                         </span>
                       </div>
                     );

@@ -491,14 +491,25 @@ export function SettingsForm({ station }: SettingsFormProps) {
             </div>
 
             <div className="bg-white border rounded-xl p-6 shadow-sm space-y-4">
-              <h3 className="text-lg font-bold text-slate-800 border-b pb-3 flex items-center gap-2">
-                <Sparkles size={18} style={{ color: formData.primaryColor }} />
-                VIP Tier Settings
-              </h3>
+              <div className="flex items-center justify-between border-b pb-3">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <Sparkles size={18} style={{ color: formData.primaryColor }} />
+                  Car Wash Pricing & Services
+                </h3>
+                <a
+                  href="/dashboard/services"
+                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-950 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5"
+                >
+                  Manage Service Prices →
+                </a>
+              </div>
+              <p className="text-xs text-slate-500">
+                Configure store wash packages, detailing add-ons, and vehicle-type specific prices (Motorcycle, Hatchback, Sedan, SUV, Luxury).
+              </p>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2 pt-2">
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="vipSpendThreshold">VIP Spend Threshold (₹)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="vipSpendThreshold">VIP Spend Threshold (SAR)</label>
                   <input
                     id="vipSpendThreshold"
                     type="number"

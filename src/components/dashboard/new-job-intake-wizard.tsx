@@ -292,7 +292,7 @@ export function NewJobIntakeWizard({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 pb-28">
+    <div className="w-full max-w-4xl mx-auto space-y-6 pb-44 md:pb-28">
       {/* Header Banner */}
       <div className="bg-white border rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -691,9 +691,9 @@ export function NewJobIntakeWizard({
         </div>
       </div>
 
-      {/* ── STICKY FOOTER ACTION BAR ── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200/90 p-4 shadow-2xl z-40">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+      {/* ── STICKY FOOTER ACTION BAR (Elevated above mobile bottom nav) ── */}
+      <div className="fixed bottom-[60px] md:bottom-0 left-0 right-0 bg-white border-t border-slate-200/90 p-3.5 sm:p-4 shadow-2xl z-40">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div>
             <span className="text-[10px] font-extrabold uppercase text-slate-400 block">Total Job Estimate</span>
             <span className="text-xl font-black text-slate-900">SAR {totalEstimate}</span>
@@ -703,12 +703,12 @@ export function NewJobIntakeWizard({
             type="button"
             onClick={handleCreateJob}
             disabled={isPending}
-            className="h-12 px-8 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg flex items-center gap-2 transition active-tap"
+            className="h-11 sm:h-12 px-6 sm:px-8 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg flex items-center gap-2 transition active-tap"
           >
             {isPending ? (
               <>
                 <Loader2 className="animate-spin" size={16} />
-                <span>Creating Job Card...</span>
+                <span>Creating Job...</span>
               </>
             ) : (
               <>

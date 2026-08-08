@@ -23,7 +23,7 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "4-door passenger car with a separate rear trunk.",
     doors: "4 Doors",
     badge: "Standard",
-    imagePath: "/images/vehicles/sedan.png",
+    imagePath: "/vehicles/sedan.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 8 28 L 22 28 L 32 16 L 66 16 L 78 28 L 92 28 C 94 28 96 30 96 32 L 96 36 L 4 36 L 4 32 C 4 30 6 28 8 28 Z" />
@@ -43,7 +43,7 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "High roofline, large frame, 5-7 seats, high ground clearance.",
     doors: "5 Doors",
     badge: "Large",
-    imagePath: "/images/vehicles/suv.png",
+    imagePath: "/vehicles/suv.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 6 30 L 16 30 L 26 12 L 80 12 L 90 24 L 94 28 C 96 29 96 31 96 33 L 96 36 L 4 36 L 4 32 C 4 30 5 30 6 30 Z" />
@@ -63,7 +63,7 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "Compact 2-box body with upward opening rear door.",
     doors: "3-5 Doors",
     badge: "Compact",
-    imagePath: "/images/vehicles/hatchback.png",
+    imagePath: "/vehicles/hatchback.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 8 28 L 22 28 L 34 16 L 70 16 L 82 24 L 88 28 L 92 28 C 94 28 96 30 96 32 L 96 36 L 4 36 L 4 32 C 4 30 6 28 8 28 Z" />
@@ -83,7 +83,7 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "2-wheeler scooter, sports bike, or motorcycle.",
     doors: "N/A",
     badge: "2-Wheel",
-    imagePath: "/images/vehicles/bike.png",
+    imagePath: "/vehicles/motorcycle.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="22" cy="34" r="8" className="fill-slate-800 stroke-slate-900" />
@@ -104,7 +104,7 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
     description: "High-end luxury sedan, sports car, exotic, or limousine.",
     doors: "2-4 Doors",
     badge: "Premium",
-    imagePath: "/images/vehicles/luxury.png",
+    imagePath: "/vehicles/luxury.png",
     svgIcon: (
       <svg viewBox="0 0 100 48" className="w-full h-full stroke-current fill-none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M 6 30 L 26 28 L 38 18 L 62 18 L 84 26 L 94 28 C 96 28 97 30 97 32 L 97 36 L 3 36 L 3 32 C 3 30 4 30 6 30 Z" />

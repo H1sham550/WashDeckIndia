@@ -15,13 +15,15 @@ import {
   X,
   ArrowRight,
   Sparkles,
+  Receipt,
+  Wrench,
 } from "lucide-react";
 
 interface SearchResult {
   id: string;
   title: string;
   subtitle: string;
-  type: "VEHICLE" | "JOB" | "CUSTOMER" | "ACTION";
+  type: "VEHICLE" | "JOB" | "CUSTOMER" | "EXPENSE" | "SERVICE" | "ACTION";
   url: string;
   icon?: React.ElementType;
 }
@@ -34,7 +36,9 @@ export function SpotlightSearch() {
     vehicles: SearchResult[];
     jobs: SearchResult[];
     customers: SearchResult[];
-  }>({ vehicles: [], jobs: [], customers: [] });
+    expenses: SearchResult[];
+    services: SearchResult[];
+  }>({ vehicles: [], jobs: [], customers: [], expenses: [], services: [] });
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -124,13 +128,13 @@ export function SpotlightSearch() {
       setSelectedIndex(0);
     } else {
       setQuery("");
-      setResults({ vehicles: [], jobs: [], customers: [] });
+      setResults({ vehicles: [], jobs: [], customers: [], expenses: [], services: [] });
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (!query || query.trim().length < 2) {
-      setResults({ vehicles: [], jobs: [], customers: [] });
+      setResults({ vehicles: [], jobs: [], customers: [], expenses: [], services: [] });
       setLoading(false);
       return;
     }
@@ -145,6 +149,8 @@ export function SpotlightSearch() {
             vehicles: data.vehicles || [],
             jobs: data.jobs || [],
             customers: data.customers || [],
+            expenses: data.expenses || [],
+            services: data.services || [],
           });
         }
       } catch (err) {
@@ -168,6 +174,8 @@ export function SpotlightSearch() {
     ...results.jobs,
     ...results.vehicles,
     ...results.customers,
+    ...results.expenses,
+    ...results.services,
   ];
 
   const handleSelect = useCallback(
@@ -199,10 +207,10 @@ export function SpotlightSearch() {
       <button
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-white/20 bg-white/15 hover:bg-white/25 backdrop-blur-md transition-all text-white text-xs font-semibold group active:scale-95 shrink-0"
-        title="Universal Search (Ctrl+K / Cmd+K)"
+        title="Universal Search Across Entire App (Ctrl+K / Cmd+K)"
       >
         <Search size={14} className="text-white/80 group-hover:text-white transition-colors shrink-0" />
-        <span className="hidden sm:inline">Quick Search...</span>
+        <span className="hidden sm:inline">Universal Search...</span>
         <span className="inline sm:hidden text-[11px] font-bold">Search</span>
         <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 border border-white/20 text-white">
           ⌘K
@@ -211,7 +219,7 @@ export function SpotlightSearch() {
 
       {/* Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-2 sm:pt-[10vh] px-2 sm:px-4" dir="rtl">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-2 sm:pt-[10vh] px-2 sm:px-4">
           {/* Backdrop Overlay */}
           <div
             className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150"
@@ -219,10 +227,10 @@ export function SpotlightSearch() {
           />
 
           {/* Modal Panel */}
-          <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-right">
+          <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Search Input Bar */}
             <div className="flex items-center border-b border-slate-200 px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-50 gap-2">
-              <Search size={18} className="text-slate-500 shrink-0 ml-1" />
+              <Search size={18} className="text-slate-500 shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -232,8 +240,8 @@ export function SpotlightSearch() {
                   setSelectedIndex(0);
                 }}
                 onKeyDown={handleInputKeyDown}
-                placeholder="البحث عن المركبات، البطاقات، العملاء... / Search registration, phone..."
-                className="w-full bg-transparent text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 outline-none text-right px-2"
+                placeholder="Search vehicles, job cards, customers, expenses, services..."
+                className="w-full bg-transparent text-xs sm:text-sm font-bold text-slate-900 placeholder-slate-400 outline-none px-2"
               />
               {query && (
                 <button
@@ -250,7 +258,7 @@ export function SpotlightSearch() {
             <div className="max-h-[70vh] sm:max-h-[55vh] overflow-y-auto divide-y divide-slate-100/80 -webkit-overflow-scrolling-touch">
               {loading && (
                 <div className="px-4 py-8 text-center text-xs text-slate-400 font-medium">
-                  Searching records across database...
+                  Searching records across full app...
                 </div>
               )}
 
@@ -259,7 +267,7 @@ export function SpotlightSearch() {
                   <Car size={28} className="mx-auto text-slate-300 mb-2" />
                   <p className="text-xs font-bold text-slate-600">No results found for "{query}"</p>
                   <p className="text-[11px] text-slate-400 mt-0.5">
-                    Try searching by registration number, phone, or job card number.
+                    Try searching by plate number, phone, customer name, expense category, or service.
                   </p>
                 </div>
               )}
@@ -279,14 +287,14 @@ export function SpotlightSearch() {
                         onClick={() => handleSelect(item)}
                         onMouseEnter={() => setSelectedIndex(idx)}
                         className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
-                          isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
+                          isSelected ? "bg-blue-50 text-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
                             className={`p-2 rounded-lg shrink-0 ${
                               isSelected
-                                ? "bg-wd-blue-500 text-white shadow-sm"
+                                ? "bg-blue-600 text-white shadow-sm"
                                 : "bg-slate-100 text-slate-500"
                             }`}
                           >
@@ -299,7 +307,7 @@ export function SpotlightSearch() {
                         </div>
                         <ArrowRight
                           size={14}
-                          className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                          className={`shrink-0 ml-2 ${isSelected ? "text-blue-600" : "text-slate-300"}`}
                         />
                       </div>
                     );
@@ -307,9 +315,10 @@ export function SpotlightSearch() {
                 </div>
               )}
 
-              {/* Live Search Results */}
+              {/* Live Universal Search Results */}
               {!loading && query.trim().length >= 2 && flatList.length > 0 && (
                 <div className="py-2 space-y-2">
+                  {/* Job Cards */}
                   {results.jobs.length > 0 && (
                     <div>
                       <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -324,14 +333,14 @@ export function SpotlightSearch() {
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(idx)}
                             className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
-                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
+                              isSelected ? "bg-blue-50 text-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
                                   isSelected
-                                    ? "bg-wd-blue-500 text-white"
+                                    ? "bg-blue-600 text-white"
                                     : "bg-amber-50 text-amber-600"
                                 }`}
                               >
@@ -344,7 +353,7 @@ export function SpotlightSearch() {
                             </div>
                             <ArrowRight
                               size={14}
-                              className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-blue-600" : "text-slate-300"}`}
                             />
                           </div>
                         );
@@ -352,6 +361,7 @@ export function SpotlightSearch() {
                     </div>
                   )}
 
+                  {/* Vehicles */}
                   {results.vehicles.length > 0 && (
                     <div>
                       <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -366,13 +376,13 @@ export function SpotlightSearch() {
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(idx)}
                             className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
-                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
+                              isSelected ? "bg-blue-50 text-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
-                                  isSelected ? "bg-wd-blue-500 text-white" : "bg-blue-50 text-blue-600"
+                                  isSelected ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
                                 }`}
                               >
                                 <Car size={16} />
@@ -384,7 +394,7 @@ export function SpotlightSearch() {
                             </div>
                             <ArrowRight
                               size={14}
-                              className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-blue-600" : "text-slate-300"}`}
                             />
                           </div>
                         );
@@ -392,10 +402,11 @@ export function SpotlightSearch() {
                     </div>
                   )}
 
+                  {/* Customers */}
                   {results.customers.length > 0 && (
                     <div>
                       <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                        Customer Records ({results.customers.length})
+                        Customer Directory ({results.customers.length})
                       </div>
                       {results.customers.map((item) => {
                         const idx = flatList.findIndex((x) => x.id === item.id);
@@ -406,13 +417,13 @@ export function SpotlightSearch() {
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(idx)}
                             className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
-                              isSelected ? "bg-wd-blue-50/80 text-wd-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
+                              isSelected ? "bg-blue-50 text-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
-                                  isSelected ? "bg-wd-blue-500 text-white" : "bg-emerald-50 text-emerald-600"
+                                  isSelected ? "bg-blue-600 text-white" : "bg-emerald-50 text-emerald-600"
                                 }`}
                               >
                                 <User size={16} />
@@ -424,7 +435,89 @@ export function SpotlightSearch() {
                             </div>
                             <ArrowRight
                               size={14}
-                              className={`shrink-0 ml-2 ${isSelected ? "text-wd-blue-600" : "text-slate-300"}`}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-blue-600" : "text-slate-300"}`}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Expenses */}
+                  {results.expenses.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                        Expenses ({results.expenses.length})
+                      </div>
+                      {results.expenses.map((item) => {
+                        const idx = flatList.findIndex((x) => x.id === item.id);
+                        const isSelected = idx === selectedIndex;
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => handleSelect(item)}
+                            onMouseEnter={() => setSelectedIndex(idx)}
+                            className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
+                              isSelected ? "bg-blue-50 text-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className={`p-2 rounded-lg shrink-0 ${
+                                  isSelected ? "bg-blue-600 text-white" : "bg-rose-50 text-rose-600"
+                                }`}
+                              >
+                                <Receipt size={16} />
+                              </div>
+                              <div className="truncate min-w-0">
+                                <p className="text-xs font-bold truncate">{item.title}</p>
+                                <p className="text-[11px] text-slate-400 truncate">{item.subtitle}</p>
+                              </div>
+                            </div>
+                            <ArrowRight
+                              size={14}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-blue-600" : "text-slate-300"}`}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Services */}
+                  {results.services.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                        Wash Services & Packages ({results.services.length})
+                      </div>
+                      {results.services.map((item) => {
+                        const idx = flatList.findIndex((x) => x.id === item.id);
+                        const isSelected = idx === selectedIndex;
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => handleSelect(item)}
+                            onMouseEnter={() => setSelectedIndex(idx)}
+                            className={`flex items-center justify-between px-3.5 py-3 mx-1.5 my-0.5 rounded-xl cursor-pointer transition-colors active-tap ${
+                              isSelected ? "bg-blue-50 text-blue-800 font-bold" : "hover:bg-slate-50 text-slate-700"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div
+                                className={`p-2 rounded-lg shrink-0 ${
+                                  isSelected ? "bg-blue-600 text-white" : "bg-teal-50 text-teal-600"
+                                }`}
+                              >
+                                <Wrench size={16} />
+                              </div>
+                              <div className="truncate min-w-0">
+                                <p className="text-xs font-bold truncate">{item.title}</p>
+                                <p className="text-[11px] text-slate-400 truncate">{item.subtitle}</p>
+                              </div>
+                            </div>
+                            <ArrowRight
+                              size={14}
+                              className={`shrink-0 ml-2 ${isSelected ? "text-blue-600" : "text-slate-300"}`}
                             />
                           </div>
                         );
@@ -435,8 +528,8 @@ export function SpotlightSearch() {
               )}
             </div>
 
-            {/* Modal Footer with Single-Handed Bottom-Right Close Button */}
-            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium" dir="ltr">
+            {/* Modal Footer */}
+            <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
               <div className="hidden sm:flex items-center gap-3">
                 <span>
                   <kbd className="px-1 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-bold">↑↓</kbd> to navigate
@@ -449,16 +542,14 @@ export function SpotlightSearch() {
                 </span>
               </div>
 
-              {/* Single-Handed Close Button (Physical Bottom-Right Placement) */}
               <div className="w-full sm:w-auto flex items-center justify-end">
                 <button
-                  data-modal-close-btn="spotlight-search"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
                   title="Close search modal"
                 >
                   <X size={14} />
-                  <span>إغلاق / Close</span>
+                  <span>Close</span>
                 </button>
               </div>
             </div>

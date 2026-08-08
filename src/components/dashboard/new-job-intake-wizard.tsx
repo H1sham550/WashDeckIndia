@@ -6,8 +6,6 @@ import {
   Car,
   User,
   Check,
-  ChevronRight,
-  ChevronLeft,
   Calendar,
   Sparkles,
   Camera,
@@ -20,6 +18,10 @@ import {
   Users,
   Eye,
   Zap,
+  FileText,
+  Phone,
+  Wrench,
+  CheckCircle2,
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
@@ -84,1308 +86,639 @@ export function NewJobIntakeWizard({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [isZeroFrictionMode, setIsZeroFrictionMode] = useState(true);
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(preselectedVehicle ? 2 : 1);
+  // Vehicle Selection / Search State
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(preselectedVehicle);
-
-  const [passportData, setPassportData] = useState<any | null>(null);
-  const [loadingPassport, setLoadingPassport] = useState(false);
-
-  React.useEffect(() => {
-    if (!selectedVehicle?.id) {
-      setPassportData(null);
-      return;
-    }
-    setLoadingPassport(true);
-    fetch(`/api/vehicles/${selectedVehicle.id}/passport`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.ok) {
-          setPassportData(data);
-        }
-      })
-      .catch((err) => console.error("Error fetching passport:", err))
-      .finally(() => setLoadingPassport(false));
-  }, [selectedVehicle?.id]);
-
-  const mostRecentJob = passportData?.passport?.vehicle?.jobCards?.[0];
-
-  const frequentlyUsedServices = (() => {
-    const counts: Record<string, { id: string; name: string; count: number }> = {};
-    passportData?.passport?.vehicle?.jobCards?.forEach((jc: any) => {
-      jc.services?.forEach((s: any) => {
-        if (!counts[s.serviceId]) {
-          counts[s.serviceId] = {
-            id: s.serviceId,
-            name: s.serviceNameSnapshot,
-            count: 0,
-          };
-        }
-        counts[s.serviceId].count += 1;
-      });
-    });
-    return Object.values(counts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  })();
-
-  // Search & Register Vehicle State
-  const [searchQuery, setSearchQuery] = useState("");
+  const [vehicleSearchQuery, setVehicleSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Vehicle[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showRegisterForm, setShowRegisterForm] = useState(false);
-  const [registerForm, setRegisterForm] = useState({
-    vehicleNumber: "",
-    vehicleType: "SEDAN" as VehicleType,
-    brand: "",
-    model: "",
-    color: "",
-    customerName: "",
-    customerMobile: "",
-    customerEmail: "",
-  });
+  const [searchingVehicles, setSearchingVehicles] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
 
-  const customerNameInputRef = useRef<HTMLInputElement>(null);
+  // New Vehicle Inputs
+  const [newVehicleNumber, setNewVehicleNumber] = useState("");
+  const [newVehicleType, setNewVehicleType] = useState<VehicleType>("SEDAN");
+  const [newBrand, setNewBrand] = useState("");
+  const [newModel, setNewModel] = useState("");
+  const [newColor, setNewColor] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerMobile, setCustomerMobile] = useState("");
 
-  // Debounced search
-  useEffect(() => {
-    if (searchQuery.trim().length < 2) {
-      setSearchResults([]);
-      setShowRegisterForm(false);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const res = await fetch(`/api/vehicles?q=${encodeURIComponent(searchQuery)}`);
-        const data = await res.json();
-        if (data.ok && data.vehicles) {
-          const mapped = data.vehicles.map((v: any) => ({
-            id: v.id,
-            vehicleNumber: v.vehicleNumber,
-            vehicleType: v.vehicleType,
-            brand: v.brand,
-            model: v.model,
-            color: v.color,
-            contacts: v.contacts.map((c: any) => ({
-              isPrimary: c.isPrimary,
-              label: c.label || "Owner",
-              customer: {
-                name: c.customer.name,
-                mobile: c.customer.mobile,
-              },
-            })),
-          }));
-          setSearchResults(mapped);
-
-          if (mapped.length === 0) {
-            // Auto switch to register form if no results
-            setRegisterForm((prev) => ({
-              ...prev,
-              vehicleNumber: searchQuery.toUpperCase(),
-            }));
-            setShowRegisterForm(true);
-            setTimeout(() => {
-              if (customerNameInputRef.current) {
-                customerNameInputRef.current.focus();
-              }
-            }, 100);
-          } else {
-            setShowRegisterForm(false);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  function handleKeyDownSearch(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (searchResults.length > 0) {
-        setSelectedVehicle(searchResults[0]);
-        if (!isZeroFrictionMode) {
-          setStep(2);
-        }
-      } else if (searchQuery.trim().length >= 2) {
-        setRegisterForm((prev) => ({
-          ...prev,
-          vehicleNumber: searchQuery.toUpperCase(),
-        }));
-        setShowRegisterForm(true);
-        setTimeout(() => {
-          if (customerNameInputRef.current) {
-            customerNameInputRef.current.focus();
-          }
-        }, 100);
-      }
-    }
-  }
-
-  // Wizard fields
+  // Services & Intake Details State
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [inspectionNotes, setInspectionNotes] = useState("");
   const [beforePhotos, setBeforePhotos] = useState<string[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
-  // ETA State pre-filled with defaultEtaMinutes
-  const defaultEtaDate = new Date(Date.now() + defaultEtaMinutes * 60 * 1000);
-  const [etaTime, setEtaTime] = useState(new Date(defaultEtaDate.getTime() - defaultEtaDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+  // ETA State
+  const [etaTime, setEtaTime] = useState(() => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() + (defaultEtaMinutes || 45));
+    return d.toISOString().slice(0, 16);
+  });
 
   const [error, setError] = useState("");
 
-  const primaryContact = selectedVehicle?.contacts?.find((c) => c.isPrimary)?.customer || selectedVehicle?.contacts?.[0]?.customer;
+  // Populate Customer Data when Vehicle is selected
+  useEffect(() => {
+    if (selectedVehicle) {
+      const primaryContact = selectedVehicle.contacts?.find((c) => c.isPrimary) || selectedVehicle.contacts?.[0];
+      if (primaryContact?.customer) {
+        setCustomerName(primaryContact.customer.name);
+        setCustomerMobile(primaryContact.customer.mobile);
+      }
+    }
+  }, [selectedVehicle]);
 
-  // Resolve service price for this vehicle's type
-  function getServicePriceForVehicle(service: Service) {
-    if (!selectedVehicle) return 0;
-    const p = service.prices.find((p) => p.vehicleType === selectedVehicle.vehicleType);
-    return p ? p.price : 0;
-  }
+  // Debounced Vehicle Search
+  useEffect(() => {
+    if (!vehicleSearchQuery || vehicleSearchQuery.trim().length < 2) {
+      setSearchResults([]);
+      setSearchingVehicles(false);
+      return;
+    }
 
-  // Calculate Running Estimate
+    const timer = setTimeout(async () => {
+      setSearchingVehicles(true);
+      try {
+        const res = await fetch(`/api/vehicles?search=${encodeURIComponent(vehicleSearchQuery)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data.vehicles || []);
+          setShowSearchDropdown(true);
+        }
+      } catch (err) {
+        console.error("Failed to search vehicles:", err);
+      } finally {
+        setSearchingVehicles(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [vehicleSearchQuery]);
+
+  // Helper to calculate price of a service for current vehicle type
+  const activeVehicleType = selectedVehicle ? selectedVehicle.vehicleType : newVehicleType;
+
+  const getServicePriceForVehicle = (service: Service): number => {
+    const found = service.prices?.find((p) => p.vehicleType === activeVehicleType);
+    return found ? Number(found.price) : 0;
+  };
+
+  // Live Total Estimate Calculation
   const totalEstimate = selectedServiceIds.reduce((sum, sId) => {
     const s = services.find((serv) => serv.id === sId);
-    return sum + (s ? getServicePriceForVehicle(s) : 0);
+    if (!s) return sum;
+    return sum + getServicePriceForVehicle(s);
   }, 0);
 
-  // The previous searchVehicles function is replaced by useEffect
+  // Template Quick Selection
+  const handleSelectTemplate = (template: Template) => {
+    setSelectedTemplateId(template.id);
+    const serviceIds = template.items.map((i) => i.service.id);
+    setSelectedServiceIds(serviceIds);
+  };
 
-  async function handleRegisterVehicle(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    try {
-      const res = await fetch("/api/vehicles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registerForm),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Failed to register vehicle.");
-      }
-
-      const newVehicle: Vehicle = {
-        id: data.vehicle.id,
-        vehicleNumber: data.vehicle.vehicleNumber,
-        vehicleType: data.vehicle.vehicleType,
-        brand: data.vehicle.brand,
-        model: data.vehicle.model,
-        color: data.vehicle.color,
-        contacts: [
-          {
-            isPrimary: true,
-            label: "Owner",
-            customer: {
-              name: data.customer.name,
-              mobile: data.customer.mobile,
-            },
-          },
-        ],
-      };
-
-      setSelectedVehicle(newVehicle);
-      setShowRegisterForm(false);
-      setStep(2);
-    } catch (err: any) {
-      setError(err.message || "Could not register vehicle.");
-    }
-  }
-
-  function handleToggleService(serviceId: string) {
+  // Toggle Service Checkbox
+  const handleToggleService = (sId: string) => {
+    setSelectedTemplateId(null);
     setSelectedServiceIds((prev) =>
-      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
+      prev.includes(sId) ? prev.filter((id) => id !== sId) : [...prev, sId]
     );
-  }
+  };
 
-  function handleApplyTemplate(template: Template) {
-    const templateServiceIds = template.items.map((i) => i.service.id);
-    setSelectedServiceIds((prev) => {
-      const merged = new Set([...prev, ...templateServiceIds]);
-      return Array.from(merged);
-    });
-  }
-
-  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // Photo Upload Handler
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploadingPhotos(true);
     setError("");
 
-    const uploadPromises = Array.from(files).map(async (file) => {
-      const data = new FormData();
-      data.append("file", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: data,
-      });
-
-      const json = await res.json();
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || "Upload failed");
-      }
-      return json.url;
-    });
-
     try {
-      const urls = await Promise.all(uploadPromises);
-      setBeforePhotos((prev) => [...prev, ...urls]);
+      const uploadedUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (res.ok && data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+      setBeforePhotos((prev) => [...prev, ...uploadedUrls]);
     } catch (err: any) {
-      setError(err.message || "Failed to upload one or more photos.");
+      setError("Failed to upload photo. Please try again.");
     } finally {
       setUploadingPhotos(false);
     }
-  }
+  };
 
-  function handleRemovePhoto(index: number) {
+  const handleRemovePhoto = (index: number) => {
     setBeforePhotos((prev) => prev.filter((_, i) => i !== index));
-  }
+  };
 
-  async function handleCreateJob() {
+  // Final Single Page Form Submission
+  const handleCreateJob = async () => {
     setError("");
-    if (!selectedVehicle) {
-      setStep(1);
+
+    // Validation
+    if (!selectedVehicle && (!newVehicleNumber.trim() || !customerName.trim() || !customerMobile.trim())) {
+      setError("Please select an existing vehicle or enter License Plate, Owner Name, and Mobile Number.");
       return;
     }
+
     if (selectedServiceIds.length === 0) {
-      setError("Please select at least one wash service.");
-      setStep(2);
+      setError("Please select at least one wash service or package.");
       return;
     }
 
     startTransition(async () => {
       try {
-        const response = await fetch("/api/job-cards", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vehicleId: selectedVehicle.id,
-            serviceIds: selectedServiceIds,
-            inspectionNotes: inspectionNotes.trim() || undefined,
-            expectedCompletionTime: new Date(etaTime).toISOString(),
-            beforePhotos,
-          }),
-        });
+        let vehicleIdToUse = selectedVehicle?.id;
 
-        const result = await response.json();
-        if (!response.ok || !result.ok) {
-          throw new Error(result.error || "Failed to create job card.");
+        // Create new vehicle if creating fresh intake
+        if (!vehicleIdToUse) {
+          const createRes = await fetch("/api/vehicles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              vehicleNumber: newVehicleNumber.trim().toUpperCase(),
+              vehicleType: newVehicleType,
+              brand: newBrand.trim() || null,
+              model: newModel.trim() || null,
+              color: newColor.trim() || null,
+              ownerName: customerName.trim(),
+              ownerMobile: customerMobile.trim(),
+            }),
+          });
+
+          const createData = await createRes.json();
+          if (!createRes.ok || !createData.ok) {
+            throw new Error(createData.error || "Failed to register new vehicle.");
+          }
+          vehicleIdToUse = createData.vehicle.id;
         }
 
-        router.push(`/dashboard/jobs/${result.jobCard.id}`);
-        router.refresh();
-      } catch (err: any) {
-        setError(err.message || "Could not complete intake.");
-      }
-    });
-  }
-
-  async function handleInstantCreateJob(serviceIdsToUse?: string[]) {
-    setError("");
-    const ids = serviceIdsToUse || selectedServiceIds;
-    if (!selectedVehicle) {
-      setError("Please select a vehicle first.");
-      return;
-    }
-    if (ids.length === 0) {
-      setError("Please select at least one service to instantly launch the job card.");
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        const response = await fetch("/api/job-cards", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vehicleId: selectedVehicle.id,
-            serviceIds: ids,
-            inspectionNotes: inspectionNotes.trim() || undefined,
-            expectedCompletionTime: new Date(etaTime).toISOString(),
-            beforePhotos: [],
-          }),
-        });
-
-        const result = await response.json();
-        if (!response.ok || !result.ok) {
-          throw new Error(result.error || "Failed to create job card.");
-        }
-
-        router.push(`/dashboard/jobs/${result.jobCard.id}`);
-        router.refresh();
-      } catch (err: any) {
-        setError(err.message || "Could not launch zero-friction job card.");
-      }
-    });
-  }
-
-  async function handleInstantRegisterAndCreateJob(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!registerForm.vehicleNumber.trim()) {
-      setError("Vehicle registration number is required.");
-      return;
-    }
-    if (!registerForm.customerName.trim() || !registerForm.customerMobile.trim()) {
-      setError("Customer Name and Mobile Number are required for zero-friction intake.");
-      return;
-    }
-    if (selectedServiceIds.length === 0) {
-      setError("Please select or click at least one wash/detailing service below to launch.");
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        // Step A: Register the vehicle
-        const regRes = await fetch("/api/vehicles", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            vehicleNumber: registerForm.vehicleNumber.toUpperCase(),
-            vehicleType: registerForm.vehicleType,
-            brand: registerForm.brand || undefined,
-            model: registerForm.model || undefined,
-            color: registerForm.color || undefined,
-            customerName: registerForm.customerName,
-            customerMobile: registerForm.customerMobile,
-            customerEmail: registerForm.customerEmail || undefined,
-          }),
-        });
-
-        const regData = await regRes.json();
-        if (!regRes.ok || !regData.ok) {
-          throw new Error(regData.error || "Could not register vehicle.");
-        }
-
-        // Step B: Create the job card
+        // Create Job Card
         const jobRes = await fetch("/api/job-cards", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            vehicleId: regData.vehicle.id,
+            vehicleId: vehicleIdToUse,
             serviceIds: selectedServiceIds,
-            expectedCompletionTime: new Date(etaTime).toISOString(),
-            beforePhotos: [],
+            inspectionNotes: inspectionNotes.trim() || null,
+            beforePhotos,
+            estimatedCompletionTime: new Date(etaTime).toISOString(),
           }),
         });
 
         const jobData = await jobRes.json();
         if (!jobRes.ok || !jobData.ok) {
-          throw new Error(jobData.error || "Vehicle registered, but failed to create job card.");
+          throw new Error(jobData.error || "Failed to create job card.");
         }
 
+        // Redirect to Queue or Job Details page
         router.push(`/dashboard/jobs/${jobData.jobCard.id}`);
-        router.refresh();
       } catch (err: any) {
-        setError(err.message || "Could not complete instant registration intake.");
+        setError(err.message || "Failed to create job card.");
       }
     });
-  }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Zero Friction Mode Toggle Banner */}
-      <div className="bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-xl p-4 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center border border-amber-400/30">
-            <Zap size={20} className="fill-amber-400 animate-pulse" />
+    <div className="w-full max-w-4xl mx-auto space-y-6 pb-28">
+      {/* Header Banner */}
+      <div className="bg-white border rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">New Job Card Intake</h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-[10px] font-black uppercase tracking-wider">
+              Single-Page Express Mode
+            </span>
           </div>
-          <div>
-            <h3 className="font-bold text-sm text-white flex items-center gap-2">
-              ⚡ Zero-Friction Express Intake Mode
-              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                isZeroFrictionMode ? "bg-amber-400 text-slate-900" : "bg-slate-700 text-slate-300"
-              }`}>
-                {isZeroFrictionMode ? "Active" : "Disabled"}
-              </span>
-            </h3>
-            <p className="text-xs text-blue-200">
-              {isZeroFrictionMode 
-                ? "Bypasses multi-step inspection & photo wizard. Search vehicle & open job card directly right here or instant-register returning customers."
-                : "Using standard 6-step detailed inspection, photo upload, and checklist wizard."}
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsZeroFrictionMode(!isZeroFrictionMode)}
-          className="text-xs font-bold bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-lg border border-white/20 transition whitespace-nowrap shrink-0"
-        >
-          {isZeroFrictionMode ? "Switch to 6-Step Detailed Wizard" : "⚡ Enable Express Mode"}
-        </button>
-      </div>
-
-      {/* Step Progress Bar */}
-      <div className="bg-white border rounded-xl p-4 shadow-sm">
-        <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-          {[
-            "Intake Vehicle",
-            "Select Services",
-            "Inspection",
-            "Before Photos",
-            "ETA",
-            "Create Card",
-          ].map((label, idx) => (
-            <div
-              key={idx}
-              className={`flex items-center gap-1.5 ${
-                step === idx + 1
-                  ? "text-[var(--primary-color)]"
-                  : step > idx + 1
-                  ? "text-teal-600"
-                  : ""
-              }`}
-            >
-              <div
-                className={`h-5 w-5 rounded-full flex items-center justify-center border text-[9px] font-extrabold transition-colors ${
-                  step === idx + 1
-                    ? "border-[var(--primary-color)] bg-[var(--primary-color)] text-white"
-                    : step > idx + 1
-                    ? "border-teal-600 bg-teal-50 text-teal-600"
-                    : "border-slate-200"
-                }`}
-              >
-                {idx + 1}
-              </div>
-              <span className="hidden sm:inline">{label}</span>
-            </div>
-          ))}
+          <p className="text-xs text-slate-500 font-medium mt-1">
+            Fill in vehicle info, select services, and create job card in one fast scrollable page.
+          </p>
         </div>
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-3">
           <AlertCircle className="shrink-0" size={18} />
           <span>{error}</span>
         </div>
       )}
 
-      {/* STEP 1: Search or Register Vehicle */}
-      {step === 1 && (
-        <div className="bg-white border rounded-xl p-6 shadow-sm space-y-6">
-          <div className="flex justify-between items-center border-b pb-3">
-            <h2 className="text-base font-bold text-slate-800">Step 1: Intake & Search Vehicle</h2>
-            {!showRegisterForm ? (
-              <button
-                onClick={() => {
-                  setError("");
-                  setShowRegisterForm(true);
-                  setTimeout(() => {
-                    if (customerNameInputRef.current) customerNameInputRef.current.focus();
-                  }, 100);
-                }}
-                className="text-xs font-bold text-[var(--primary-color)] hover:underline flex items-center gap-1"
-              >
-                + Register New Vehicle
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setError("");
-                  setShowRegisterForm(false);
-                  setSearchQuery("");
-                }}
-                className="text-xs font-bold text-[var(--primary-color)] hover:underline flex items-center gap-1"
-              >
-                Search Returning Vehicle
-              </button>
+      {/* ── SECTION 1: VEHICLE & CUSTOMER INFORMATION ── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="flex items-center gap-2.5 border-b pb-3">
+          <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+            <Car size={18} />
+          </div>
+          <div>
+            <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">1. Vehicle & Customer Details</h2>
+            <p className="text-[11px] text-slate-400 font-medium">Search existing vehicle passport or enter new customer details</p>
+          </div>
+        </div>
+
+        {/* Search Existing Vehicle */}
+        <div className="space-y-2 relative">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Search Vehicle by License Plate / Phone</label>
+          <div className="relative">
+            <Search size={16} className="absolute left-3.5 top-3.5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Type License Plate (e.g. 1234 ABC) or Customer Mobile..."
+              value={vehicleSearchQuery}
+              onChange={(e) => setVehicleSearchQuery(e.target.value)}
+              className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-slate-50/50"
+            />
+            {searchingVehicles && (
+              <Loader2 size={16} className="absolute right-3.5 top-3.5 text-slate-400 animate-spin" />
             )}
           </div>
 
-          {!showRegisterForm ? (
-            <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  autoFocus
-                  placeholder="Enter vehicle number, contact name, or phone..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleKeyDownSearch}
-                  className="pl-9 h-10 w-full border rounded-lg text-xs font-semibold outline-none focus:border-[var(--primary-color)]"
-                />
-                {isSearching && (
-                  <div className="absolute right-3 top-3.5">
-                    <Loader2 className="animate-spin text-slate-400" size={14} />
-                  </div>
-                )}
-              </div>
-
-              <div className="divide-y border rounded-lg max-h-60 overflow-y-auto">
-                {searchResults.length > 0 ? (
-                  searchResults.map((v, index) => {
-                    const primary = v.contacts.find((c) => c.isPrimary)?.customer || v.contacts[0]?.customer;
-                    return (
-                      <div
-                        key={v.id}
-                        onClick={() => {
-                          setSelectedVehicle(v);
-                          if (!isZeroFrictionMode) {
-                            setStep(2);
-                          }
-                        }}
-                        className={`p-3.5 hover:bg-slate-50 cursor-pointer flex justify-between items-center text-xs font-semibold text-slate-700 transition ${index === 0 ? "bg-blue-50/30" : ""}`}
-                        title={index === 0 ? "Press Enter to select" : undefined}
-                      >
-                        <div>
-                          <p className="font-extrabold text-slate-800 uppercase text-sm">
-                            {v.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
-                          </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 uppercase">
-                            {v.brand} {v.model} ({v.vehicleType.toLowerCase()})
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-slate-800">{primary?.name || "No customer"}</p>
-                          <p className="text-[10px] text-slate-400 font-medium">{primary?.mobile || "—"}</p>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-center text-slate-400 text-xs py-8">
-                    {searchQuery ? "Searching..." : "Search for a vehicle registration number to start."}
-                  </p>
-                )}
-              </div>
-
-              {/* Zero-Friction Instant Job Launcher Card */}
-              {isZeroFrictionMode && step === 1 && selectedVehicle && (
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 border-2 border-amber-300/80 rounded-xl p-5 shadow-md space-y-4 animate-in fade-in zoom-in-95 mt-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-amber-500 text-white rounded-lg shadow-sm">
-                        <Car size={22} />
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-extrabold uppercase bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded">⚡ ZERO-FRICTION EXPRESS LAUNCH</span>
-                        <h3 className="text-lg font-extrabold text-slate-800 uppercase mt-1">
-                          {selectedVehicle.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
-                        </h3>
-                        <p className="text-xs text-slate-600">
-                          {selectedVehicle.brand} {selectedVehicle.model} ({selectedVehicle.vehicleType}) • Owner: {primaryContact?.name || "Customer"} ({primaryContact?.mobile || "—"})
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedVehicle(null)}
-                      className="text-xs text-slate-400 hover:text-slate-600 underline font-semibold"
-                    >
-                      Change Vehicle
-                    </button>
-                  </div>
-
-                  <div className="space-y-3 pt-2">
-                    <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Select Express Wash / Detailing Service to Launch Immediately:</p>
-                    
-                    {/* Quick 1-Click Rebook from Most Recent */}
-                    {mostRecentJob && (
-                      <div className="bg-white border border-amber-200 rounded-lg p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <div>
-                          <span className="text-[10px] font-extrabold text-amber-700 uppercase">⚡ Rebook Previous Job ({new Date(mostRecentJob.createdAt).toLocaleDateString()})</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {mostRecentJob.services?.map((s: any) => (
-                              <span key={s.id} className="text-xs bg-slate-100 font-bold text-slate-700 px-2 py-0.5 rounded">
-                                {s.serviceNameSnapshot}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const sIds = mostRecentJob.services?.map((s: any) => s.serviceId) || [];
-                            handleInstantCreateJob(sIds);
-                          }}
-                          disabled={isPending}
-                          className="bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-1.5 transition whitespace-nowrap"
-                        >
-                          {isPending ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} className="fill-white" />}
-                          1-Click Open Job Card
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Quick Select Buttons from available services */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
-                      {services.map((serv) => {
-                        const price = getServicePriceForVehicle(serv);
-                        const isSelected = selectedServiceIds.includes(serv.id);
-                        return (
-                          <button
-                            type="button"
-                            key={serv.id}
-                            onClick={() => handleToggleService(serv.id)}
-                            className={`p-3 rounded-lg border text-left flex flex-col justify-between transition ${
-                              isSelected
-                                ? "bg-amber-500 text-white border-amber-600 shadow-sm font-bold"
-                                : "bg-white text-slate-800 border-slate-200 hover:border-amber-300 font-semibold"
-                            }`}
-                          >
-                            <span className="text-xs">{serv.name}</span>
-                            <span className={`text-[11px] mt-1 ${isSelected ? "text-amber-100" : "text-slate-500"}`}>
-                              ₹/SAR {price.toLocaleString()}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pt-3 border-t border-amber-200/60 gap-3">
-                      <div className="text-xs">
-                        <span className="text-slate-500 font-semibold">Selected Services: </span>
-                        <span className="font-extrabold text-slate-800">{selectedServiceIds.length}</span>
-                        <span className="text-slate-500 font-semibold ml-3">Total Estimate: </span>
-                        <span className="font-extrabold text-amber-700">₹/SAR {totalEstimate.toLocaleString()}</span>
-                      </div>
-                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        <button
-                          type="button"
-                          onClick={() => setStep(2)}
-                          className="text-xs font-bold px-3 py-2.5 text-slate-600 hover:bg-white rounded-lg border border-slate-300 bg-slate-100 transition"
-                        >
-                          Detailed Wizard (Step 2) →
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleInstantCreateJob()}
-                          disabled={isPending || selectedServiceIds.length === 0}
-                          className="bg-[var(--primary-color)] hover:opacity-95 disabled:opacity-50 text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-md flex items-center gap-1.5 transition"
-                        >
-                          {isPending ? <Loader2 className="animate-spin" size={14} /> : <Zap size={14} className="fill-white" />}
-                          ⚡ Open Job Card Directly
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <form onSubmit={handleRegisterVehicle} className="space-y-4 text-xs font-semibold text-slate-600">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="mb-1 block">Vehicle Number *</label>
-                  <input
-                    type="text"
-                    required
-                    value={registerForm.vehicleNumber}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, vehicleNumber: e.target.value }))}
-                    placeholder="e.g. MH12AB1234"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)] uppercase"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <VehicleTypeSelector
-                    value={registerForm.vehicleType}
-                    onChange={(type) => setRegisterForm((prev) => ({ ...prev, vehicleType: type }))}
-                    showDetails={true}
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block">Brand (Make)</label>
-                  <input
-                    type="text"
-                    value={registerForm.brand}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, brand: e.target.value }))}
-                    placeholder="e.g. Maruti Suzuki"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block">Model</label>
-                  <input
-                    type="text"
-                    value={registerForm.model}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, model: e.target.value }))}
-                    placeholder="e.g. Swift"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block">Color</label>
-                  <input
-                    type="text"
-                    value={registerForm.color}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, color: e.target.value }))}
-                    placeholder="e.g. White"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  />
-                </div>
-              </div>
-
-              <div className="border-t pt-3 mt-4 space-y-3">
-                <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Primary Contact Details</p>
-                <div>
-                  <label className="mb-1 block">Customer Name *</label>
-                  <input
-                    type="text"
-                    required
-                    ref={customerNameInputRef}
-                    value={registerForm.customerName}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, customerName: e.target.value }))}
-                    placeholder="Amit Patel"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block">Mobile Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={registerForm.customerMobile}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, customerMobile: e.target.value }))}
-                    placeholder="9988776655"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block">Email (Optional)</label>
-                  <input
-                    type="email"
-                    value={registerForm.customerEmail}
-                    onChange={(e) => setRegisterForm((prev) => ({ ...prev, customerEmail: e.target.value }))}
-                    placeholder="amit@example.com"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
-                  />
-                </div>
-              </div>
-
-              {/* Zero-Friction Express Service Picker on Register Form */}
-              {isZeroFrictionMode && (
-                <div className="bg-amber-50/70 border border-amber-300 rounded-xl p-4 space-y-3 mt-4">
-                  <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
-                    <Zap size={15} className="fill-amber-500 text-amber-500" />
-                    Express Service Picker (Zero-Friction Launch)
-                  </div>
-                  <p className="text-[11px] text-slate-600 font-normal">
-                    Select the initial wash/detailing service below to register this vehicle and open its job card directly in 1 single step:
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto pr-1">
-                    {services.map((serv) => {
-                      const price = serv.prices.find((p) => p.vehicleType === registerForm.vehicleType)?.price || 0;
-                      const isSelected = selectedServiceIds.includes(serv.id);
-                      return (
-                        <button
-                          type="button"
-                          key={serv.id}
-                          onClick={() => handleToggleService(serv.id)}
-                          className={`p-2.5 rounded-lg border text-left flex flex-col justify-between transition ${
-                            isSelected
-                              ? "bg-amber-500 text-white border-amber-600 shadow-sm font-bold"
-                              : "bg-white text-slate-800 border-slate-200 hover:border-amber-300 font-semibold"
-                          }`}
-                        >
-                          <span className="text-xs">{serv.name}</span>
-                          <span className={`text-[10px] mt-1 ${isSelected ? "text-amber-100" : "text-slate-500"}`}>
-                            ₹/SAR {price.toLocaleString()}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
-                <button
-                  type="submit"
-                  className="w-full sm:w-1/2 h-11 rounded-lg text-slate-700 bg-slate-100 border border-slate-300 font-bold hover:bg-slate-200 transition text-xs"
-                >
-                  Register & Select Detailed Wizard →
-                </button>
-                {isZeroFrictionMode && (
-                  <button
-                    type="button"
-                    onClick={handleInstantRegisterAndCreateJob}
-                    disabled={isPending || selectedServiceIds.length === 0}
-                    className="w-full sm:w-1/2 h-11 rounded-lg text-white font-extrabold hover:opacity-95 disabled:opacity-50 shadow-md flex items-center justify-center gap-2 transition text-xs bg-[var(--primary-color)]"
-                  >
-                    {isPending ? <Loader2 className="animate-spin" size={16} /> : <Zap size={16} className="fill-white" />}
-                    ⚡ Register & Open Job Card Directly
-                  </button>
-                )}
-              </div>
-            </form>
-          )}
-        </div>
-      )}
-
-      {/* STEP 2: Select Services */}
-      {step === 2 && selectedVehicle && (
-        <div className="space-y-6">
-          {/* Vehicle info card header */}
-          <div className="bg-white border rounded-xl p-4 shadow-sm flex justify-between items-center text-xs font-semibold">
-            <div className="flex items-center gap-2">
-              <Car size={16} className="text-slate-400" />
-              <div>
-                <p className="font-extrabold uppercase text-slate-800">
-                  {selectedVehicle.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
-                </p>
-                <p className="text-[10px] text-slate-400 mt-0.5">{selectedVehicle.brand} {selectedVehicle.model}</p>
-              </div>
-            </div>
-            <div className="text-right border-l pl-3">
-              <p className="text-[10px] text-slate-400 uppercase">RUNNING TOTAL</p>
-              <p className="text-lg font-extrabold text-[var(--primary-color)]">₹{totalEstimate}</p>
-            </div>
-          </div>
-
-          {/* Previous Detailing Activity */}
-          {loadingPassport ? (
-            <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center justify-center gap-2 text-xs text-slate-400 font-bold">
-              <Loader2 className="animate-spin" size={16} />
-              Loading vehicle detailing history...
-            </div>
-          ) : (
-            passportData && passportData.passport?.vehicle?.jobCards?.length > 0 && (
-              <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
-                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <Clock size={14} className="text-[var(--primary-color)]" />
-                  Previous Detailing Activity
-                </h3>
-                
-                {mostRecentJob && (
-                  <div className="border rounded-lg p-3 bg-slate-50/50 space-y-2">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="font-extrabold text-slate-700">Most Recent Job</span>
-                      <span className="text-slate-400 font-semibold">
-                        {new Date(mostRecentJob.createdAt).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {mostRecentJob.services?.map((s: any) => (
-                        <span key={s.id} className="text-[10px] bg-white border font-bold text-slate-600 px-2 py-0.5 rounded">
-                          {s.serviceNameSnapshot}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="pt-2 border-t flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const serviceIds = mostRecentJob.services?.map((s: any) => s.serviceId) || [];
-                          setSelectedServiceIds(serviceIds);
-                        }}
-                        className="text-[10px] font-extrabold text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white transition flex items-center gap-1 bg-white border border-[var(--primary-color)]/20 px-2.5 py-1 rounded-md animate-in fade-in"
-                      >
-                        1-Click Reuse Services
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {frequentlyUsedServices.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Frequently Used Services</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {frequentlyUsedServices.map((fs) => {
-                        const isSelected = selectedServiceIds.includes(fs.id);
-                        return (
-                          <button
-                            type="button"
-                            key={fs.id}
-                            onClick={() => handleToggleService(fs.id)}
-                            className={`text-[10px] font-bold px-2.5 py-1 rounded transition border ${
-                              isSelected
-                                ? "bg-[var(--primary-color)] text-white border-[var(--primary-color)] shadow-sm"
-                                : "bg-white text-slate-600 hover:bg-slate-50 border-slate-200"
-                            }`}
-                          >
-                            {isSelected ? "✓ " : "+ "} {fs.name} ({fs.count}x)
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          )}
-
-          {/* Quick templates */}
-          {templates.length > 0 && (
-            <div className="bg-white border rounded-xl p-5 shadow-sm space-y-3">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Sparkles size={14} className="text-amber-500" />
-                Quick Service Templates
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {templates.map((t) => (
-                  <button
-                    type="button"
-                    key={t.id}
-                    onClick={() => handleApplyTemplate(t)}
-                    className="px-3 py-1.5 border bg-slate-50 text-xs font-bold text-slate-700 rounded-lg hover:bg-slate-100 transition shadow-sm"
-                  >
-                    + Apply "{t.name}"
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Services Checklist */}
-          <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Step 2: Select Services</h3>
-            <div className="grid gap-3">
-              {services.map((service) => {
-                const price = getServicePriceForVehicle(service);
-                const isChecked = selectedServiceIds.includes(service.id);
+          {/* Search Dropdown Results */}
+          {showSearchDropdown && searchResults.length > 0 && (
+            <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-56 overflow-y-auto divide-y divide-slate-100">
+              {searchResults.map((v) => {
+                const primary = v.contacts?.find((c) => c.isPrimary) || v.contacts?.[0];
                 return (
                   <div
-                    key={service.id}
-                    onClick={() => handleToggleService(service.id)}
-                    className={`p-4 border rounded-xl flex justify-between items-center cursor-pointer transition-all ${
-                      isChecked
-                        ? "border-[var(--primary-color)] bg-[var(--primary-color)]/5"
-                        : "bg-white hover:bg-slate-50"
+                    key={v.id}
+                    onClick={() => {
+                      setSelectedVehicle(v);
+                      setShowSearchDropdown(false);
+                      setVehicleSearchQuery("");
+                    }}
+                    className="p-3 hover:bg-teal-50/60 cursor-pointer transition flex items-center justify-between"
+                  >
+                    <div>
+                      <span className="font-black text-xs text-slate-900 uppercase">{v.vehicleNumber}</span>
+                      <span className="text-[11px] text-slate-500 font-medium ml-2">
+                        {v.brand} {v.model} ({v.vehicleType})
+                      </span>
+                      {primary?.customer && (
+                        <p className="text-[11px] text-slate-400">{primary.customer.name} • {primary.customer.mobile}</p>
+                      )}
+                    </div>
+                    <span className="text-xs font-bold text-teal-700">Select Vehicle →</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Selected Vehicle Badge or New Vehicle Form */}
+        {selectedVehicle ? (
+          <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-black">
+                <Car size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-sm text-slate-900 uppercase tracking-wide">
+                    {selectedVehicle.vehicleNumber}
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-[10px] font-extrabold uppercase">
+                    {selectedVehicle.vehicleType}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 font-medium">
+                  {selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.color ? `• ${selectedVehicle.color}` : ""}
+                </p>
+                {customerName && (
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Owner: <strong className="text-slate-800">{customerName}</strong> ({customerMobile})
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedVehicle(null);
+                setCustomerName("");
+                setCustomerMobile("");
+              }}
+              className="px-3 py-1.5 border border-slate-300 text-slate-600 rounded-lg text-xs font-bold hover:bg-white transition"
+            >
+              Change Vehicle
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4 pt-2 border-t border-slate-100">
+            <p className="text-xs font-bold text-slate-700 uppercase tracking-wide">Or Register New Vehicle Intake</p>
+            
+            <VehicleTypeSelector
+              value={newVehicleType}
+              onChange={(type) => setNewVehicleType(type)}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">License Plate Number *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 1234 ABC"
+                  value={newVehicleNumber}
+                  onChange={(e) => setNewVehicleNumber(e.target.value)}
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-black uppercase text-slate-800 outline-none focus:border-teal-700"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Brand / Make</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Toyota, Lexus"
+                  value={newBrand}
+                  onChange={(e) => setNewBrand(e.target.value)}
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Model & Color</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Land Cruiser (White)"
+                  value={newModel}
+                  onChange={(e) => setNewModel(e.target.value)}
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Customer Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ahmad Al-Fahad"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Mobile Phone Number *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="+966 50 123 4567"
+                  value={customerMobile}
+                  onChange={(e) => setCustomerMobile(e.target.value)}
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── SECTION 2: DETAILING & WASH SERVICES SELECTION ── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="flex items-center justify-between border-b pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">2. Detailing & Wash Services</h2>
+              <p className="text-[11px] text-slate-400 font-medium">Select wash package templates or check individual services</p>
+            </div>
+          </div>
+          <span className="text-xs font-extrabold text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+            {selectedServiceIds.length} Selected
+          </span>
+        </div>
+
+        {/* Quick Package Templates */}
+        {templates.length > 0 && (
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Quick Package Templates</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {templates.map((tmpl) => {
+                const isSelected = selectedTemplateId === tmpl.id;
+                return (
+                  <div
+                    key={tmpl.id}
+                    onClick={() => handleSelectTemplate(tmpl)}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
+                      isSelected
+                        ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/20 shadow-sm"
+                        : "border-slate-200 bg-slate-50/60 hover:border-slate-300"
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`h-5 w-5 rounded border mt-0.5 flex items-center justify-center transition-all ${
-                          isChecked
-                            ? "bg-[var(--primary-color)] border-[var(--primary-color)] text-white"
-                            : "border-slate-300"
-                        }`}
-                      >
-                        {isChecked && <Check size={14} />}
-                      </div>
-                      <div>
-                        <p className="text-xs font-extrabold text-slate-800">{service.name}</p>
-                        {service.description && (
-                          <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-relaxed">
-                            {service.description}
-                          </p>
-                        )}
-                      </div>
+                    <div>
+                      <span className="font-extrabold text-xs text-slate-800 block">{tmpl.name}</span>
+                      <span className="text-[10px] text-slate-400">{tmpl.items.length} Included Services</span>
                     </div>
-                    <span className="text-xs font-extrabold text-slate-800 whitespace-nowrap ml-4">
-                      ₹{price}
-                    </span>
+                    {isSelected && <CheckCircle2 size={16} className="text-teal-700 shrink-0" />}
                   </div>
                 );
               })}
             </div>
           </div>
+        )}
 
-          {/* Nav buttons */}
-          <div className="flex justify-between items-center">
-            <button
-              onClick={() => setStep(1)}
-              className="flex h-10 items-center justify-center gap-1 text-slate-600 font-bold text-xs px-4 border rounded-lg hover:bg-slate-50 bg-white transition"
-            >
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button
-              onClick={() => {
-                if (selectedServiceIds.length === 0) {
-                  setError("Please select at least one wash service.");
-                  return;
-                }
-                setError("");
-                setStep(3);
-              }}
-              className="flex h-10 items-center justify-center gap-1 text-white font-bold text-xs px-5 rounded-lg hover:brightness-95 transition"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 3: Inspection Notes & Damage Checklist (Item 4) */}
-      {step === 3 && (
-        <div className="space-y-6 bg-white border rounded-xl p-6 shadow-sm">
-          <div>
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Step 3: Vehicle Inspection & Damage Checklist</h3>
-            <p className="text-[11px] text-slate-400 font-medium mt-1">
-              Tap pre-existing issues to instantly record them before starting service:
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pt-1">
-            {[
-              "Scratch on Body",
-              "Minor Dent",
-              "Paint Damage / Peeling",
-              "Broken Mirror / Housing",
-              "Windshield Crack / Chip",
-              "Interior Upholstery Damage",
-              "Alloy Wheel Scuff",
-              "No Visible Pre-existing Damage"
-            ].map((tag) => {
-              const isIncluded = inspectionNotes.includes(tag);
+        {/* Individual Services Checkboxes Grid */}
+        <div className="space-y-2 pt-2">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Individual Services & Add-ons</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {services.map((service) => {
+              const isChecked = selectedServiceIds.includes(service.id);
+              const price = getServicePriceForVehicle(service);
               return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => {
-                    if (isIncluded) {
-                      setInspectionNotes((prev) => prev.replace(`[✓ ${tag}]`, "").replace(`${tag}, `, "").trim());
-                    } else {
-                      setInspectionNotes((prev) => (prev ? `${prev}\n[✓ ${tag}]` : `[✓ ${tag}]`));
-                    }
-                  }}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all flex items-center gap-1.5 ${
-                    isIncluded 
-                      ? "bg-rose-50 border-rose-300 text-rose-700 font-extrabold shadow-sm" 
-                      : tag.includes("No Visible") 
-                        ? "bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100" 
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                <div
+                  key={service.id}
+                  onClick={() => handleToggleService(service.id)}
+                  className={`p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
+                    isChecked
+                      ? "border-teal-700 bg-teal-50/60 ring-1 ring-teal-700/30"
+                      : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
-                  <span>{isIncluded ? "✓" : "+"}</span>
-                  <span>{tag}</span>
-                </button>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => {}}
+                      className="h-4 w-4 rounded text-teal-700 focus:ring-teal-700 cursor-pointer"
+                    />
+                    <div>
+                      <span className="font-bold text-xs text-slate-800 block">{service.name}</span>
+                      {service.description && (
+                        <span className="text-[10px] text-slate-400 line-clamp-1">{service.description}</span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-black text-xs text-slate-900 shrink-0 ml-2">SAR {price}</span>
+                </div>
               );
             })}
           </div>
-
-          <textarea
-            required
-            value={inspectionNotes}
-            onChange={(e) => setInspectionNotes(e.target.value)}
-            placeholder="Additional inspection details, existing damage notes, or client special requests..."
-            className="w-full h-32 border rounded-xl p-3 text-xs font-medium outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)]"
-          />
-
-          <div className="flex justify-between items-center border-t pt-4">
-            <button
-              onClick={() => setStep(2)}
-              className="flex h-10 items-center justify-center gap-1 text-slate-600 font-bold text-xs px-4 border rounded-lg hover:bg-slate-50 bg-white transition"
-            >
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button
-              onClick={() => setStep(4)}
-              className="flex h-10 items-center justify-center gap-1 text-white font-bold text-xs px-5 rounded-lg hover:brightness-95 transition"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
         </div>
-      )}
+      </div>
 
-      {/* STEP 4: Before Photos */}
-      {step === 4 && (
-        <div className="space-y-6 bg-white border rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Step 4: Upload Before Photos</h3>
-          <p className="text-[11px] text-slate-400 font-medium">
-            Capture pre-existing body issues to avoid liability claims.
-          </p>
-
-          <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-            {beforePhotos.map((url, idx) => (
-              <div key={idx} className="h-24 border rounded-lg overflow-hidden bg-slate-50 relative group shadow-sm">
-                <img src={url} alt="Before" className="object-cover h-full w-full" />
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhoto(idx)}
-                  className="absolute top-1.5 right-1.5 bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-700 transition"
-                  title="Remove image"
-                >
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            ))}
-
-            {uploadingPhotos ? (
-              <div className="h-24 border rounded-lg bg-slate-50 flex items-center justify-center">
-                <Loader2 className="animate-spin text-[var(--primary-color)]" size={24} />
-              </div>
-            ) : (
-              <label className="h-24 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition text-slate-400 hover:text-slate-600">
-                <Camera size={24} />
-                <span className="text-[10px] font-bold mt-1.5">Add Before Photo</span>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handlePhotoUpload}
-                />
-              </label>
-            )}
+      {/* ── SECTION 3: EXPECTED COMPLETION TIME & INSPECTION ── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
+        <div className="flex items-center gap-2.5 border-b pb-3">
+          <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+            <Clock size={18} />
           </div>
-
-          <div className="flex justify-between items-center border-t pt-4">
-            <button
-              onClick={() => setStep(3)}
-              className="flex h-10 items-center justify-center gap-1 text-slate-600 font-bold text-xs px-4 border rounded-lg hover:bg-slate-50 bg-white transition"
-            >
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button
-              onClick={() => setStep(5)}
-              className="flex h-10 items-center justify-center gap-1 text-white font-bold text-xs px-5 rounded-lg hover:brightness-95 transition"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 5: ETA */}
-      {step === 5 && (
-        <div className="space-y-6 bg-white border rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-            <Clock size={16} className="text-slate-400" />
-            Step 5: Configure Expected Completion Time
-          </h3>
-          <p className="text-[11px] text-slate-400 font-medium">
-            Specify the date and time when the vehicle detailing operations are expected to complete.
-          </p>
-
           <div>
-            <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Expected Completion Time</label>
+            <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">3. Completion Time & Inspection Notes</h2>
+            <p className="text-[11px] text-slate-400 font-medium">Set target completion ETA and record pre-existing damage notes</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Target Completion Date & Time (ETA)</label>
             <input
               type="datetime-local"
               required
               value={etaTime}
               onChange={(e) => setEtaTime(e.target.value)}
-              className="h-11 border rounded-lg px-3 text-xs font-semibold outline-none focus:border-[var(--primary-color)] w-full max-w-sm"
+              className="h-11 border border-slate-300 rounded-xl px-3 text-xs font-semibold outline-none focus:border-teal-700 w-full bg-slate-50/50"
             />
           </div>
 
-          <div className="flex justify-between items-center border-t pt-4">
-            <button
-              onClick={() => setStep(4)}
-              className="flex h-10 items-center justify-center gap-1 text-slate-600 font-bold text-xs px-4 border rounded-lg hover:bg-slate-50 bg-white transition"
-            >
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button
-              onClick={() => setStep(6)}
-              className="flex h-10 items-center justify-center gap-1 text-white font-bold text-xs px-5 rounded-lg hover:brightness-95 transition"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              Next <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* STEP 6: Summary Review & Submit */}
-      {step === 6 && selectedVehicle && (
-        <div className="space-y-6 bg-white border rounded-xl p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2">Step 6: Review Summary & Create Job</h3>
-
-          <div className="grid gap-6 md:grid-cols-2 text-xs font-semibold text-slate-600">
-            {/* Vehicle & Customer info */}
-            <div className="space-y-3">
-              <div className="p-3 bg-slate-50 border rounded-lg space-y-1">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Vehicle Intake</p>
-                <p className="font-extrabold text-slate-800 text-sm uppercase">
-                  {selectedVehicle.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
-                </p>
-                <p className="text-[10px] text-slate-500 font-medium uppercase mt-0.5">
-                  {selectedVehicle.brand} {selectedVehicle.model} ({selectedVehicle.vehicleType.toLowerCase()})
-                </p>
-              </div>
-
-              <div className="p-3 bg-slate-50 border rounded-lg space-y-1">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Customer Contact</p>
-                <p className="font-extrabold text-slate-800">{primaryContact?.name || "—"}</p>
-                <p className="text-[10px] text-slate-500 font-medium">{primaryContact?.mobile || "—"}</p>
-              </div>
-
-              <div className="p-3 bg-slate-50 border rounded-lg space-y-1">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Expected Completion Time (ETA)</p>
-                <p className="font-extrabold text-slate-800">
-                  {new Date(etaTime).toLocaleString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-            </div>
-
-            {/* Services selected */}
-            <div className="space-y-3">
-              <div className="p-3 bg-slate-50 border rounded-lg space-y-2">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Selected Detailing Services</p>
-                <div className="divide-y space-y-1">
-                  {selectedServiceIds.map((sId) => {
-                    const s = services.find((serv) => serv.id === sId);
-                    if (!s) return null;
-                    return (
-                      <div key={sId} className="flex justify-between items-center py-1 font-semibold text-slate-700 text-[11px]">
-                        <span>{s.name}</span>
-                        <span className="font-extrabold">₹{getServicePriceForVehicle(s)}</span>
-                      </div>
-                    );
-                  })}
-                  <div className="flex justify-between items-center pt-2 font-bold text-slate-800 text-xs border-t">
-                    <span>ESTIMATE TOTAL</span>
-                    <span className="text-sm text-[var(--primary-color)] font-extrabold">₹{totalEstimate}</span>
-                  </div>
-                </div>
-              </div>
-
-              {inspectionNotes && (
-                <div className="p-3 bg-slate-50 border rounded-lg space-y-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">Inspection notes</p>
-                  <p className="font-medium text-slate-700 italic truncate max-w-xs">{inspectionNotes}</p>
-                </div>
-              )}
-
-              {beforePhotos.length > 0 && (
-                <div className="p-3 bg-slate-50 border rounded-lg space-y-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">Photos Uploaded</p>
-                  <p className="font-bold text-slate-700">{beforePhotos.length} before photos attached</p>
-                </div>
-              )}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Quick Inspection Damage Tags</label>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                "Scratch on Body",
+                "Minor Dent",
+                "Paint Damage",
+                "No Visible Damage",
+              ].map((tag) => {
+                const isIncluded = inspectionNotes.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      if (isIncluded) {
+                        setInspectionNotes((prev) => prev.replace(`[✓ ${tag}]`, "").trim());
+                      } else {
+                        setInspectionNotes((prev) => (prev ? `${prev}\n[✓ ${tag}]` : `[✓ ${tag}]`));
+                      }
+                    }}
+                    className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border transition ${
+                      isIncluded
+                        ? "bg-rose-50 border-rose-300 text-rose-700 font-extrabold"
+                        : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200/70"
+                    }`}
+                  >
+                    {isIncluded ? "✓ " : "+ "}
+                    {tag}
+                  </button>
+                );
+              })}
             </div>
           </div>
+        </div>
 
-          <div className="flex justify-between items-center border-t pt-4">
-            <button
-              onClick={() => setStep(5)}
-              className="flex h-10 items-center justify-center gap-1 text-slate-600 font-bold text-xs px-4 border rounded-lg hover:bg-slate-50 bg-white transition"
-            >
-              <ChevronLeft size={16} /> Back
-            </button>
-            <button
-              onClick={handleCreateJob}
-              disabled={isPending}
-              className="flex h-10 items-center justify-center gap-1.5 text-white font-bold text-xs px-6 rounded-lg hover:brightness-95 transition shadow-sm disabled:opacity-50"
-              style={{ backgroundColor: "var(--primary-color)" }}
-            >
-              {isPending && <Loader2 className="animate-spin" size={14} />}
-              Confirm & Start Detailing
-            </button>
+        <div>
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Additional Inspection Notes & Special Client Requests</label>
+          <textarea
+            rows={2}
+            value={inspectionNotes}
+            onChange={(e) => setInspectionNotes(e.target.value)}
+            placeholder="e.g. Client requested extra interior vacuum and leather conditioner..."
+            className="w-full border border-slate-300 rounded-xl p-3 text-xs font-medium outline-none focus:border-teal-700 bg-slate-50/50 resize-none"
+          />
+        </div>
+      </div>
+
+      {/* ── SECTION 4: BEFORE PHOTOS (OPTIONAL) ── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2.5 border-b pb-3">
+          <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+            <Camera size={18} />
+          </div>
+          <div>
+            <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">4. Before Photos (Optional)</h2>
+            <p className="text-[11px] text-slate-400 font-medium">Attach vehicle intake photos for record</p>
           </div>
         </div>
-      )}
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {beforePhotos.map((url, idx) => (
+            <div key={idx} className="h-24 border rounded-xl overflow-hidden bg-slate-50 relative group shadow-xs">
+              <img src={url} alt="Before" className="object-cover h-full w-full" />
+              <button
+                type="button"
+                onClick={() => handleRemovePhoto(idx)}
+                className="absolute top-1.5 right-1.5 bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-700 transition"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ))}
+
+          {uploadingPhotos ? (
+            <div className="h-24 border rounded-xl bg-slate-50 flex items-center justify-center">
+              <Loader2 className="animate-spin text-teal-700" size={24} />
+            </div>
+          ) : (
+            <label className="h-24 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition text-slate-400 hover:text-slate-600">
+              <Camera size={22} />
+              <span className="text-[10px] font-bold mt-1">Upload Photo</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoUpload}
+              />
+            </label>
+          )}
+        </div>
+      </div>
+
+      {/* ── STICKY FOOTER ACTION BAR ── */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200/90 p-4 shadow-2xl z-40">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <div>
+            <span className="text-[10px] font-extrabold uppercase text-slate-400 block">Total Job Estimate</span>
+            <span className="text-xl font-black text-slate-900">SAR {totalEstimate}</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCreateJob}
+            disabled={isPending}
+            className="h-12 px-8 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg flex items-center gap-2 transition active-tap"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="animate-spin" size={16} />
+                <span>Creating Job Card...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 size={18} />
+                <span>Confirm & Create Job Card</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

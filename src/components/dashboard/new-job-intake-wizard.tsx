@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
+import { useToast } from "@/components/ui/toast";
 
 type ServicePrice = {
   vehicleType: VehicleType;
@@ -84,6 +85,7 @@ export function NewJobIntakeWizard({
   defaultEtaMinutes,
 }: NewJobIntakeWizardProps) {
   const router = useRouter();
+  const toast = useToast();
   const [isPending, startTransition] = useTransition();
 
   // Vehicle Selection / Search State
@@ -229,12 +231,17 @@ export function NewJobIntakeWizard({
 
     // Validation
     if (!selectedVehicle && (!newVehicleNumber.trim() || !customerName.trim() || !customerMobile.trim())) {
-      setError("Please select an existing vehicle or enter License Plate, Owner Name, and Mobile Number.");
+      const msg = "Please select an existing vehicle or enter License Plate, Owner Name, and Mobile Number.";
+      setError(msg);
+      toast.error("Information Missing", msg);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     if (selectedServiceIds.length === 0) {
-      setError("Please select at least one wash service or package.");
+      const msg = "Please select at least one wash service or package.";
+      setError(msg);
+      toast.error("No Services Selected", msg);
       return;
     }
 
@@ -248,13 +255,13 @@ export function NewJobIntakeWizard({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              vehicleNumber: newVehicleNumber.trim().toUpperCase(),
+              vehicleNumber: newVehicleNumber.trim().toUpperCase().replace(/\s/g, ""),
               vehicleType: newVehicleType,
               brand: newBrand.trim() || null,
               model: newModel.trim() || null,
               color: newColor.trim() || null,
-              ownerName: customerName.trim(),
-              ownerMobile: customerMobile.trim(),
+              customerName: customerName.trim(),
+              customerMobile: customerMobile.trim().replace(/\D/g, ""),
             }),
           });
 
@@ -283,10 +290,13 @@ export function NewJobIntakeWizard({
           throw new Error(jobData.error || "Failed to create job card.");
         }
 
-        // Redirect to Queue or Job Details page
+        toast.success("Job Card Created Successfully!", `Vehicle ${newVehicleNumber || selectedVehicle?.vehicleNumber} registered & intake opened.`);
         router.push(`/dashboard/jobs/${jobData.jobCard.id}`);
       } catch (err: any) {
-        setError(err.message || "Failed to create job card.");
+        const msg = err.message || "Failed to create job card.";
+        setError(msg);
+        toast.error("Registration Failed", msg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });
   };

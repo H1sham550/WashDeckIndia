@@ -100,8 +100,8 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
     <div
       aria-live="polite"
       aria-label="Notifications"
-      className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"
-      style={{ maxWidth: "min(360px, calc(100vw - 2rem))" }}
+      className="fixed bottom-20 sm:bottom-4 right-4 left-4 sm:left-auto z-[9999] flex flex-col gap-2 pointer-events-none items-center sm:items-end"
+      style={{ maxWidth: "min(380px, calc(100vw - 2rem))" }}
     >
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />

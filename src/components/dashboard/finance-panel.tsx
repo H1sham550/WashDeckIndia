@@ -23,6 +23,7 @@ import {
   ArrowDownRight,
   Sparkles
 } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 type IncomeTransaction = {
   id: string;
@@ -67,6 +68,7 @@ const EXPENSE_CATEGORIES = [
 ];
 
 export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: FinancePanelProps) {
+  const { success: toastSuccess, error: toastError } = useToast();
   const [incomes, setIncomes] = useState<IncomeTransaction[]>(initialIncomes);
   const [expenses, setExpenses] = useState<ExpenseTransaction[]>(initialExpenses);
 
@@ -283,17 +285,21 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         if (editingExpense) {
           setExpenses((prev) => prev.map((exp) => (exp.id === editingExpense.id ? data.expense : exp)));
           setSuccess("Expense record updated successfully!");
+          toastSuccess("Expense Updated", `"${formData.title}" updated.`);
         } else {
           setExpenses((prev) => [data.expense, ...prev]);
           setSuccess("Expense logged successfully!");
+          toastSuccess("Expense Logged!", `₹${formData.amount} recorded for ${formData.title}.`);
         }
 
         setTimeout(() => {
           setModalOpen(false);
           setSuccess("");
-        }, 800);
+        }, 500);
       } catch (err: any) {
-        setError(err.message || "An error occurred.");
+        const msg = err.message || "An error occurred.";
+        setError(msg);
+        toastError("Expense Failed", msg);
       }
     });
   };
@@ -312,10 +318,9 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
       }
 
       setExpenses((prev) => prev.filter((exp) => exp.id !== id));
-      setSuccess("Expense record deleted.");
-      setTimeout(() => setSuccess(""), 2000);
+      toastSuccess("Expense Deleted", "The expense record has been removed.");
     } catch (err: any) {
-      alert(err.message || "Could not delete expense.");
+      toastError("Delete Failed", err.message || "Could not delete expense.");
     }
   };
 

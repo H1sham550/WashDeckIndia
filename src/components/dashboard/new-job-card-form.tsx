@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
 import { compressImage } from "@/lib/image-compressor";
+import { useToast } from "@/components/ui/toast";
 
 type ServicePrice = {
   vehicleType: VehicleType;
@@ -67,6 +68,7 @@ type NewJobCardFormProps = {
 
 export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormProps) {
   const router = useRouter();
+  const toast = useToast();
   const [isPending, startTransition] = useTransition();
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -150,7 +152,9 @@ export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormP
     setError("");
 
     if (selectedServiceIds.length === 0) {
-      setError("Please select at least one wash service.");
+      const msg = "Please select at least one wash service.";
+      setError(msg);
+      toast.error("Selection Required", msg);
       setStep(1);
       return;
     }
@@ -178,10 +182,13 @@ export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormP
           throw new Error(result.error || "Failed to create job card.");
         }
 
+        toast.success("Job Card Created!", `Vehicle ${vehicle.vehicleNumber} intake complete.`);
         router.push("/dashboard");
         router.refresh();
       } catch (err: any) {
-        setError(err.message || "Could not complete intake.");
+        const msg = err.message || "Could not complete intake.";
+        setError(msg);
+        toast.error("Intake Failed", msg);
       }
     });
   }

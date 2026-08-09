@@ -5,6 +5,7 @@ import { X, Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
+import { useToast } from "@/components/ui/toast";
 
 type RegisterVehicleModalProps = {
   onClose: () => void;
@@ -13,6 +14,7 @@ type RegisterVehicleModalProps = {
 
 export function RegisterVehicleModal({ onClose, initialVehicleNumber = "" }: RegisterVehicleModalProps) {
   const router = useRouter();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     vehicleNumber: initialVehicleNumber.toUpperCase().replace(/\s/g, ""),
     vehicleType: VehicleType.HATCHBACK as VehicleType,
@@ -45,10 +47,13 @@ export function RegisterVehicleModal({ onClose, initialVehicleNumber = "" }: Reg
         throw new Error(result.error || "Failed to register vehicle.");
       }
 
+      toast.success("Vehicle & Customer Registered!", `Passport created for ${formData.vehicleNumber}.`);
       router.push(`/dashboard/vehicles/${result.vehicle.id}`);
       onClose();
     } catch (err: any) {
-      setError(err.message || "An error occurred during registration.");
+      const msg = err.message || "An error occurred during registration.";
+      setError(msg);
+      toast.error("Registration Failed", msg);
       setIsPending(false);
     }
   }

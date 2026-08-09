@@ -95,39 +95,55 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
   });
 
   // Combined ledger
+  const safeGetTime = (dateVal: any) => {
+    try {
+      if (!dateVal) return 0;
+      const d = new Date(dateVal);
+      return isNaN(d.getTime()) ? 0 : d.getTime();
+    } catch {
+      return 0;
+    }
+  };
+
+  // Combined ledger
   const allTransactions: Transaction[] = [
-    ...incomes,
-    ...expenses
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    ...(incomes || []),
+    ...(expenses || [])
+  ].sort((a, b) => safeGetTime(b.date) - safeGetTime(a.date));
 
   // Date Range Filtering helper
   const filterByDate = (tx: Transaction) => {
-    const txDate = new Date(tx.date);
-    const now = new Date();
+    try {
+      if (!tx || !tx.date) return true;
+      const txDate = new Date(tx.date);
+      if (isNaN(txDate.getTime())) return true;
+      const now = new Date();
 
-    if (dateRange === "today") {
-      const today = new Date();
-      return txDate.toDateString() === today.toDateString();
+      if (dateRange === "today") {
+        return txDate.toDateString() === now.toDateString();
+      }
+      if (dateRange === "week") {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(now.getDate() - 7);
+        return txDate >= oneWeekAgo;
+      }
+      if (dateRange === "month") {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setDate(now.getDate() - 30);
+        return txDate >= oneMonthAgo;
+      }
+      if (dateRange === "custom") {
+        if (!customStartDate) return true;
+        const start = new Date(customStartDate);
+        start.setHours(0, 0, 0, 0);
+        const end = customEndDate ? new Date(customEndDate) : new Date();
+        end.setHours(23, 59, 59, 999);
+        return txDate >= start && txDate <= end;
+      }
+      return true; // "all"
+    } catch {
+      return true;
     }
-    if (dateRange === "week") {
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(now.getDate() - 7);
-      return txDate >= oneWeekAgo;
-    }
-    if (dateRange === "month") {
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setDate(now.getDate() - 30);
-      return txDate >= oneMonthAgo;
-    }
-    if (dateRange === "custom") {
-      if (!customStartDate) return true;
-      const start = new Date(customStartDate);
-      start.setHours(0, 0, 0, 0);
-      const end = customEndDate ? new Date(customEndDate) : new Date();
-      end.setHours(23, 59, 59, 999);
-      return txDate >= start && txDate <= end;
-    }
-    return true; // "all"
   };
 
   // Search & Tag Filters
@@ -839,13 +855,21 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {filteredTransactions.length > 0 ? (
                 filteredTransactions.map((tx) => {
-                  const dateStr = new Date(tx.date).toLocaleDateString("en-US", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  });
+                  let dateStr = "—";
+                  try {
+                    if (tx.date) {
+                      const d = new Date(tx.date);
+                      if (!isNaN(d.getTime())) {
+                        dateStr = d.toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit"
+                        });
+                      }
+                    }
+                  } catch {}
 
                   if (tx.type === "INCOME") {
                     return (

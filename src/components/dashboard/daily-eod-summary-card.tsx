@@ -48,24 +48,42 @@ export function DailyEodSummaryCard({
     return d.toISOString().split("T")[0];
   };
 
-  const todayIsoStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const todayIsoStr = useMemo(() => {
+    try {
+      return new Date().toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  }, []);
 
   // Filter incomes & expenses for selected date
   const { dayIncomes, dayExpenses, dayRevenue, dayExpensesTotal, dayNetProfit } = useMemo(() => {
     const targetDateStr = selectedDateStr;
 
-    const filteredIncomes = allIncomes.filter((inc) => {
-      const incDate = new Date(inc.date).toISOString().split("T")[0];
-      return incDate === targetDateStr;
+    const filteredIncomes = (allIncomes || []).filter((inc) => {
+      if (!inc || !inc.date) return false;
+      try {
+        const d = new Date(inc.date);
+        if (isNaN(d.getTime())) return false;
+        return d.toISOString().split("T")[0] === targetDateStr;
+      } catch {
+        return false;
+      }
     });
 
-    const filteredExpenses = allExpenses.filter((exp) => {
-      const expDate = new Date(exp.date).toISOString().split("T")[0];
-      return expDate === targetDateStr;
+    const filteredExpenses = (allExpenses || []).filter((exp) => {
+      if (!exp || !exp.date) return false;
+      try {
+        const d = new Date(exp.date);
+        if (isNaN(d.getTime())) return false;
+        return d.toISOString().split("T")[0] === targetDateStr;
+      } catch {
+        return false;
+      }
     });
 
-    const rev = filteredIncomes.reduce((sum, i) => sum + Number(i.amount), 0);
-    const expTotal = filteredExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    const rev = filteredIncomes.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+    const expTotal = filteredExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     return {
       dayIncomes: filteredIncomes,

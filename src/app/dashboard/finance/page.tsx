@@ -107,7 +107,7 @@ export default async function FinancePage() {
     .reduce((sum, inv) => sum + Number(inv.finalAmount), 0);
 
   const primaryColor = entitlements.stationMetadata?.primaryColor || "#0f766e";
-  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "ر.س ";
+  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "₹";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">

@@ -30,8 +30,8 @@ export default async function InvoicesPage() {
         status: "PAID",
         createdAt: new Date(),
         jobCard: {
-          station: { name: "Apex Luxury Detailing", slug: "apex-riyadh" },
-          vehicle: { vehicleNumber: "KSA-8899" },
+          station: { name: "WashDeck Flagship", slug: "washdeck-mumbai" },
+          vehicle: { vehicleNumber: "MH-01-AB-1234" },
         },
       },
       {

@@ -274,7 +274,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
               <label className="block text-xs font-bold text-slate-600">Business Phone</label>
               <input
                 type="tel"
-                placeholder="+966 50 123 4567"
+                placeholder="+91 98765 43210"
                 value={businessProfile.phone}
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, phone: e.target.value }))}
                 className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
@@ -298,7 +298,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
               <label className="block text-xs font-bold text-slate-600">Station Address / Location</label>
               <input
                 type="text"
-                placeholder="King Fahd Road, Olaya District, Riyadh"
+                placeholder="Shop No. 5, MG Road, Bengaluru, Karnataka"
                 value={businessProfile.address}
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, address: e.target.value }))}
                 className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"

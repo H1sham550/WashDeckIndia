@@ -173,7 +173,7 @@ export function RegisterForm() {
                 <input
                   type="text"
                   required
-                  placeholder="+966 50 123 4567 or owner@washdeck.com"
+                  placeholder="+91 98765 43210 or owner@washdeck.in"
                   value={credentials.identity}
                   onChange={(e) => setCredentials((prev) => ({ ...prev, identity: e.target.value }))}
                   className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-white text-slate-800"
@@ -235,7 +235,7 @@ export function RegisterForm() {
                   <Zap size={16} className="text-amber-500" />
                 </div>
                 <div className="mt-3">
-                  <span className="text-2xl font-black text-slate-900">SAR 0</span>
+                  <span className="text-2xl font-black text-slate-900">₹ 0</span>
                   <span className="text-[11px] text-slate-400 block font-semibold mt-0.5">1st Month Free (then 199/mo)</span>
                 </div>
                 <ul className="mt-4 space-y-2 text-xs text-slate-600 font-medium">
@@ -269,7 +269,7 @@ export function RegisterForm() {
                   <Crown size={16} className="text-amber-500" />
                 </div>
                 <div className="mt-3">
-                  <span className="text-2xl font-black text-slate-900">SAR 0</span>
+                  <span className="text-2xl font-black text-slate-900">₹ 0</span>
                   <span className="text-[11px] text-teal-700 block font-extrabold mt-0.5">1st Month Free (then 499/mo)</span>
                 </div>
                 <ul className="mt-4 space-y-2 text-xs text-slate-700 font-semibold">
@@ -301,7 +301,7 @@ export function RegisterForm() {
                   <ShieldCheck size={16} className="text-indigo-600" />
                 </div>
                 <div className="mt-3">
-                  <span className="text-2xl font-black text-slate-900">SAR 0</span>
+                  <span className="text-2xl font-black text-slate-900">₹ 0</span>
                   <span className="text-[11px] text-slate-400 block font-semibold mt-0.5">1st Month Free (then 999/mo)</span>
                 </div>
                 <ul className="mt-4 space-y-2 text-xs text-slate-600 font-medium">
@@ -342,7 +342,7 @@ export function RegisterForm() {
       {step === 3 && (
         <form onSubmit={handleRegisterSubmit} className="space-y-5">
           <div className="text-left space-y-1">
-            <h3 className="text-lg font-black text-slate-900 tracking-tight">Set Initial Wash Prices (SAR)</h3>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight">Set Initial Wash Prices (₹ INR)</h3>
             <p className="text-xs text-slate-500 font-medium">Specify your station's wash pricing for different vehicle categories below. You can change these anytime in Settings.</p>
           </div>
 
@@ -354,7 +354,7 @@ export function RegisterForm() {
                 <span className="text-[10px] text-slate-400">Standard two-wheeler wash</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-400">SAR</span>
+                <span className="text-xs font-bold text-slate-400">₹</span>
                 <input
                   type="number"
                   min="0"
@@ -373,7 +373,7 @@ export function RegisterForm() {
                 <span className="text-[10px] text-slate-400">Compact city cars</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-400">SAR</span>
+                <span className="text-xs font-bold text-slate-400">₹</span>
                 <input
                   type="number"
                   min="0"
@@ -392,7 +392,7 @@ export function RegisterForm() {
                 <span className="text-[10px] text-slate-400">Standard 4-door cars</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-400">SAR</span>
+                <span className="text-xs font-bold text-slate-400">₹</span>
                 <input
                   type="number"
                   min="0"
@@ -411,7 +411,7 @@ export function RegisterForm() {
                 <span className="text-[10px] text-slate-400">Large SUVs and trucks</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-400">SAR</span>
+                <span className="text-xs font-bold text-slate-400">₹</span>
                 <input
                   type="number"
                   min="0"
@@ -430,7 +430,7 @@ export function RegisterForm() {
                 <span className="text-[10px] text-slate-400">Exotic, sports, and ultra-luxury vehicles</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-400">SAR</span>
+                <span className="text-xs font-bold text-slate-400">₹</span>
                 <input
                   type="number"
                   min="0"

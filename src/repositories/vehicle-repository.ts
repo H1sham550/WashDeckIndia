@@ -47,7 +47,7 @@ export async function getVehicleById(id: string) {
   } catch {
     return {
       id,
-      vehicleNumber: "KSA 4492",
+      vehicleNumber: "MH-01-AB-1234",
       vehicleType: "SUV" as VehicleType,
       brand: "Toyota",
       model: "Land Cruiser",
@@ -88,7 +88,7 @@ export async function getVehicleByNumber(stationId: string, vehicleNumber: strin
   } catch {
     return {
       id: "v-mock-1",
-      vehicleNumber: normalized || "KSA 4492",
+      vehicleNumber: normalized || "MH-01-AB-1234",
       vehicleType: "SEDAN" as VehicleType,
       brand: "Lexus",
       model: "ES 350",
@@ -170,7 +170,7 @@ export async function searchVehicles(stationId: string, query: string) {
     return [
       {
         id: "v-mock-1",
-        vehicleNumber: "KSA 4492",
+        vehicleNumber: "MH-01-AB-1234",
         vehicleType: "SUV" as VehicleType,
         brand: "Toyota",
         model: "Land Cruiser",
@@ -185,7 +185,7 @@ export async function searchVehicles(stationId: string, query: string) {
       },
       {
         id: "v-mock-2",
-        vehicleNumber: "KSA 8810",
+        vehicleNumber: "DL-7C-BC-9999",
         vehicleType: "SEDAN" as VehicleType,
         brand: "Porsche",
         model: "Taycan",

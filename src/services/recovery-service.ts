@@ -94,7 +94,7 @@ export async function getRecoveryDashboardData(stationId: string) {
       dueForVisit: [
         {
           vehicleId: "v-mock-1",
-          vehicleNumber: "KSA 4492",
+          vehicleNumber: "MH-01-AB-1234",
           vehicleType: "SUV",
           brand: "Toyota",
           model: "Land Cruiser",
@@ -108,7 +108,7 @@ export async function getRecoveryDashboardData(stationId: string) {
       lostVehicles: [
         {
           vehicleId: "v-mock-2",
-          vehicleNumber: "KSA 8810",
+          vehicleNumber: "DL-7C-BC-9999",
           vehicleType: "SEDAN",
           brand: "Porsche",
           model: "Taycan",

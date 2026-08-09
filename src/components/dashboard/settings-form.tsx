@@ -509,7 +509,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
 
               <div className="grid gap-4 md:grid-cols-2 pt-2">
                 <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="vipSpendThreshold">VIP Spend Threshold (SAR)</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide" htmlFor="vipSpendThreshold">VIP Spend Threshold (₹ INR)</label>
                   <input
                     id="vipSpendThreshold"
                     type="number"
@@ -638,7 +638,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                 Regional Localization & Language Settings
               </h3>
               <p className="text-xs text-slate-500">
-                Configure station language and number formatting. Selecting Arabic will automatically mirror all operator interfaces (sidebar, tables, queue boards, and invoices) to Right-To-Left (RTL) layout.
+                Configure station language and number formatting. India operates in English (LTR) by default.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
@@ -647,13 +647,15 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     Default Station Language
                   </label>
                   <select
-                    value={formData.locale || "en-SA"}
+                    value={formData.locale || "en-IN"}
                     onChange={(e) => setFormData((prev) => ({ ...prev, locale: e.target.value }))}
                     className="w-full border rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-800 bg-slate-50/70 outline-none focus:border-[var(--primary-color)] transition"
                   >
-                    <option value="en-SA">English (en-SA) — LTR</option>
+                    <option value="en-IN">English — India (en-IN)</option>
+                    <option value="en">English (en)</option>
+                    <option value="en-SA">English — Saudi Arabia (en-SA)</option>
                     <option value="ar-SA">العربية (ar-SA) — RTL (Auto-mirroring)</option>
-                    <option value="en-AE">English (en-AE) — LTR</option>
+                    <option value="en-AE">English — UAE (en-AE)</option>
                     <option value="ar-AE">العربية (ar-AE) — RTL (Auto-mirroring)</option>
                   </select>
                   <p className="text-[11px] text-slate-400">
@@ -666,15 +668,15 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     Base Currency Code
                   </label>
                   <select
-                    value={formData.currency || "SAR"}
+                    value={formData.currency || "INR"}
                     onChange={(e) => setFormData((prev) => ({ ...prev, currency: e.target.value }))}
                     className="w-full border rounded-lg px-3.5 py-2.5 text-sm font-semibold text-slate-800 bg-slate-50/70 outline-none focus:border-[var(--primary-color)] transition"
                   >
-                    <option value="SAR">Saudi Riyal (SAR / ر.س)</option>
-                    <option value="AED">UAE Dirham (AED / د.إ)</option>
-                    <option value="BHD">Bahraini Dinar (BHD)</option>
                     <option value="INR">Indian Rupee (INR / ₹)</option>
                     <option value="USD">US Dollar (USD / $)</option>
+                    <option value="AED">UAE Dirham (AED / د.إ)</option>
+                    <option value="SAR">Saudi Riyal (SAR / ﷼)</option>
+                    <option value="GBP">British Pound (GBP / £)</option>
                   </select>
                   <p className="text-[11px] text-slate-400">
                     Formatted dynamically via native Intl currency standards across POS checkouts and financial reports.
@@ -685,7 +687,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
               <div className="bg-blue-50/60 border border-blue-200/80 rounded-xl p-4 flex items-start gap-3 mt-4">
                 <Globe size={18} className="text-blue-600 shrink-0 mt-0.5" />
                 <div className="text-xs text-blue-900 space-y-1">
-                  <p className="font-bold">Enterprise i18n Architecture Status: LTR / RTL Active</p>
+                  <p className="font-bold">Enterprise i18n Architecture Status: LTR Active</p>
                   <p className="text-blue-700">
                     Static translation dictionaries (`/src/locales/en` and `/src/locales/ar`) ensure zero-latency renders with no runtime AI translation dependencies.
                   </p>

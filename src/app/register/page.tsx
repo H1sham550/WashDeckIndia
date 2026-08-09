@@ -16,7 +16,7 @@ export default async function RegisterPage() {
         <div className="flex items-center gap-3">
           <img src="/logo-icon.png" alt="WashDeck" className="h-9 w-auto object-contain" />
           <div>
-            <h1 className="text-base font-black text-slate-900 tracking-tight">WashDeck Saudi</h1>
+            <h1 className="text-base font-black text-slate-900 tracking-tight">WashDeck India</h1>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Car Wash Operations POS</p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default async function RegisterPage() {
       </div>
 
       <footer className="py-4 border-t border-slate-200 text-center text-xs text-slate-400 font-medium">
-        © 2026 WashDeck Saudi Operations Management System.
+        © 2026 WashDeck India Operations Management System.
       </footer>
     </main>
   );

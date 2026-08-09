@@ -79,7 +79,7 @@ export default function TermsPage() {
           <Section title="5. Acceptable Use">
             <p>You agree not to:</p>
             <ul>
-              <li>Use the Platform for any unlawful purpose or in violation of any applicable laws or regulations in the Kingdom of Saudi Arabia or any other jurisdiction</li>
+              <li>Use the Platform for any unlawful purpose or in violation of any applicable laws or regulations in India or any other jurisdiction</li>
               <li>Upload, transmit, or store any malicious code, viruses, or harmful software</li>
               <li>Attempt to gain unauthorized access to the Platform, its servers, or any connected systems</li>
               <li>Reverse engineer, decompile, or disassemble any part of the Platform</li>
@@ -118,7 +118,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="12. Governing Law and Dispute Resolution">
-            <p>These Terms shall be governed by and construed in accordance with the laws of the Kingdom of Saudi Arabia. Any dispute arising out of or in connection with these Terms shall first be attempted to be resolved through good-faith negotiation. If negotiation fails, disputes shall be submitted to the competent courts in the Kingdom of Saudi Arabia.</p>
+            <p>These Terms shall be governed by and construed in accordance with the laws of India. Any dispute arising out of or in connection with these Terms shall first be attempted to be resolved through good-faith negotiation. If negotiation fails, disputes shall be submitted to the competent courts in India.</p>
           </Section>
 
           <Section title="13. Contact Information">

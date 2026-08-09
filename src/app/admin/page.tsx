@@ -76,33 +76,33 @@ export default async function AdminPage() {
   } catch (err) {
     stations = [
       {
-        id: "mock-station-ryd",
-        name: "Apex Luxury Detailing Studio - Riyadh",
-        slug: "apex-riyadh",
+        id: "mock-station-mum",
+        name: "WashDeck Flagship — Mumbai",
+        slug: "washdeck-mumbai",
         status: "ACTIVE",
         createdAt: new Date(),
         featureOverrides: [],
-        users: [{ id: "mock-user-1", name: "Tariq Al-Mansoor", email: "tariq@apexdetailing.sa", role: "OWNER" }],
-        stationSubscriptions: [{ status: "ACTIVE", endDate: new Date(Date.now() + 90 * 86400000), subscription: { price: 299, name: "Enterprise Pro" } }],
+        users: [{ id: "mock-user-1", name: "Rahul Sharma", email: "rahul@washdeck.in", role: "OWNER" }],
+        stationSubscriptions: [{ status: "ACTIVE", endDate: new Date(Date.now() + 90 * 86400000), subscription: { price: 2499, name: "Enterprise Pro" } }],
       },
       {
-        id: "mock-station-koc",
-        name: "WashDeck Express - Kochi",
-        slug: "washdeck-kochi",
+        id: "mock-station-del",
+        name: "WashDeck Express — Delhi",
+        slug: "washdeck-delhi",
         status: "ACTIVE",
         createdAt: new Date(),
         featureOverrides: [],
-        users: [{ id: "mock-user-2", name: "Athul Krishna", email: "athul@washdeck.in", role: "OWNER" }],
-        stationSubscriptions: [{ status: "ACTIVE", endDate: new Date(Date.now() + 60 * 86400000), subscription: { price: 149, name: "Starter" } }],
+        users: [{ id: "mock-user-2", name: "Priya Menon", email: "priya@washdeck.in", role: "OWNER" }],
+        stationSubscriptions: [{ status: "ACTIVE", endDate: new Date(Date.now() + 60 * 86400000), subscription: { price: 1199, name: "Starter" } }],
       },
     ];
     plans = [
-      { id: "plan-starter", name: "Starter", price: 149, planFeatures: [] },
-      { id: "plan-pro", name: "Enterprise Pro", price: 299, planFeatures: [] },
+      { id: "plan-starter", name: "Starter", price: 1199, planFeatures: [] },
+      { id: "plan-pro", name: "Enterprise Pro", price: 2499, planFeatures: [] },
     ];
     auditLogs = [
-      { id: "log-1", action: "STATION_CREATED", entityType: "Station", createdAt: new Date(), actor: { name: "System Super Admin" }, station: { name: "Apex Luxury Detailing" } },
-      { id: "log-2", action: "USER_LOGIN_PASSWORD", entityType: "User", createdAt: new Date(), actor: { name: "Tariq Al-Mansoor" }, station: { name: "Apex Luxury Detailing" } },
+      { id: "log-1", action: "STATION_CREATED", entityType: "Station", createdAt: new Date(), actor: { name: "System Super Admin" }, station: { name: "WashDeck Flagship" } },
+      { id: "log-2", action: "USER_LOGIN_PASSWORD", entityType: "User", createdAt: new Date(), actor: { name: "Rahul Sharma" }, station: { name: "WashDeck Flagship" } },
     ];
     totalJobsCount = 1248;
     totalUsersCount = 18;

@@ -130,7 +130,7 @@ export async function GET(req: Request) {
       expenses: expenses.map((e) => ({
         id: e.id,
         title: `${e.category}: ${e.title || e.notes || "General Expense"}`,
-        subtitle: `Amount: SAR ${e.amount} • Date: ${new Date(e.date).toLocaleDateString()}`,
+        subtitle: `Amount: ₹${e.amount} • Date: ${new Date(e.date).toLocaleDateString("en-IN")}`,
         type: "EXPENSE",
         url: `/dashboard/finance`,
       })),

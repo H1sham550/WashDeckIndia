@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Privacy Policy | WashDeck",
   description:
-    "Learn how WashDeck collects, uses, and protects your personal data in compliance with Saudi Arabia PDPL.",
+    "Learn how WashDeck collects, uses, and protects your personal data in compliance with India's Digital Personal Data Protection Act (DPDPA).",
 };
 
 const EFFECTIVE_DATE = "1 August 2026";
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 text-sm text-blue-800 font-medium">
-          This Privacy Policy describes how {COMPANY_NAME} collects, uses, stores, and protects your personal data. We are committed to complying with the Kingdom of Saudi Arabia Personal Data Protection Law (PDPL) and other applicable privacy regulations.
+          This Privacy Policy describes how {COMPANY_NAME} collects, uses, stores, and protects your personal data. We are committed to complying with India's Digital Personal Data Protection Act (DPDPA) and other applicable privacy regulations.
         </div>
 
         <div className="space-y-8">
@@ -68,13 +68,13 @@ export default function PrivacyPage() {
               <li>Send transactional communications such as invoices, receipts, OTPs, and service notifications</li>
               <li>Generate reports and analytics visible to station owners and operators</li>
               <li>Detect and prevent fraud, abuse, or security threats</li>
-              <li>Comply with legal obligations under Saudi Arabian law and applicable regulations</li>
+              <li>Comply with legal obligations under Indian law and applicable regulations</li>
               <li>Respond to support requests and improve customer service</li>
             </ul>
           </Section>
 
           <Section title="4. Legal Basis for Processing">
-            <p>We process your personal data on the following legal bases as permitted under the Saudi Arabia Personal Data Protection Law (PDPL):</p>
+            <p>We process your personal data on the following legal bases as permitted under India's Digital Personal Data Protection Act (DPDPA):</p>
             <ul>
               <li><strong>Contractual Necessity:</strong> Processing required to fulfill our subscription agreement with station owners</li>
               <li><strong>Legitimate Interests:</strong> Processing necessary for platform security, fraud prevention, and service improvement</li>
@@ -113,8 +113,8 @@ export default function PrivacyPage() {
             <p>While we strive to protect your data, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security.</p>
           </Section>
 
-          <Section title="8. Your Rights Under PDPL">
-            <p>As a data subject under the Saudi Arabia Personal Data Protection Law (PDPL), you have the right to:</p>
+          <Section title="8. Your Rights Under DPDPA">
+            <p>As a data principal under India's Digital Personal Data Protection Act (DPDPA), you have the right to:</p>
             <ul>
               <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
               <li><strong>Correction:</strong> Request correction of inaccurate or incomplete personal data</li>
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="11. International Data Transfers">
-            <p>Your data may be processed on servers located outside the Kingdom of Saudi Arabia (for example, in the United States via Vercel&rsquo;s global infrastructure). We ensure that such transfers are conducted with appropriate safeguards and in compliance with the PDPL.</p>
+            <p>Your data may be processed on servers located outside India (for example, in the United States via Vercel&rsquo;s global infrastructure). We ensure that such transfers are conducted with appropriate safeguards and in compliance with the DPDPA.</p>
           </Section>
 
           <Section title="12. Changes to This Policy">

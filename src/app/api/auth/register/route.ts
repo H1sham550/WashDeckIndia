@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
       plan = await prisma.subscriptionPlan.findFirst();
     }
 
-    // Fetch default country & region (Saudi Arabia)
-    let country = await prisma.country.findFirst({ where: { code: "SA" } });
+    // Fetch default country & region (India)
+    let country = await prisma.country.findFirst({ where: { code: "IN" } });
     if (!country) country = await prisma.country.findFirst();
 
     let region = await prisma.region.findFirst();

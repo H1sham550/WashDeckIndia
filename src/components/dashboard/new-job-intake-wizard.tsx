@@ -477,7 +477,7 @@ export function NewJobIntakeWizard({
                 <input
                   type="text"
                   required
-                  placeholder="+966 50 123 4567"
+                  placeholder="+91 98765 43210"
                   value={customerMobile}
                   onChange={(e) => setCustomerMobile(e.target.value)}
                   className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
@@ -565,7 +565,7 @@ export function NewJobIntakeWizard({
                       )}
                     </div>
                   </div>
-                  <span className="font-black text-xs text-slate-900 shrink-0 ml-2">SAR {price}</span>
+                  <span className="font-black text-xs text-slate-900 shrink-0 ml-2">₹{price}</span>
                 </div>
               );
             })}
@@ -696,7 +696,7 @@ export function NewJobIntakeWizard({
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div>
             <span className="text-[10px] font-extrabold uppercase text-slate-400 block">Total Job Estimate</span>
-            <span className="text-xl font-black text-slate-900">SAR {totalEstimate}</span>
+            <span className="text-xl font-black text-slate-900">₹{totalEstimate}</span>
           </div>
 
           <button

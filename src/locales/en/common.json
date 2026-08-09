@@ -27,7 +27,7 @@
     "title": "Instant Vehicle Intake",
     "subtitle": "Type registration to live-search vehicle directory or auto-trigger registration workflow.",
     "vehicleNumber": "Vehicle Registration No.",
-    "searchPlaceholder": "e.g., KSA-9999-XYZ or RYD-777-KSA",
+    "searchPlaceholder": "e.g., MH-01-AB-1234 or DL-7C-BC-9999",
     "foundTitle": "Vehicle Recognized",
     "openHistory": "Open Service History",
     "createJob": "Create Job Card Directly",

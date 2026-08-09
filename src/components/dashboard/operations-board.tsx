@@ -115,7 +115,7 @@ function JobCardItem({ job }: { job: JobCard }) {
 
         <div className="flex flex-col items-end gap-1 shrink-0">
           <span className="text-xs font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-            SAR {totalPrice.toLocaleString("en-IN")}
+            ₹{totalPrice.toLocaleString("en-IN")}
           </span>
           {eta ? (
             <span className="text-[10px] font-bold text-slate-600">ETA {eta}</span>

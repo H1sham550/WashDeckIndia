@@ -168,10 +168,10 @@ export const getOperationsBoardData = cache(async (stationId: string) => {
   } catch {
     return {
       RECEIVED: [
-        { id: "mock-job-1", cardNumber: "JC-1001", vehicleId: "v1", serviceType: "Express Eco Wash", status: "RECEIVED", vehicle: { plateNumber: "KSA 4492", make: "Toyota", model: "Land Cruiser", year: 2023 } },
+        { id: "mock-job-1", cardNumber: "JC-1001", vehicleId: "v1", serviceType: "Express Eco Wash", status: "RECEIVED", vehicle: { plateNumber: "MH-01-AB-1234", make: "Toyota", model: "Land Cruiser", year: 2023 } },
       ] as any,
       IN_PROGRESS: [
-        { id: "mock-job-2", cardNumber: "JC-1002", vehicleId: "v2", serviceType: "Ceramic Coating Detail", status: "IN_PROGRESS", vehicle: { plateNumber: "KSA 8810", make: "Porsche", model: "Taycan", year: 2024 } },
+        { id: "mock-job-2", cardNumber: "JC-1002", vehicleId: "v2", serviceType: "Ceramic Coating Detail", status: "IN_PROGRESS", vehicle: { plateNumber: "DL-7C-BC-9999", make: "Porsche", model: "Taycan", year: 2024 } },
       ] as any,
       SERVICE_COMPLETED: [],
       PAYMENT_PENDING: [],

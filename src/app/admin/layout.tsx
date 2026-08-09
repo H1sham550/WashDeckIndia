@@ -27,8 +27,8 @@ export default async function AdminLayout({
     });
   } catch (err) {
     stations = [
-      { id: "mock-station-ryd", name: "Apex Luxury Detailing Studio - Riyadh", slug: "apex-riyadh" },
-      { id: "mock-station-koc", name: "WashDeck Express - Kochi", slug: "washdeck-kochi" },
+      { id: "mock-station-mum", name: "WashDeck Flagship — Mumbai", slug: "washdeck-mumbai" },
+      { id: "mock-station-del", name: "WashDeck Express — Delhi", slug: "washdeck-delhi" },
     ];
   }
 

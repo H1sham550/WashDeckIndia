@@ -74,8 +74,8 @@ export default async function SettingsPage() {
           paymentReminderTemplate: "Hi {customerName}, friendly reminder that payment of {amount} is pending for vehicle {vehicleNumber}.",
           dueForVisitReminderTemplate: "Hi {customerName}, your vehicle {vehicleNumber} is due for its next service visit. We hope to see you soon!",
           rewardEligibleTemplate: "Congratulations {customerName}! Your vehicle {vehicleNumber} has unlocked a loyalty reward. Redeem it on your next visit!",
-          locale: station?.country?.defaultLocale || "en-SA",
-          currency: station?.country?.currencyCode || "SAR",
+          locale: station?.country?.defaultLocale || "en-IN",
+          currency: station?.country?.currencyCode || "INR",
         }}
       />
     </div>

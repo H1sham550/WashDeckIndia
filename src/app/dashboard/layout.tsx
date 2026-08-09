@@ -54,7 +54,7 @@ export default async function DashboardLayout({
       <SwipeBackProvider>
       <div
         className="wd-app-shell"
-        dir={station?.isRTL ?? true ? "rtl" : "ltr"}
+        dir={station?.isRTL ? "rtl" : "ltr"}
         style={{ "--primary-color": primaryColor } as React.CSSProperties}
       >
         {/* Impersonation banner */}
@@ -133,15 +133,15 @@ export default async function DashboardLayout({
               </div>
             </div>
 
-            {/* Extended Banner Header - Row 2: Navbar Action Strip (RTL Aligned) */}
+            {/* Extended Banner Header - Row 2: Navbar Action Strip */}
             <div className="relative z-10 px-4 py-2.5 sm:px-6 flex items-center justify-between gap-3 border-t border-white/15 bg-white/10 backdrop-blur-md">
-              {/* Right Side (RTL): Notifications at Far Right, Search to its Left */}
+              {/* Right Side: Notifications, Search */}
               <div className="flex items-center gap-2 shrink-0">
                 <NotificationCenter align="right" />
                 <SpotlightSearch />
               </div>
 
-              {/* Left Side (RTL): Location Selector & Plan Name Badge at Far Left */}
+              {/* Left Side: Location Selector & Plan Name Badge */}
               <div className="flex items-center gap-2.5 shrink-0">
                 <StationSelector
                   currentStation={{

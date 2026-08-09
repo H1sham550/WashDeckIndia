@@ -935,16 +935,16 @@ export function Customer360View({
       {/* ── 5. CHANGE SUBSCRIPTION PLAN MODAL ────────────────────────────────────── */}
       {changePlanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl p-6 space-y-6 text-right" dir="rtl">
+          <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl p-6 space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 bg-blue-100 text-blue-800 rounded-xl">
                   <Package className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">تغيير خطة الاشتراك / Change Subscription Plan</h3>
+                  <h3 className="text-base font-extrabold text-slate-900">Change Subscription Plan</h3>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    اختر خطة الاشتراك الجديدة لمحطة <span className="font-bold text-slate-800">{station.name}</span>
+                    Select the new subscription plan for station <span className="font-bold text-slate-800">{station.name}</span>
                   </p>
                 </div>
               </div>
@@ -988,24 +988,24 @@ export function Customer360View({
                             <h4 className="text-sm font-extrabold text-slate-900">{p.name} Plan</h4>
                             {isCurrent && (
                               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">
-                                الخطة الحالية / Current
+                                Current Plan
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{p.description || "خطة شاملة لجميع العمليات"}</p>
+                          <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{p.description || "Comprehensive plan for all operations"}</p>
                           <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-600 font-semibold">
-                            <span>👥 حد الموظفين: {p.staffLimit} staff</span>
+                            <span>👥 Staff limit: {p.staffLimit}</span>
                             <span>•</span>
-                            <span>📄 تقارير: {p.reportLimit} / month</span>
+                            <span>📄 Reports: {p.reportLimit} / month</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="text-left flex-shrink-0">
                         <span className="text-base font-black text-slate-900">
-                          {Number(p.price) === 0 ? "مجاني / Free" : `₹/SAR ${Number(p.price).toLocaleString()}`}
+                          {Number(p.price) === 0 ? "Free" : `₹${Number(p.price).toLocaleString()}`}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-medium block mt-0.5">/{p.durationDays} يوم</span>
+                        <span className="text-[10px] text-slate-400 font-medium block mt-0.5">/{p.durationDays} days</span>
                       </div>
                     </div>
                   );
@@ -1022,7 +1022,7 @@ export function Customer360View({
                 onClick={() => setChangePlanModalOpen(false)}
                 className="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition"
               >
-                إلغاء / Cancel
+                Cancel
               </button>
               <button
                 type="button"
@@ -1031,7 +1031,7 @@ export function Customer360View({
                 className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-2"
               >
                 <Check size={16} />
-                <span>تأكيد وحفظ في قاعدة البيانات / Save to DB</span>
+                <span>Confirm &amp; Save to DB</span>
               </button>
             </div>
           </div>

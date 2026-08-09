@@ -26,7 +26,7 @@ export default async function QueuePage() {
         : new Date().toISOString(),
       vehicle: {
         id: job.vehicle?.id || job.vehicleId || "v-1",
-        vehicleNumber: job.vehicle?.vehicleNumber || job.vehicle?.plateNumber || "KSA 1000",
+        vehicleNumber: job.vehicle?.vehicleNumber || job.vehicle?.plateNumber || "MH-01-AB-0000",
         vehicleType: job.vehicle?.vehicleType || "SEDAN",
         brand: job.vehicle?.brand || job.vehicle?.make || "Toyota",
         model: job.vehicle?.model || "Camry",

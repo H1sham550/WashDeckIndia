@@ -39,7 +39,7 @@ export default async function AuditPage() {
         entityType: "Station",
         entityId: "mock-station-ryd",
         createdAt: new Date(),
-        station: { name: "Apex Luxury Detailing Studio - Riyadh", slug: "apex-riyadh" },
+        station: { name: "WashDeck Flagship — Mumbai", slug: "washdeck-mumbai" },
         actor: { id: "u-1", name: "System Super Admin", role: "SUPER_ADMIN" },
       },
       {
@@ -48,8 +48,8 @@ export default async function AuditPage() {
         entityType: "User",
         entityId: "u-2",
         createdAt: new Date(),
-        station: { name: "Apex Luxury Detailing Studio - Riyadh", slug: "apex-riyadh" },
-        actor: { id: "u-2", name: "Tariq Al-Mansoor", role: "OWNER" },
+        station: { name: "WashDeck Flagship — Mumbai", slug: "washdeck-mumbai" },
+        actor: { id: "u-2", name: "Rahul Sharma", role: "OWNER" },
       },
     ];
   }

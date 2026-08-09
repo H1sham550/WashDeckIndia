@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
       // 4. Create in-app EOD notification for store owner
       const notificationTitle = `🌙 Nightly EOD Summary (10:00 PM)`;
-      const notificationMessage = `Today's EOD Report for ${station.name}: 🚗 ${todayJobsCount} Cars Washed | 💰 SAR ${todayRevenue.toLocaleString()} Revenue | 💸 SAR ${todayExpenseTotal.toLocaleString()} Expenses | 📈 Net Profit: SAR ${netProfit.toLocaleString()}.`;
+      const notificationMessage = `Today's EOD Report for ${station.name}: 🚗 ${todayJobsCount} Cars Washed | 💰 ₹${todayRevenue.toLocaleString("en-IN")} Revenue | 💸 ₹${todayExpenseTotal.toLocaleString("en-IN")} Expenses | 📈 Net Profit: ₹${netProfit.toLocaleString("en-IN")}.`;
 
       await prisma.notification.create({
         data: {

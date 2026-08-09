@@ -100,18 +100,18 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
 
   if (!station && stationId && stationId !== "station" && stationId.length >= 8 && process.env.DATABASE_URL && !process.env.DATABASE_URL.includes("placeholder")) {
     try {
-      let country = await prisma.country.findFirst({ where: { code: "SA" } });
+      let country = await prisma.country.findFirst({ where: { code: "IN" } });
       if (!country) country = await prisma.country.findFirst();
       if (!country) {
         country = await prisma.country.create({
           data: {
-            code: "SA",
-            name: "Saudi Arabia",
-            currencyCode: "SAR",
-            currencyFormat: "SAR {amount}",
-            phonePrefix: "+966",
-            defaultLocale: "en-SA",
-            supportedLocales: ["en-SA", "ar-SA"],
+            code: "IN",
+            name: "India",
+            currencyCode: "INR",
+            currencyFormat: "₹{amount}",
+            phonePrefix: "+91",
+            defaultLocale: "en-IN",
+            supportedLocales: ["en-IN", "en"],
             dateFormat: "DD/MM/YYYY",
             timeFormat: "12h",
           },
@@ -121,7 +121,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       let region = await prisma.region.findFirst({ where: { countryId: country.id } });
       if (!region) {
         region = await prisma.region.create({
-          data: { countryId: country.id, name: "Riyadh", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15 },
+          data: { countryId: country.id, name: "Maharashtra", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18 },
         });
       }
 
@@ -142,8 +142,8 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
           },
           settings: {
             create: {
-              defaultCurrencyOverride: country.currencyCode || "SAR",
-              timezoneOverride: region.timezone || "Asia/Riyadh",
+              defaultCurrencyOverride: country.currencyCode || "INR",
+              timezoneOverride: region.timezone || "Asia/Kolkata",
             },
           },
         },
@@ -188,18 +188,18 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       reportLimit: 500,
       currentPlanName: "Pro Plan (Demo)",
       stationMetadata: {
-        id: stationId || "mock-station-ryd",
-        name: "Apex Luxury Detailing Studio - Riyadh",
-        slug: "apex-riyadh",
-        branchCode: "RYD001",
+        id: stationId || "mock-station-mum",
+        name: "WashDeck Flagship — Mumbai",
+        slug: "washdeck-mumbai",
+        branchCode: "MUM001",
         onboardingStatus: "COMPLETED",
         logoUrl: null,
         primaryColor: "#0b2240",
         dueForVisitThreshold: 30,
-        country: "SA",
-        currency: "SAR",
-        timezone: "Asia/Riyadh",
-        locale: "en-SA",
+        country: "IN",
+        currency: "INR",
+        timezone: "Asia/Kolkata",
+        locale: "en-IN",
         isRTL: false,
         vipSpendThreshold: 10000,
         vipVisitThreshold: 5,
@@ -390,11 +390,11 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
       bannerUrl: station.branding?.bookingCoverUrl || null,
       primaryColor: station.branding?.primaryColor || "#0F172A",
       dueForVisitThreshold: 30,
-      country: country?.code || "SA",
-      currency: country?.currencyCode || "SAR",
-      timezone: region?.timezone || "Asia/Riyadh",
-      locale: country?.defaultLocale || "ar-SA",
-      isRTL: country?.isRTL ?? true,
+      country: country?.code || "IN",
+      currency: country?.currencyCode || "INR",
+      timezone: region?.timezone || "Asia/Kolkata",
+      locale: country?.defaultLocale || "en-IN",
+      isRTL: country?.isRTL ?? false,
     },
   };
 
@@ -421,7 +421,7 @@ export const getUserStations = cache(async (email: string, role: string): Promis
     userStationsCache.set(email, { data, expiresAt: now + CACHE_TTL_MS });
     return data;
   } catch (err) {
-    return [{ id: "mock-station-ryd", name: "Apex Luxury Detailing Studio - Riyadh", slug: "apex-riyadh" }];
+    return [{ id: "mock-station-mum", name: "WashDeck Flagship — Mumbai", slug: "washdeck-mumbai" }];
   }
 });
 

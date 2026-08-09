@@ -67,7 +67,7 @@ export default async function DashboardPage() {
   const todayBookings = summary.todayBookings;
   const recentJobs = summary.recentDeliveredJobs;
 
-  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "ر.س ";
+  const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "₹";
 
   // Compute 7-day financial analyzing chart data for Store Owners
   const chartData: Array<{ label: string; income: number; expense: number }> = [];

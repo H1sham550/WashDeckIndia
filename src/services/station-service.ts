@@ -34,8 +34,8 @@ export async function getStationBranding(id: string) {
     paymentReminderTemplate: "",
     dueForVisitReminderTemplate: "",
     rewardEligibleTemplate: "",
-    currency: c.currencyCode || "SAR",
-    locale: c.defaultLocale || "ar-SA"
+    currency: c.currencyCode || "INR",
+    locale: c.defaultLocale || "en-IN"
   };
 }
 

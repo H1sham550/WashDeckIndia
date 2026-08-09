@@ -158,14 +158,14 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
           />
 
           {/* Notification Panel Card - Pinned Header & Bottom Close Bar (Sized to match Search Modal length) */}
-          <div className="relative z-[210] w-full sm:w-96 max-h-[60vh] sm:max-h-[55vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-right" dir="rtl">
+          <div className="relative z-[210] w-full sm:w-96 max-h-[60vh] sm:max-h-[55vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Pinned Header (Always Visible at Top) */}
             <div className="flex items-center justify-between p-3 sm:p-3.5 border-b border-slate-100 bg-white flex-shrink-0 shadow-xs">
               <div className="flex items-center gap-2">
-                <h3 className="text-xs sm:text-sm font-black text-slate-900">الإشعارات / Notifications</h3>
+                <h3 className="text-xs sm:text-sm font-black text-slate-900">Notifications</h3>
                 {unreadCount > 0 && (
                   <span className="bg-blue-100 text-blue-900 text-[10px] font-black px-2 py-0.5 rounded-full border border-blue-200">
-                    {unreadCount} جديد
+                    {unreadCount} new
                   </span>
                 )}
               </div>

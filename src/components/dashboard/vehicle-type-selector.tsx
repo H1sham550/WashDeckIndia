@@ -166,7 +166,6 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
               {/* Label */}
               <div>
                 <p className="text-xs font-bold leading-tight">{item.label}</p>
-                <p className="text-[10px] text-slate-400 font-medium">{item.arabicLabel}</p>
               </div>
             </button>
           );
@@ -181,7 +180,7 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-800">{activeOption.label} ({activeOption.arabicLabel})</span>
+              <span className="font-bold text-slate-800">{activeOption.label}</span>
               <span className="text-[10px] font-extrabold px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded">
                 {activeOption.doors}
               </span>

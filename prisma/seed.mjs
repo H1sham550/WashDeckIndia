@@ -34,16 +34,16 @@ async function main() {
   await prisma.organization.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
 
-  console.log("Seeding Database...");
+  console.log("Seeding Database for WashDeck India...");
   const defaultPasswordHash = hashPassword("WashDeck123");
 
   // 1. Subscription Plans
-  console.log("Creating Subscription Plans...");
+  console.log("Creating Subscription Plans (in INR)...");
   const plans = [
     {
       name: "Starter",
       description: "Ideal for growing detailing studios and quick wash centers",
-      price: 499.00,
+      price: 1199.00,
       durationDays: 30,
       trialDays: 14,
       staffLimit: 3,
@@ -54,7 +54,7 @@ async function main() {
     {
       name: "Professional",
       description: "Advanced enterprise workflows, custom branding & high volume processing",
-      price: 1499.00,
+      price: 2499.00,
       durationDays: 30,
       trialDays: 14,
       staffLimit: 10,
@@ -65,7 +65,7 @@ async function main() {
     {
       name: "Enterprise",
       description: "Multi-branch capabilities, dedicated SLA & white-label portals",
-      price: 3999.00,
+      price: 4999.00,
       durationDays: 30,
       trialDays: 30,
       staffLimit: 50,
@@ -79,37 +79,8 @@ async function main() {
     await prisma.subscriptionPlan.create({ data: plan });
   }
 
-  // 2. Countries & Regions
-  console.log("Creating Countries & Regions (Saudi Arabia, India, UAE)...");
-  const saudiArabia = await prisma.country.create({
-    data: {
-      code: "SA",
-      name: "Saudi Arabia",
-      currencyCode: "SAR",
-      currencyFormat: "ar-SA",
-      phonePrefix: "+966",
-      defaultLocale: "ar-SA",
-      supportedLocales: ["en-SA", "ar-SA"],
-      isRTL: true,
-      dateFormat: "YYYY-MM-DD",
-      timeFormat: "24h",
-      decimalSeparator: ".",
-      thousandsSeparator: ",",
-      measurementSystem: "metric",
-      currencySymbolPosition: "right",
-      firstDayOfWeek: 0,
-      weekendDays: [5, 6],
-      regions: {
-        create: [
-          { name: "Riyadh Province", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 },
-          { name: "Makkah Province (Jeddah)", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 },
-          { name: "Eastern Province (Dammam)", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 }
-        ]
-      }
-    },
-    include: { regions: true }
-  });
-
+  // 2. Countries & Regions (India Primary)
+  console.log("Creating Countries & Regions (India Primary, UAE, Saudi Arabia)...");
   const india = await prisma.country.create({
     data: {
       code: "IN",
@@ -118,7 +89,7 @@ async function main() {
       currencyFormat: "en-IN",
       phonePrefix: "+91",
       defaultLocale: "en-IN",
-      supportedLocales: ["en-IN"],
+      supportedLocales: ["en-IN", "en"],
       isRTL: false,
       dateFormat: "DD/MM/YYYY",
       timeFormat: "12h",
@@ -130,9 +101,10 @@ async function main() {
       weekendDays: [0],
       regions: {
         create: [
-          { name: "Kerala", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
-          { name: "Karnataka (Bangalore)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
-          { name: "Maharashtra (Mumbai)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 }
+          { name: "Maharashtra (Mumbai)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
+          { name: "Karnataka (Bengaluru)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
+          { name: "Kerala (Kochi)", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 },
+          { name: "Delhi NCR", timezone: "Asia/Kolkata", taxName: "GST", taxRate: 18.00 }
         ]
       }
     },
@@ -147,7 +119,7 @@ async function main() {
       currencyFormat: "en-AE",
       phonePrefix: "+971",
       defaultLocale: "en-AE",
-      supportedLocales: ["en-AE", "ar-AE"],
+      supportedLocales: ["en-AE"],
       isRTL: false,
       dateFormat: "DD/MM/YYYY",
       timeFormat: "24h",
@@ -159,8 +131,34 @@ async function main() {
       weekendDays: [5, 6],
       regions: {
         create: [
-          { name: "Dubai", timezone: "Asia/Dubai", taxName: "VAT", taxRate: 5.00 },
-          { name: "Abu Dhabi", timezone: "Asia/Dubai", taxName: "VAT", taxRate: 5.00 }
+          { name: "Dubai", timezone: "Asia/Dubai", taxName: "VAT", taxRate: 5.00 }
+        ]
+      }
+    },
+    include: { regions: true }
+  });
+
+  const saudiArabia = await prisma.country.create({
+    data: {
+      code: "SA",
+      name: "Saudi Arabia",
+      currencyCode: "SAR",
+      currencyFormat: "en-SA",
+      phonePrefix: "+966",
+      defaultLocale: "en-SA",
+      supportedLocales: ["en-SA"],
+      isRTL: false,
+      dateFormat: "DD/MM/YYYY",
+      timeFormat: "24h",
+      decimalSeparator: ".",
+      thousandsSeparator: ",",
+      measurementSystem: "metric",
+      currencySymbolPosition: "left",
+      firstDayOfWeek: 0,
+      weekendDays: [5, 6],
+      regions: {
+        create: [
+          { name: "Riyadh Province", timezone: "Asia/Riyadh", taxName: "VAT", taxRate: 15.00 }
         ]
       }
     },
@@ -173,10 +171,10 @@ async function main() {
     data: {
       name: "Premium Detailing Studio",
       defaultServicesJson: [
-        { name: "Graphene 9H Ceramic Coating (5 Yr Warranty)", price: 2500, description: "Multi-layer extreme gloss and scratch protection" },
-        { name: "Paint Protection Film (PPF) - Full Body TPU", price: 8500, description: "Self-healing ultra-clear protective shield" },
-        { name: "Interior Deep Steam Sanitization & Leather Conditioning", price: 450, description: "Deep extraction and antimicrobial treatment" },
-        { name: "Stage 2 Dual Action Paint Correction & Polishing", price: 800, description: "Removes 85%+ swirl marks and oxidation" }
+        { name: "Graphene 9H Ceramic Coating (5 Yr Warranty)", price: 15000, description: "Multi-layer extreme gloss and scratch protection" },
+        { name: "Paint Protection Film (PPF) - Full Body TPU", price: 65000, description: "Self-healing ultra-clear protective shield" },
+        { name: "Interior Deep Steam Sanitization & Leather Conditioning", price: 2499, description: "Deep extraction and antimicrobial treatment" },
+        { name: "Stage 2 Dual Action Paint Correction & Polishing", price: 4999, description: "Removes 85%+ swirl marks and oxidation" }
       ],
       defaultSettingsJson: {
         autoJobNumberFormat: "DET-{YY}{MM}-{000}",
@@ -191,9 +189,9 @@ async function main() {
     data: {
       name: "Express Auto Wash Center",
       defaultServicesJson: [
-        { name: "Express Foam Exterior Wash + Tire Dressing", price: 45, description: "High-pressure touchless pre-wash and pH neutral foam" },
-        { name: "Full Body Wash + Interior Vacuum & Dashboard Wipe", price: 75, description: "Comprehensive inside-out cleaning" },
-        { name: "Underbody High-Pressure Degreasing", price: 30, description: "Removes road grime and salt buildup" }
+        { name: "Express Foam Exterior Wash + Tire Dressing", price: 399, description: "High-pressure touchless pre-wash and pH neutral foam" },
+        { name: "Full Body Wash + Interior Vacuum & Dashboard Wipe", price: 699, description: "Comprehensive inside-out cleaning" },
+        { name: "Underbody High-Pressure Degreasing", price: 299, description: "Removes road grime and mud buildup" }
       ],
       defaultSettingsJson: {
         autoJobNumberFormat: "WSH-{YY}{MM}-{000}",
@@ -204,61 +202,62 @@ async function main() {
     }
   });
 
-  // 4. Organizations
-  console.log("Creating Enterprise Organization & Stations...");
+  // 4. Organization & Stations
+  console.log("Creating Enterprise Organization & Indian Stations...");
   const org = await prisma.organization.create({
     data: {
-      name: "Al-Rajhi Premium Auto Group",
-      slug: "alrajhi-auto-group"
+      name: "WashDeck India Group",
+      slug: "washdeck-india-group"
     }
   });
 
-  // Riyadh Flagship Studio (Saudi Arabia)
-  const riyadhRegion = saudiArabia.regions.find(r => r.name.includes("Riyadh"));
-  const stationRiyadh = await prisma.station.create({
+  // Mumbai Flagship Studio (Primary Station)
+  const mumbaiRegion = india.regions.find(r => r.name.includes("Maharashtra"));
+  const stationMumbai = await prisma.station.create({
     data: {
       organizationId: org.id,
-      countryId: saudiArabia.id,
-      regionId: riyadhRegion.id,
+      countryId: india.id,
+      regionId: mumbaiRegion.id,
       businessTemplateId: detailingStudioTemplate.id,
-      branchCode: "RYD001",
-      name: "Apex Luxury Detailing Studio - Riyadh",
-      slug: "apex-riyadh",
+      branchCode: "MUM001",
+      name: "WashDeck Flagship Studio — Mumbai",
+      slug: "washdeck-mumbai",
       status: StationStatus.ACTIVE,
       branding: {
         create: {
-          squareLogoUrl: "/images/logo-square.png",
-          horizontalLogoUrl: "/images/logo-horizontal.png",
+          squareLogoUrl: "/logo-icon.png",
+          horizontalLogoUrl: "/logo-icon.png",
           primaryColor: "#0F172A",
           themeMode: "dark",
-          businessPhone: "+966 50 123 4567",
-          businessEmail: "riyadh@apexdetailing.sa",
-          businessAddress: "King Fahd Road, Olaya District, Riyadh 12211",
-          websiteUrl: "https://apexdetailing.sa"
+          businessPhone: "+91 98765 43210",
+          businessEmail: "mumbai@washdeck.in",
+          businessAddress: "Bandra Kurla Complex (BKC), Mumbai, Maharashtra 400051",
+          websiteUrl: "https://wash-deck-india.vercel.app"
         }
       },
       settings: {
         create: {
-          autoJobNumberFormat: "RYD-{YY}{MM}-{000}",
-          invoicePrefix: "RYD-INV-",
+          autoJobNumberFormat: "MUM-{YY}{MM}-{000}",
+          invoicePrefix: "MUM-INV-",
           bookingLeadTime: 120,
-          maxDailyBookings: 15,
+          maxDailyBookings: 25,
           businessHoursJson: {
             mon: { open: "09:00", close: "21:00" },
             tue: { open: "09:00", close: "21:00" },
             wed: { open: "09:00", close: "21:00" },
             thu: { open: "09:00", close: "21:00" },
-            sat: { open: "10:00", close: "22:00" },
-            sun: { open: "09:00", close: "21:00" }
+            fri: { open: "09:00", close: "21:00" },
+            sat: { open: "09:00", close: "21:00" },
+            sun: { open: "10:00", close: "20:00" }
           },
-          workingDays: [0, 1, 2, 3, 4, 6],
+          workingDays: [0, 1, 2, 3, 4, 5, 6],
           photoRequirementsJson: ["FRONT", "REAR", "LEFT", "RIGHT", "INTERIOR_DASH", "ODOMETER"]
         }
       }
     }
   });
 
-  // Kochi Express Wash (India)
+  // Kochi Express Wash (Secondary Station)
   const kochiRegion = india.regions.find(r => r.name.includes("Kerala"));
   const stationKochi = await prisma.station.create({
     data: {
@@ -267,7 +266,7 @@ async function main() {
       regionId: kochiRegion.id,
       businessTemplateId: expressWashTemplate.id,
       branchCode: "KOC001",
-      name: "WashDeck Express - Kochi Marine Drive",
+      name: "WashDeck Express — Kochi Marine Drive",
       slug: "washdeck-kochi",
       status: StationStatus.ACTIVE,
       branding: {
@@ -276,7 +275,7 @@ async function main() {
           themeMode: "light",
           businessPhone: "+91 98460 12345",
           businessEmail: "kochi@washdeck.in",
-          businessAddress: "Marine Drive Walkway, Ernakulam, Kochi 682031"
+          businessAddress: "Marine Drive Walkway, Ernakulam, Kochi, Kerala 682031"
         }
       },
       settings: {
@@ -295,36 +294,36 @@ async function main() {
     data: {
       role: UserRole.SUPER_ADMIN,
       name: "System Super Admin",
-      email: "admin@washdeck.com",
+      email: "admin@washdeck.in",
       passwordHash: defaultPasswordHash,
       status: "ACTIVE"
     }
   });
 
-  // Riyadh Station Owner & Staff
-  const riyadhOwner = await prisma.user.create({
+  // Mumbai Station Owner & Staff
+  const mumbaiOwner = await prisma.user.create({
     data: {
-      stationId: stationRiyadh.id,
+      stationId: stationMumbai.id,
       role: UserRole.OWNER,
-      name: "Tariq Al-Mansoor",
-      email: "tariq@apexdetailing.sa",
+      name: "Rahul Sharma",
+      email: "owner@washdeck.in",
       passwordHash: defaultPasswordHash,
       status: "ACTIVE"
     }
   });
 
-  const riyadhStaff = await prisma.user.create({
+  const mumbaiStaff = await prisma.user.create({
     data: {
-      stationId: stationRiyadh.id,
+      stationId: stationMumbai.id,
       role: UserRole.STAFF,
-      name: "Zayn Abbas",
-      username: "zayn_ryd",
+      name: "Aakash Patel",
+      username: "aakash_mum",
       passwordHash: defaultPasswordHash,
       status: "ACTIVE"
     }
   });
 
-  // Kochi Station Owner & Staff
+  // Kochi Station Owner
   await prisma.user.create({
     data: {
       stationId: stationKochi.id,
@@ -336,11 +335,11 @@ async function main() {
     }
   });
 
-  // 6. Services for Riyadh Station
-  console.log("Creating Services for Riyadh Station...");
+  // 6. Services for Mumbai Station
+  console.log("Creating Services for Mumbai Station...");
   const serviceCeramic = await prisma.service.create({
     data: {
-      stationId: stationRiyadh.id,
+      stationId: stationMumbai.id,
       name: "Graphene 9H Ceramic Coating (5 Year Warranty)",
       description: "Multi-layer extreme gloss shield with hydrophobic self-cleaning properties."
     }
@@ -348,150 +347,117 @@ async function main() {
 
   const serviceInterior = await prisma.service.create({
     data: {
-      stationId: stationRiyadh.id,
-      name: "Interior Deep Steam Extraction & Antimicrobial Treatment",
-      description: "Complete cabin restoration, leather re-nourishment, and ozone odor elimination."
+      stationId: stationMumbai.id,
+      name: "Interior Deep Steam Extraction & Sanitization",
+      description: "Complete cabin restoration, leather re-nourishment, and antibacterial treatment."
     }
   });
 
   const serviceWash = await prisma.service.create({
     data: {
-      stationId: stationRiyadh.id,
-      name: "Presidential Exterior Wash & Paint Decontamination",
-      description: "pH neutral snow foam, clay bar treatment, and spray sealant application."
+      stationId: stationMumbai.id,
+      name: "Full Body Foam Wash & Underbody Cleaning",
+      description: "pH neutral snow foam, clay bar treatment, and chassis wash."
     }
   });
 
-  // 7. Customers & Vehicles for Riyadh
-  console.log("Creating Customers & Vehicles for Riyadh...");
-  const custFahad = await prisma.customer.create({
+  // 7. Customers & Vehicles for Mumbai
+  console.log("Creating Customers & Vehicles for Mumbai...");
+  const custRahul = await prisma.customer.create({
     data: {
-      stationId: stationRiyadh.id,
-      name: "Prince Fahad Bin Sultan",
-      mobile: "+966501112233"
+      stationId: stationMumbai.id,
+      name: "Vikramaditya Verma",
+      mobile: "+919876543210"
     }
   });
 
   const vehicleG63 = await prisma.vehicle.create({
     data: {
-      stationId: stationRiyadh.id,
-      vehicleNumber: "KSA-9999-XYZ",
+      stationId: stationMumbai.id,
+      vehicleNumber: "MH-01-AB-1234",
       brand: "Mercedes-AMG",
       model: "G63 Edition 1"
     }
   });
 
-  const custOmar = await prisma.customer.create({
+  const custPriya = await prisma.customer.create({
     data: {
-      stationId: stationRiyadh.id,
-      name: "Dr. Omar Al-Ghamdi",
-      mobile: "+966554445566"
+      stationId: stationMumbai.id,
+      name: "Priya Menon",
+      mobile: "+918765432109"
     }
   });
 
-  const vehiclePorsche = await prisma.vehicle.create({
+  const vehicleTaycan = await prisma.vehicle.create({
     data: {
-      stationId: stationRiyadh.id,
-      vehicleNumber: "RYD-777-KSA",
+      stationId: stationMumbai.id,
+      vehicleNumber: "MH-02-CD-9999",
       brand: "Porsche",
-      model: "911 GT3 RS"
+      model: "Taycan 4S"
     }
   });
 
-  // 8. Sample Job Cards, Invoices & Payments
+  // 8. Operational Job Cards & Invoices for Mumbai
   console.log("Creating Operational Job Cards & Invoices...");
-  const jobCard1 = await prisma.jobCard.create({
+  const jobActive = await prisma.jobCard.create({
     data: {
-      stationId: stationRiyadh.id,
+      stationId: stationMumbai.id,
       vehicleId: vehicleG63.id,
-      customerId: custFahad.id,
-      creatorId: riyadhStaff.id,
-      status: JobStatus.IN_PROGRESS
+      customerId: custRahul.id,
+      creatorId: mumbaiOwner.id,
+      status: JobStatus.IN_PROGRESS,
+      expectedCompletionTime: new Date(Date.now() + 7200000)
     }
   });
 
   await prisma.jobCardService.create({
     data: {
-      jobCardId: jobCard1.id,
+      jobCardId: jobActive.id,
       serviceId: serviceCeramic.id,
       serviceNameSnapshot: serviceCeramic.name,
-      priceSnapshot: 3500.00
+      priceSnapshot: 15000.00
+    }
+  });
+
+  const jobCompleted = await prisma.jobCard.create({
+    data: {
+      stationId: stationMumbai.id,
+      vehicleId: vehicleTaycan.id,
+      customerId: custPriya.id,
+      creatorId: mumbaiOwner.id,
+      status: JobStatus.SERVICE_COMPLETED,
+      expectedCompletionTime: new Date(Date.now() - 1800000)
     }
   });
 
   await prisma.jobCardService.create({
     data: {
-      jobCardId: jobCard1.id,
-      serviceId: serviceInterior.id,
-      serviceNameSnapshot: serviceInterior.name,
-      priceSnapshot: 650.00
-    }
-  });
-
-  const invoice1 = await prisma.invoice.create({
-    data: {
-      stationId: stationRiyadh.id,
-      jobCardId: jobCard1.id,
-      invoiceNumber: "RYD-INV-1001",
-      subtotal: 4150.00,
-      discount: 150.00,
-      finalAmount: 4000.00,
-      status: InvoiceStatus.ISSUED
-    }
-  });
-
-  // Create partial payment
-  await prisma.payment.create({
-    data: {
-      invoiceId: invoice1.id,
-      amount: 2000.00,
-      method: PaymentMethod.CARD,
-      status: PaymentStatus.COMPLETED,
-      gatewayName: "Mada / Geidea POS",
-      transactionRef: "TXN_KSA_9988776655"
-    }
-  });
-
-  // Completed Job Card with full payment
-  const jobCard2 = await prisma.jobCard.create({
-    data: {
-      stationId: stationRiyadh.id,
-      vehicleId: vehiclePorsche.id,
-      customerId: custOmar.id,
-      creatorId: riyadhOwner.id,
-      status: JobStatus.SERVICE_COMPLETED
-    }
-  });
-
-  await prisma.jobCardService.create({
-    data: {
-      jobCardId: jobCard2.id,
+      jobCardId: jobCompleted.id,
       serviceId: serviceWash.id,
       serviceNameSnapshot: serviceWash.name,
-      priceSnapshot: 450.00
+      priceSnapshot: 1499.00
     }
   });
 
-  const invoice2 = await prisma.invoice.create({
+  const invoiceCompleted = await prisma.invoice.create({
     data: {
-      stationId: stationRiyadh.id,
-      jobCardId: jobCard2.id,
-      invoiceNumber: "RYD-INV-1002",
-      subtotal: 450.00,
-      discount: 0.00,
-      finalAmount: 450.00,
+      stationId: stationMumbai.id,
+      jobCardId: jobCompleted.id,
+      invoiceNumber: "MUM-INV-1001",
+      subtotal: 1499.00,
+      discount: 0,
+      finalAmount: 1768.82,
       status: InvoiceStatus.PAID
     }
   });
 
   await prisma.payment.create({
     data: {
-      invoiceId: invoice2.id,
-      amount: 450.00,
-      method: PaymentMethod.CARD,
+      invoiceId: invoiceCompleted.id,
+      amount: 1768.82,
+      method: PaymentMethod.UPI,
       status: PaymentStatus.COMPLETED,
-      gatewayName: "Apple Pay (Mada)",
-      transactionRef: "AP_KSA_11223344"
+      transactionRef: "UPI/987654321/MUM"
     }
   });
 
@@ -499,23 +465,14 @@ async function main() {
   console.log("Creating Bookings...");
   await prisma.booking.create({
     data: {
-      stationId: stationRiyadh.id,
-      customerName: "Khalid Al-Dosari",
-      mobile: "+966509988776",
-      vehicleNumber: "KSA-1234-ABC",
-      scheduledAt: new Date(Date.now() + 3600000 * 4), // 4 hours from now
+      stationId: stationMumbai.id,
+      customerName: "Ananya Roy",
+      mobile: "+919988776655",
+      vehicleNumber: "MH-12-PQ-5555",
+      vehicleType: "SEDAN",
+      scheduledAt: new Date(Date.now() + 86400000),
+      serviceName: "Interior Deep Steam Extraction",
       status: BookingStatus.CONFIRMED
-    }
-  });
-
-  await prisma.booking.create({
-    data: {
-      stationId: stationRiyadh.id,
-      customerName: "Nawaf Al-Mutairi",
-      mobile: "+966551122334",
-      vehicleNumber: "RYD-555-BMW",
-      scheduledAt: new Date(Date.now() + 3600000 * 24), // Tomorrow
-      status: BookingStatus.PENDING
     }
   });
 
@@ -523,35 +480,27 @@ async function main() {
   console.log("Creating Notifications...");
   await prisma.notification.create({
     data: {
-      stationId: stationRiyadh.id,
-      title: "New VIP Customer Booking",
-      message: "Prince Fahad scheduled a Ceramic Coating checkup for next Thursday.",
-      priority: NotificationPriority.HIGH
-    }
-  });
-
-  await prisma.notification.create({
-    data: {
-      stationId: stationRiyadh.id,
-      title: "Invoice #RYD-INV-1001 Partially Paid",
-      message: "Received SAR 2,000 via Mada POS. Balance SAR 2,000 pending.",
-      priority: NotificationPriority.MEDIUM
+      stationId: stationMumbai.id,
+      title: "Welcome to WashDeck India",
+      message: "Your Mumbai Flagship Studio station is ready. Start managing intake, job cards, and invoices.",
+      priority: NotificationPriority.HIGH,
+      isRead: false
     }
   });
 
   console.log("Database Seed Complete! 🚀");
   console.log("=========================================");
-  console.log("Demo Credentials:");
-  console.log("Super Admin: admin@washdeck.com | WashDeck123");
-  console.log("Riyadh Owner: tariq@apexdetailing.sa | WashDeck123");
-  console.log("Riyadh Staff: (username) zayn_ryd | WashDeck123");
+  console.log("WashDeck India Credentials:");
+  console.log("Super Admin: admin@washdeck.in | WashDeck123");
+  console.log("Mumbai Owner: owner@washdeck.in | WashDeck123");
+  console.log("Mumbai Staff: (username) aakash_mum | WashDeck123");
   console.log("Kochi Owner: athul@washdeck.in | WashDeck123");
   console.log("=========================================");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("Error during seeding:", e);
     process.exit(1);
   })
   .finally(async () => {

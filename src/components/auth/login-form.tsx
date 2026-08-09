@@ -2,12 +2,13 @@
 
 import React, { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, AlertTriangle, KeyRound, User } from "lucide-react";
+import { Loader2, AlertTriangle, KeyRound, User, Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
   const router = useRouter();
   const [identity, setIdentity] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -89,14 +90,22 @@ export function LoginForm() {
             <KeyRound className="absolute left-3.5 top-3 text-slate-400" size={16} />
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               disabled={loading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-11 w-full rounded-xl border border-slate-250/80 pl-10 pr-4 text-sm font-semibold outline-none focus:border-[var(--primary-color)] transition bg-slate-50/50"
+              className="h-11 w-full rounded-xl border border-slate-250/80 pl-10 pr-11 text-sm font-semibold outline-none focus:border-[var(--primary-color)] transition bg-slate-50/50"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
         </div>
 

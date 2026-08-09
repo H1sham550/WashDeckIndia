@@ -77,33 +77,65 @@ export default async function FinancePage() {
     }).catch(() => 0),
   ]);
 
-  const incomes = (paidInvoices || []).map((inv) => ({
-    id: inv.id,
-    jobCardId: inv.jobCardId,
-    invoiceNumber: inv.invoiceNumber || `INV-${inv.id.slice(0, 6)}`,
-    amount: Number(inv.finalAmount || 0),
-    date: inv.createdAt ? new Date(inv.createdAt).toISOString() : new Date().toISOString(),
-    paymentMethod: inv.payments?.[0]?.method || "CASH",
-    vehicleNumber: inv.jobCard?.vehicle?.vehicleNumber || "N/A",
-    customerName: inv.jobCard?.customer?.name || "Walk-in Customer",
-    type: "INCOME" as const,
-  }));
+  const incomes = (paidInvoices || []).map((inv) => {
+    let dateStr = new Date().toISOString();
+    try {
+      if (inv.createdAt) {
+        const d = new Date(inv.createdAt);
+        if (!isNaN(d.getTime())) dateStr = d.toISOString();
+      }
+    } catch {}
 
-  const serializedExpenses = (expenses || []).map((exp) => ({
-    id: exp.id,
-    title: exp.title || "Expense",
-    category: exp.category || "OTHER",
-    amount: Number(exp.amount || 0),
-    date: exp.date ? new Date(exp.date).toISOString() : new Date().toISOString(),
-    notes: exp.notes || "",
-    type: "EXPENSE" as const,
-  }));
+    return {
+      id: inv.id || Math.random().toString(),
+      jobCardId: inv.jobCardId || "",
+      invoiceNumber: inv.invoiceNumber || (inv.id ? `INV-${inv.id.slice(0, 6)}` : "INV-000000"),
+      amount: Number(inv.finalAmount || 0),
+      date: dateStr,
+      paymentMethod: inv.payments?.[0]?.method || "CASH",
+      vehicleNumber: inv.jobCard?.vehicle?.vehicleNumber || "N/A",
+      customerName: inv.jobCard?.customer?.name || "Walk-in Customer",
+      type: "INCOME" as const,
+    };
+  });
+
+  const serializedExpenses = (expenses || []).map((exp) => {
+    let dateStr = new Date().toISOString();
+    try {
+      if (exp.date) {
+        const d = new Date(exp.date);
+        if (!isNaN(d.getTime())) dateStr = d.toISOString();
+      }
+    } catch {}
+
+    return {
+      id: exp.id || Math.random().toString(),
+      title: exp.title || "Expense",
+      category: exp.category || "OTHER",
+      amount: Number(exp.amount || 0),
+      date: dateStr,
+      notes: exp.notes || "",
+      type: "EXPENSE" as const,
+    };
+  });
 
   const todayKey = new Date().toDateString();
-  const todayExpensesList = (expenses || []).filter((e) => e && e.date && new Date(e.date).toDateString() === todayKey);
+  const todayExpensesList = (expenses || []).filter((e) => {
+    try {
+      return e && e.date && new Date(e.date).toDateString() === todayKey;
+    } catch {
+      return false;
+    }
+  });
   const todayExpensesTotal = todayExpensesList.reduce((sum, e) => sum + Number(e.amount || 0), 0);
   const todayRevenueTotal = (paidInvoices || [])
-    .filter((inv) => inv && inv.createdAt && new Date(inv.createdAt).toDateString() === todayKey)
+    .filter((inv) => {
+      try {
+        return inv && inv.createdAt && new Date(inv.createdAt).toDateString() === todayKey;
+      } catch {
+        return false;
+      }
+    })
     .reduce((sum, inv) => sum + Number(inv.finalAmount || 0), 0);
 
   const primaryColor = entitlements.stationMetadata?.primaryColor || "#0f766e";

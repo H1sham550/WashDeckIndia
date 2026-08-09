@@ -3,10 +3,11 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { requireFeature } from "@/lib/feature-flags";
+import { invalidateCache } from "@/lib/cache";
 
 const updateExpenseSchema = z.object({
   title: z.string().trim().min(1, "Title is required").optional(),
-  category: z.enum(["SUPPLIES", "UTILITIES", "RENT", "SALARIES", "MARKETING", "REPAIRS", "OTHER"]).optional(),
+  category: z.enum(["ELECTRICITY", "WATER", "SUPPLIES", "UTILITIES", "RENT", "SALARIES", "MARKETING", "REPAIRS", "OTHER"]).optional(),
   amount: z.union([z.number(), z.string().transform((v) => Number(v))]).refine((val) => val > 0, {
     message: "Amount must be greater than 0",
   }).optional(),
@@ -64,6 +65,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       },
     });
 
+    // Invalidate finance data cache for instant UI sync
+    if (session.stationId) {
+      invalidateCache(`finance_data_${session.stationId}`);
+    }
+
     return NextResponse.json({ ok: true, expense });
   } catch (error: any) {
     console.error("PATCH expense error:", error);
@@ -104,6 +110,11 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
         newValue: { title: existing.title, category: existing.category, amount: Number(existing.amount) },
       },
     });
+
+    // Invalidate finance data cache for instant UI sync
+    if (session.stationId) {
+      invalidateCache(`finance_data_${session.stationId}`);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error: any) {

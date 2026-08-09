@@ -77,34 +77,34 @@ export default async function FinancePage() {
     }).catch(() => 0),
   ]);
 
-  const incomes = paidInvoices.map((inv) => ({
+  const incomes = (paidInvoices || []).map((inv) => ({
     id: inv.id,
     jobCardId: inv.jobCardId,
-    invoiceNumber: inv.invoiceNumber,
-    amount: Number(inv.finalAmount),
-    date: inv.createdAt.toISOString(),
-    paymentMethod: inv.payments[0]?.method || "CASH",
-    vehicleNumber: inv.jobCard.vehicle.vehicleNumber,
-    customerName: inv.jobCard.customer.name,
+    invoiceNumber: inv.invoiceNumber || `INV-${inv.id.slice(0, 6)}`,
+    amount: Number(inv.finalAmount || 0),
+    date: inv.createdAt ? new Date(inv.createdAt).toISOString() : new Date().toISOString(),
+    paymentMethod: inv.payments?.[0]?.method || "CASH",
+    vehicleNumber: inv.jobCard?.vehicle?.vehicleNumber || "N/A",
+    customerName: inv.jobCard?.customer?.name || "Walk-in Customer",
     type: "INCOME" as const,
   }));
 
-  const serializedExpenses = expenses.map((exp) => ({
+  const serializedExpenses = (expenses || []).map((exp) => ({
     id: exp.id,
-    title: exp.title,
-    category: exp.category,
-    amount: Number(exp.amount),
-    date: exp.date.toISOString(),
+    title: exp.title || "Expense",
+    category: exp.category || "OTHER",
+    amount: Number(exp.amount || 0),
+    date: exp.date ? new Date(exp.date).toISOString() : new Date().toISOString(),
     notes: exp.notes || "",
     type: "EXPENSE" as const,
   }));
 
   const todayKey = new Date().toDateString();
-  const todayExpensesList = expenses.filter((e) => new Date(e.date).toDateString() === todayKey);
-  const todayExpensesTotal = todayExpensesList.reduce((sum, e) => sum + Number(e.amount), 0);
-  const todayRevenueTotal = paidInvoices
-    .filter((inv) => new Date(inv.createdAt).toDateString() === todayKey)
-    .reduce((sum, inv) => sum + Number(inv.finalAmount), 0);
+  const todayExpensesList = (expenses || []).filter((e) => e && e.date && new Date(e.date).toDateString() === todayKey);
+  const todayExpensesTotal = todayExpensesList.reduce((sum, e) => sum + Number(e.amount || 0), 0);
+  const todayRevenueTotal = (paidInvoices || [])
+    .filter((inv) => inv && inv.createdAt && new Date(inv.createdAt).toDateString() === todayKey)
+    .reduce((sum, inv) => sum + Number(inv.finalAmount || 0), 0);
 
   const primaryColor = entitlements.stationMetadata?.primaryColor || "#0f766e";
   const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "₹";

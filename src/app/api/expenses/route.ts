@@ -3,10 +3,11 @@ import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { requireFeature } from "@/lib/feature-flags";
+import { invalidateCache } from "@/lib/cache";
 
 const createExpenseSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
-  category: z.enum(["SUPPLIES", "UTILITIES", "RENT", "SALARIES", "MARKETING", "REPAIRS", "OTHER"]),
+  category: z.enum(["ELECTRICITY", "WATER", "SUPPLIES", "UTILITIES", "RENT", "SALARIES", "MARKETING", "REPAIRS", "OTHER"]),
   amount: z.union([z.number(), z.string().transform((v) => Number(v))]).refine((val) => val > 0, {
     message: "Amount must be greater than 0",
   }),
@@ -67,6 +68,11 @@ export async function POST(request: NextRequest) {
         newValue: { title: expense.title, category: expense.category, amount: Number(expense.amount) },
       },
     });
+
+    // Invalidate finance data cache for instant UI sync
+    if (session.stationId) {
+      invalidateCache(`finance_data_${session.stationId}`);
+    }
 
     return NextResponse.json({ ok: true, expense });
   } catch (error: any) {

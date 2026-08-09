@@ -67,8 +67,8 @@ export function LoginForm() {
           <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500" htmlFor="identity">
             Email or Mobile Number
           </label>
-          <div className="relative">
-            <User className="absolute left-3.5 top-3 text-slate-400" size={16} />
+          <div className="relative flex items-center">
+            <User className="absolute left-3.5 text-slate-400 pointer-events-none" size={16} />
             <input
               id="identity"
               type="text"
@@ -86,8 +86,8 @@ export function LoginForm() {
           <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500" htmlFor="password">
             Password
           </label>
-          <div className="relative">
-            <KeyRound className="absolute left-3.5 top-3 text-slate-400" size={16} />
+          <div className="relative flex items-center">
+            <KeyRound className="absolute left-3.5 text-slate-400 pointer-events-none" size={16} />
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -101,7 +101,7 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+              className="absolute right-0 top-0 bottom-0 px-3.5 flex items-center justify-center text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}

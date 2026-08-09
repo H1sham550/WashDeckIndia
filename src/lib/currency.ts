@@ -10,17 +10,13 @@
 
 export const SUPPORTED_CURRENCIES = [
   { code: "INR", symbol: "₹", name: "Indian Rupee",         locale: "en-IN" },
-  { code: "AED", symbol: "د.إ", name: "UAE Dirham",          locale: "ar-AE" },
   { code: "USD", symbol: "$", name: "US Dollar",             locale: "en-US" },
+  { code: "AED", symbol: "AED", name: "UAE Dirham",          locale: "en-AE" },
   { code: "GBP", symbol: "£", name: "British Pound",         locale: "en-GB" },
-  { code: "EUR", symbol: "€", name: "Euro",                  locale: "de-DE" },
-  { code: "SAR", symbol: "﷼", name: "Saudi Riyal",           locale: "ar-SA" },
+  { code: "EUR", symbol: "€", name: "Euro",                  locale: "en-DE" },
+  { code: "SAR", symbol: "SAR", name: "Saudi Riyal",         locale: "en-SA" },
   { code: "SGD", symbol: "S$", name: "Singapore Dollar",     locale: "en-SG" },
-  { code: "MYR", symbol: "RM", name: "Malaysian Ringgit",    locale: "ms-MY" },
-  { code: "QAR", symbol: "﷼", name: "Qatari Riyal",         locale: "ar-QA" },
-  { code: "OMR", symbol: "﷼", name: "Omani Rial",           locale: "ar-OM" },
-  { code: "BHD", symbol: ".د.ب", name: "Bahraini Dinar",    locale: "ar-BH" },
-  { code: "KWD", symbol: "د.ك", name: "Kuwaiti Dinar",      locale: "ar-KW" },
+  { code: "MYR", symbol: "RM", name: "Malaysian Ringgit",    locale: "en-MY" },
 ] as const;
 
 export type CurrencyCode = (typeof SUPPORTED_CURRENCIES)[number]["code"];

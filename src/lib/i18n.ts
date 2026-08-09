@@ -18,8 +18,7 @@ const DICTIONARIES: Record<string, Record<string, any>> = {
  * Example: t("dashboard.metrics.activeJobs", "ar-SA")
  */
 export function getTranslation(key: string, locale: SupportedLocale | string = "en-IN"): string {
-  const langCode = locale.startsWith("ar") ? "ar" : "en";
-  const dict = DICTIONARIES[langCode] || DICTIONARIES["en"];
+  const dict = DICTIONARIES["en-IN"] || DICTIONARIES["en"];
   
   const parts = key.split(".");
   let current: any = dict;

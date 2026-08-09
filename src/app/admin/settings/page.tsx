@@ -57,7 +57,7 @@ export default async function SettingsPage() {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">Default Currency</span>
-              <span className="font-bold text-slate-800">₹ INR / د.إ AED / $ USD (Dynamic)</span>
+              <span className="font-bold text-slate-800">₹ INR / $ USD (Dynamic)</span>
             </div>
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">Supported Timezones</span>

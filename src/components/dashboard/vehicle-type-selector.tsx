@@ -7,7 +7,6 @@ import { Info } from "lucide-react";
 export interface VehicleTypeOption {
   type: VehicleType;
   label: string;
-  arabicLabel: string;
   description: string;
   doors: string;
   badge: string;
@@ -19,7 +18,6 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
   {
     type: "SEDAN" as VehicleType,
     label: "Sedan",
-    arabicLabel: "سيدان",
     description: "4-door passenger car with a separate rear trunk.",
     doors: "4 Doors",
     badge: "Standard",
@@ -39,7 +37,6 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
   {
     type: "SUV" as VehicleType,
     label: "SUV / Crossover",
-    arabicLabel: "دفع رباعي / SUV",
     description: "High roofline, large frame, 5-7 seats, high ground clearance.",
     doors: "5 Doors",
     badge: "Large",
@@ -59,7 +56,6 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
   {
     type: "HATCHBACK" as VehicleType,
     label: "Hatchback",
-    arabicLabel: "هاتشباك",
     description: "Compact 2-box body with upward opening rear door.",
     doors: "3-5 Doors",
     badge: "Compact",
@@ -79,7 +75,6 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
   {
     type: "BIKE" as VehicleType,
     label: "Motorcycle / Bike",
-    arabicLabel: "دراجة نارية",
     description: "2-wheeler scooter, sports bike, or motorcycle.",
     doors: "N/A",
     badge: "2-Wheel",
@@ -100,7 +95,6 @@ export const VEHICLE_TYPES_DATA: VehicleTypeOption[] = [
   {
     type: "LUXURY" as VehicleType,
     label: "Luxury / Supercar",
-    arabicLabel: "فاخرة / رياضية",
     description: "High-end luxury sedan, sports car, exotic, or limousine.",
     doors: "2-4 Doors",
     badge: "Premium",
@@ -131,7 +125,7 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <label className="block text-xs font-bold text-slate-700">
-          Vehicle Category / نوع المركبة <span className="text-red-500">*</span>
+          Vehicle Category <span className="text-red-500">*</span>
         </label>
         <span className="text-[11px] font-medium text-slate-400">Tap reference card to select</span>
       </div>

@@ -180,16 +180,13 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
             onClick={() => setShowLogoutConfirm(false)}
           />
 
-          <div className="relative z-[310] w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 animate-in zoom-in-95 duration-150 text-right">
+          <div className="relative z-[310] w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 animate-in zoom-in-95 duration-150">
             <div className="flex items-center gap-3 mb-3">
               <div className="h-10 w-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
                 <AlertTriangle size={20} />
               </div>
               <div>
-                <h3 className="text-base font-black text-slate-900">تسجيل الخروج / Confirm Log Out</h3>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
-                  هل أنت تأكد من إغلاق الجلسة وتسجيل الخروج؟
-                </p>
+                <h3 className="text-base font-black text-slate-900">Confirm Log Out</h3>
               </div>
             </div>
 
@@ -197,13 +194,13 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
               Are you sure you want to log out of your WashDeck session? You will need to sign in again to access store management.
             </p>
 
-            <div className="flex items-center justify-end gap-2" dir="ltr">
+            <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => setShowLogoutConfirm(false)}
                 disabled={loggingOut}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all active:scale-95"
               >
-                إلغاء / Cancel
+                Cancel
               </button>
               <button
                 onClick={handleLogout}
@@ -211,7 +208,7 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
                 className="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95"
               >
                 <LogOut size={14} />
-                <span>{loggingOut ? "جاري الخروج..." : "تسجيل الخروج / Log Out"}</span>
+                <span>{loggingOut ? "Logging out..." : "Log Out"}</span>
               </button>
             </div>
           </div>

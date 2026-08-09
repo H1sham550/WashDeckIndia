@@ -228,14 +228,14 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
             </div>
 
             {/* Mobile Bottom Bar with Single-Handed Bottom-Right Close Button */}
-            <div className="sm:hidden flex-shrink-0 p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end" dir="ltr">
+            <div className="sm:hidden flex-shrink-0 p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end">
               <button
                 data-modal-close-btn="notification-center"
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
               >
                 <X size={14} />
-                <span>إغلاق / Close</span>
+                <span>Close</span>
               </button>
             </div>
           </div>

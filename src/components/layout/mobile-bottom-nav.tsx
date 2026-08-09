@@ -173,7 +173,7 @@ export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
                 className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-950 text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0"
               >
                 <X size={14} />
-                <span>إغلاق / Close Menu</span>
+                <span>Close Menu</span>
               </button>
             </div>
           </div>

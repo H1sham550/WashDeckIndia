@@ -654,9 +654,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     <option value="en-IN">English — India (en-IN)</option>
                     <option value="en">English (en)</option>
                     <option value="en-SA">English — Saudi Arabia (en-SA)</option>
-                    <option value="ar-SA">العربية (ar-SA) — RTL (Auto-mirroring)</option>
                     <option value="en-AE">English — UAE (en-AE)</option>
-                    <option value="ar-AE">العربية (ar-AE) — RTL (Auto-mirroring)</option>
                   </select>
                   <p className="text-[11px] text-slate-400">
                     Determines UI language dictionaries, booking intake forms, and automated PDF invoice headers.
@@ -674,8 +672,8 @@ export function SettingsForm({ station }: SettingsFormProps) {
                   >
                     <option value="INR">Indian Rupee (INR / ₹)</option>
                     <option value="USD">US Dollar (USD / $)</option>
-                    <option value="AED">UAE Dirham (AED / د.إ)</option>
-                    <option value="SAR">Saudi Riyal (SAR / ﷼)</option>
+                    <option value="AED">UAE Dirham (AED)</option>
+                    <option value="SAR">Saudi Riyal (SAR)</option>
                     <option value="GBP">British Pound (GBP / £)</option>
                   </select>
                   <p className="text-[11px] text-slate-400">

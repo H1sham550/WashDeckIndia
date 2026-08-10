@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
+import { VehicleBrandInput } from "./vehicle-brand-input";
 import { useToast } from "@/components/ui/toast";
 
 type ServicePrice = {
@@ -433,39 +434,48 @@ export function NewJobIntakeWizard({
               onChange={(type) => setNewVehicleType(type)}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">License Plate Number *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 1234 ABC"
-                  value={newVehicleNumber}
-                  onChange={(e) => setNewVehicleNumber(e.target.value)}
-                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-black uppercase text-slate-800 outline-none focus:border-teal-700"
-                />
-              </div>
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">License Plate Number *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. MH12AB1234"
+                value={newVehicleNumber}
+                onChange={(e) => setNewVehicleNumber(e.target.value)}
+                className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-black uppercase text-slate-800 outline-none focus:border-teal-700"
+              />
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Brand / Make</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Toyota, Lexus"
-                  value={newBrand}
-                  onChange={(e) => setNewBrand(e.target.value)}
-                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
-                />
-              </div>
+            <div className="pt-1 space-y-3">
+              <VehicleBrandInput
+                value={newBrand}
+                onChange={(brand) => setNewBrand(brand)}
+                label="Brand / Make (Optional)"
+                placeholder="e.g. Maruti Suzuki, Hyundai, Tata, Mahindra"
+              />
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Model & Color</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Land Cruiser (White)"
-                  value={newModel}
-                  onChange={(e) => setNewModel(e.target.value)}
-                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Model (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Swift, Creta, Nexon"
+                    value={newModel}
+                    onChange={(e) => setNewModel(e.target.value)}
+                    className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">Color (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Pearl White, Black"
+                    value={newColor}
+                    onChange={(e) => setNewColor(e.target.value)}
+                    className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                  />
+                </div>
               </div>
             </div>
 

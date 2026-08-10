@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
+import { VehicleBrandInput } from "./vehicle-brand-input";
 
 type Customer = {
   id: string;
@@ -430,35 +431,33 @@ export function VehiclesDirectory({ initialVehicles, userRole }: VehiclesDirecto
                   />
                 </div>
 
-                <div>
-                  <label className="mb-1 block">Brand (Make)</label>
-                  <input
-                    type="text"
+                <div className="col-span-2">
+                  <VehicleBrandInput
                     value={formData.brand}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
-                    placeholder="e.g. Honda"
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
+                    onChange={(brand) => setFormData((prev) => ({ ...prev, brand }))}
+                    label="Brand / Make (Optional)"
+                    placeholder="e.g. Maruti Suzuki, Hyundai, Tata, Mahindra"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block">Model</label>
+                  <label className="mb-1 block">Model (Optional)</label>
                   <input
                     type="text"
                     value={formData.model}
                     onChange={(e) => setFormData((prev) => ({ ...prev, model: e.target.value }))}
-                    placeholder="e.g. City"
+                    placeholder="e.g. Swift, Creta"
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block">Color</label>
+                  <label className="mb-1 block">Color (Optional)</label>
                   <input
                     type="text"
                     value={formData.color}
                     onChange={(e) => setFormData((prev) => ({ ...prev, color: e.target.value }))}
-                    placeholder="e.g. Silver"
+                    placeholder="e.g. White"
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-[var(--primary-color)]"
                   />
                 </div>

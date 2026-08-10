@@ -5,6 +5,7 @@ import { X, Loader2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
+import { VehicleBrandInput } from "./vehicle-brand-input";
 import { useToast } from "@/components/ui/toast";
 
 type RegisterVehicleModalProps = {
@@ -150,39 +151,37 @@ export function RegisterVehicleModal({ onClose, initialVehicleNumber = "" }: Reg
               />
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600" htmlFor="vehBrand">Brand (Optional)</label>
-                <input
-                  id="vehBrand"
-                  type="text"
-                  value={formData.brand}
-                  onChange={(e) => setFormData((p) => ({ ...p, brand: e.target.value }))}
-                  placeholder="Hyundai"
-                  className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)]"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600" htmlFor="vehModel">Model (Optional)</label>
-                <input
-                  id="vehModel"
-                  type="text"
-                  value={formData.model}
-                  onChange={(e) => setFormData((p) => ({ ...p, model: e.target.value }))}
-                  placeholder="Creta"
-                  className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)]"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-600" htmlFor="vehColor">Color (Optional)</label>
-                <input
-                  id="vehColor"
-                  type="text"
-                  value={formData.color}
-                  onChange={(e) => setFormData((p) => ({ ...p, color: e.target.value }))}
-                  placeholder="White"
-                  className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)]"
-                />
+            <div className="space-y-3 pt-2">
+              <VehicleBrandInput
+                value={formData.brand}
+                onChange={(brand) => setFormData((p) => ({ ...p, brand }))}
+                label="Brand / Make (Optional)"
+                placeholder="e.g. Maruti Suzuki, Hyundai, Tata, Mahindra"
+              />
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600" htmlFor="vehModel">Model (Optional)</label>
+                  <input
+                    id="vehModel"
+                    type="text"
+                    value={formData.model}
+                    onChange={(e) => setFormData((p) => ({ ...p, model: e.target.value }))}
+                    placeholder="e.g. Swift, Creta, Nexon, Thar"
+                    className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-600" htmlFor="vehColor">Color (Optional)</label>
+                  <input
+                    id="vehColor"
+                    type="text"
+                    value={formData.color}
+                    onChange={(e) => setFormData((p) => ({ ...p, color: e.target.value }))}
+                    placeholder="e.g. Pearl White, Phantom Black"
+                    className="h-10 w-full border rounded-lg px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                  />
+                </div>
               </div>
             </div>
           </div>

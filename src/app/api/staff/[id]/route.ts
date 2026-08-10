@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { hashPassword } from "@/lib/crypto";
+import { invalidateCache } from "@/lib/cache";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -57,6 +58,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       });
     }
 
+    if (session.stationId) {
+      invalidateCache(`staff_page_${session.stationId}`);
+    }
+
     return NextResponse.json({ ok: true, user: updated });
   } catch (error: any) {
     console.error("PATCH staff error:", error);
@@ -100,12 +105,68 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         },
       });
 
+      if (session.stationId) {
+        invalidateCache(`staff_page_${session.stationId}`);
+      }
+
       return NextResponse.json({ ok: true });
     }
 
     return NextResponse.json({ ok: false, error: "Invalid action." }, { status: 400 });
   } catch (error: any) {
     console.error("POST staff actions error:", error);
+    return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await requireRole(["OWNER"]);
+    const { id } = await params;
+
+    if (id === session.id) {
+      return NextResponse.json({ ok: false, error: "You cannot delete your own account." }, { status: 400 });
+    }
+
+    const userToDelete = await prisma.user.findFirst({
+      where: {
+        id,
+        stationId: session.stationId || "",
+        isDeleted: false,
+      },
+    });
+
+    if (!userToDelete) {
+      return NextResponse.json({ ok: false, error: "Staff member not found." }, { status: 404 });
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(),
+        status: "INACTIVE",
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        actorUserId: session.id,
+        stationId: session.stationId,
+        action: "STAFF_DELETED",
+        entityType: "User",
+        entityId: id,
+        newValue: { name: userToDelete.name, email: userToDelete.email, role: userToDelete.role },
+      },
+    });
+
+    if (session.stationId) {
+      invalidateCache(`staff_page_${session.stationId}`);
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error: any) {
+    console.error("DELETE staff error:", error);
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 }

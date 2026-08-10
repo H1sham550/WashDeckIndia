@@ -46,8 +46,8 @@ async function main() {
       price: 1199.00,
       durationDays: 30,
       trialDays: 14,
-      staffLimit: 3,
-      reportLimit: 50,
+      staffLimit: 5,
+      reportLimit: 100,
       isRecommended: false,
       isActive: true
     },

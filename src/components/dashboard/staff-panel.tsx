@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Plus, X, Pencil, Key, ShieldAlert, UserCheck, UserX, Loader2, AlertCircle, CheckCircle2, User } from "lucide-react";
+import { Plus, X, Pencil, Key, ShieldAlert, UserCheck, UserX, Loader2, AlertCircle, CheckCircle2, User, Trash2 } from "lucide-react";
 
 type StaffUser = {
   id: string;
@@ -184,6 +184,34 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
     }
   }
 
+  async function handleDeleteStaff(member: StaffUser) {
+    if (member.role === "OWNER") {
+      alert("Owner accounts cannot be deleted from staff management.");
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to remove staff member "${member.name}"? This will revoke their account access.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/staff/${member.id}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "Failed to delete staff member.");
+      }
+
+      setStaff((prev) => prev.filter((u) => u.id !== member.id));
+      setLimits((prev) => ({ ...prev, usedStaff: Math.max(0, prev.usedStaff - 1) }));
+      setSuccess(`Staff member ${member.name} has been removed.`);
+    } catch (err: any) {
+      alert(err.message || "Failed to delete staff member.");
+    }
+  }
+
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedStaff || !resetPasswordVal) return;
@@ -346,6 +374,15 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
                         >
                           {member.status === "ACTIVE" ? <UserX size={14} /> : <UserCheck size={14} />}
                         </button>
+                        {member.role !== "OWNER" && (
+                          <button
+                            onClick={() => handleDeleteStaff(member)}
+                            title="Remove / Delete Staff Member"
+                            className="h-8 w-8 rounded-lg border text-rose-500 border-rose-200 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all bg-white flex items-center justify-center"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

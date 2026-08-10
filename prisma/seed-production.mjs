@@ -14,8 +14,8 @@ async function main() {
       price: 0,
       durationDays: 14,
       trialDays: 14,
-      staffLimit: 3,
-      reportLimit: 30,
+      staffLimit: 5,
+      reportLimit: 50,
       isRecommended: false,
       isActive: true,
       features: ["LOYALTY_PROGRAMS", "SERVICE_REPORTS", "WHATSAPP_SHARING", "PHOTO_DOCUMENTATION"]
@@ -26,8 +26,8 @@ async function main() {
       price: 999,
       durationDays: 30,
       trialDays: 0,
-      staffLimit: 1,
-      reportLimit: 50,
+      staffLimit: 5,
+      reportLimit: 100,
       isRecommended: false,
       isActive: true,
       features: ["SERVICE_REPORTS", "WHATSAPP_SHARING"]

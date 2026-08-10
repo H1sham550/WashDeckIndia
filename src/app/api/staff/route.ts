@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/crypto";
 import { checkStationStatus } from "@/lib/subscription-guard";
 import { requireFeature } from "@/lib/feature-flags";
+import { invalidateCache } from "@/lib/cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -144,6 +145,10 @@ export async function POST(request: NextRequest) {
         newValue: { name: user.name, email: user.email, role: user.role },
       },
     });
+
+    if (session.stationId) {
+      invalidateCache(`staff_page_${session.stationId}`);
+    }
 
     return NextResponse.json({ ok: true, user });
   } catch (error: any) {

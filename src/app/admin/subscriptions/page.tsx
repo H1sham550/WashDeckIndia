@@ -27,7 +27,7 @@ export default async function SubscriptionsPage() {
         price: 149,
         durationDays: 30,
         description: "Essential car wash management features for growing auto spas.",
-        staffLimit: 3,
+        staffLimit: 5,
         reportLimit: 50,
         isRecommended: false,
         isActive: true,

@@ -254,7 +254,7 @@ export const getStationEntitlements = cache(async (stationId: string): Promise<S
   const sub = station.stationSubscriptions[0];
   const plan = sub?.subscription;
   const currentPlanName = plan?.name ?? (station.status === "TRIAL" ? "Trial" : "None");
-  const staffLimit = plan?.staffLimit ?? 3;
+  const staffLimit = plan?.staffLimit ?? 5;
   const reportLimit = plan?.reportLimit ?? 50;
 
   const features: Record<string, boolean> = {

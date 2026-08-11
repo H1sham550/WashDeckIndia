@@ -97,6 +97,7 @@ export function AttendancePanel({
             date: new Date(selectedDate).toISOString(),
             status,
             checkIn: checkInTime,
+            overrideGeofence: true,
           }),
         });
         if (res.ok) {

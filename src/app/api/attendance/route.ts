@@ -17,14 +17,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Check Station GPS Geofence if configured
+    const isOwner = session.role === "OWNER";
+    // If Owner is marking attendance for another staff member or requesting manual override, bypass geofence
+    const isOwnerOverride = isOwner && (body.overrideGeofence === true || staffId !== session.id);
+
+    // Check Station GPS Geofence if configured and not overridden by owner
     const settings = await prisma.stationSettings.findUnique({
       where: { stationId: session.stationId },
     });
 
     let isGeofenced = true;
 
-    if (settings?.latitude !== null && settings?.longitude !== null && settings?.latitude !== undefined && settings?.longitude !== undefined) {
+    if (!isOwnerOverride && settings?.latitude !== null && settings?.longitude !== null && settings?.latitude !== undefined && settings?.longitude !== undefined) {
       const allowedRadius = settings.allowedRadiusMeters || 200;
 
       if (latitude === undefined || latitude === null || longitude === undefined || longitude === null) {
@@ -49,6 +53,8 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
+    } else if (isOwnerOverride) {
+      isGeofenced = false;
     }
 
     const log = await prisma.attendanceLog.create({
@@ -62,6 +68,7 @@ export async function POST(req: Request) {
         latitude: latitude ?? null,
         longitude: longitude ?? null,
         isGeofenced,
+        notes: body.notes || (isOwnerOverride ? "Manual Owner Override" : null),
       },
     });
 

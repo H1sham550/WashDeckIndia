@@ -234,18 +234,21 @@ export function OperationsBoard({ initialBoardData }: OperationsBoardProps) {
     setUpdatingId(jobId);
 
     // Find the target job card across all columns
-    let targetJob: JobCard | null = null;
+    const cols = Object.keys(boardData) as Array<keyof BoardData>;
+    let foundJob: JobCard | undefined;
     let oldColumnKey: keyof BoardData | null = null;
 
-    (Object.keys(boardData) as Array<keyof BoardData>).forEach((colKey) => {
-      const found = boardData[colKey].find((j) => j.id === jobId);
-      if (found) {
-        targetJob = { ...found, status: nextStatus };
+    for (const colKey of cols) {
+      const match = boardData[colKey].find((j) => j.id === jobId);
+      if (match) {
+        foundJob = match;
         oldColumnKey = colKey;
+        break;
       }
-    });
+    }
 
-    if (!targetJob || !oldColumnKey) return;
+    if (!foundJob || !oldColumnKey) return;
+    const targetJob: JobCard = { ...foundJob, status: nextStatus };
 
     // Optimistic UI state update: remove from old column, insert at beginning of new column
     setBoardData((prev) => {

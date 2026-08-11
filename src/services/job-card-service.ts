@@ -136,52 +136,58 @@ export async function updateStatus(
 }
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
-const dashboardSummaryCache = new Map<string, { data: any; expiresAt: number }>();
-const operationsBoardCache = new Map<string, { data: any; expiresAt: number }>();
-const CACHE_TTL_MS = 60000; // 60-second memory cache for instant tab switching
+// Per-instance in-memory fallback (sub-ms for same-instance hits)
+const operationsBoardLocalCache = new Map<string, { data: any; expiresAt: number }>();
+const dashboardSummaryLocalCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL_MS = 60000; // 60s local fallback
 
 export function invalidateDashboardCache(stationId?: string) {
   if (stationId) {
-    dashboardSummaryCache.delete(stationId);
-    operationsBoardCache.delete(stationId);
+    dashboardSummaryLocalCache.delete(stationId);
+    operationsBoardLocalCache.delete(stationId);
   } else {
-    dashboardSummaryCache.clear();
-    operationsBoardCache.clear();
+    dashboardSummaryLocalCache.clear();
+    operationsBoardLocalCache.clear();
   }
 }
 
+// Fetches operations board data - wrapped in unstable_cache for cross-instance persistence
+async function fetchOperationsBoardData(stationId: string) {
+  const [activeJobs, deliveredToday] = await Promise.all([
+    jobCardRepository.getActiveJobCardsByStation(stationId),
+    jobCardRepository.getDeliveredJobCardsByStationToday(stationId),
+  ]);
+  return {
+    RECEIVED: activeJobs.filter((j: any) => j.status === "RECEIVED"),
+    IN_PROGRESS: activeJobs.filter((j: any) => j.status === "IN_PROGRESS"),
+    SERVICE_COMPLETED: activeJobs.filter((j: any) => j.status === "SERVICE_COMPLETED"),
+    PAYMENT_PENDING: activeJobs.filter((j: any) => j.status === "PAYMENT_PENDING"),
+    DELIVERED: deliveredToday,
+  };
+}
+
 export const getOperationsBoardData = cache(async (stationId: string) => {
+  // L1: Same-instance memory
   const now = Date.now();
-  const cached = operationsBoardCache.get(stationId);
-  if (cached && cached.expiresAt > now) {
-    return cached.data;
-  }
+  const local = operationsBoardLocalCache.get(stationId);
+  if (local && local.expiresAt > now) return local.data;
 
   try {
-    const [activeJobs, deliveredToday] = await Promise.all([
-      jobCardRepository.getActiveJobCardsByStation(stationId),
-      jobCardRepository.getDeliveredJobCardsByStationToday(stationId),
-    ]);
-
-    const result = {
-      RECEIVED: activeJobs.filter((j: any) => j.status === "RECEIVED"),
-      IN_PROGRESS: activeJobs.filter((j: any) => j.status === "IN_PROGRESS"),
-      SERVICE_COMPLETED: activeJobs.filter((j: any) => j.status === "SERVICE_COMPLETED"),
-      PAYMENT_PENDING: activeJobs.filter((j: any) => j.status === "PAYMENT_PENDING"),
-      DELIVERED: deliveredToday,
-    };
-
-    operationsBoardCache.set(stationId, { data: result, expiresAt: now + CACHE_TTL_MS });
+    // L2: Next.js Data Cache (shared across all Lambda instances)
+    const cachedFetch = unstable_cache(
+      () => fetchOperationsBoardData(stationId),
+      [`operations_board_${stationId}`],
+      { revalidate: 30, tags: [`operations_board_${stationId}`] }
+    );
+    const result = await cachedFetch();
+    operationsBoardLocalCache.set(stationId, { data: result, expiresAt: now + CACHE_TTL_MS });
     return result;
   } catch {
     return {
-      RECEIVED: [
-        { id: "mock-job-1", cardNumber: "JC-1001", vehicleId: "v1", serviceType: "Express Eco Wash", status: "RECEIVED", vehicle: { plateNumber: "MH-01-AB-1234", make: "Toyota", model: "Land Cruiser", year: 2023 } },
-      ] as any,
-      IN_PROGRESS: [
-        { id: "mock-job-2", cardNumber: "JC-1002", vehicleId: "v2", serviceType: "Ceramic Coating Detail", status: "IN_PROGRESS", vehicle: { plateNumber: "DL-7C-BC-9999", make: "Porsche", model: "Taycan", year: 2024 } },
-      ] as any,
+      RECEIVED: [] as any,
+      IN_PROGRESS: [] as any,
       SERVICE_COMPLETED: [],
       PAYMENT_PENDING: [],
       DELIVERED: [],
@@ -190,13 +196,19 @@ export const getOperationsBoardData = cache(async (stationId: string) => {
 });
 
 export const getDashboardSummary = cache(async (stationId: string) => {
+  // L1: Same-instance memory
   const now = Date.now();
-  const cached = dashboardSummaryCache.get(stationId);
-  if (cached && cached.expiresAt > now) {
-    return cached.data;
-  }
+  const local = dashboardSummaryLocalCache.get(stationId);
+  if (local && local.expiresAt > now) return local.data;
 
-  const summary = await jobCardRepository.getDashboardSummaryRepository(stationId);
-  dashboardSummaryCache.set(stationId, { data: summary, expiresAt: now + CACHE_TTL_MS });
+  // L2: Next.js Data Cache (shared across all Lambda instances)
+  const cachedFetch = unstable_cache(
+    () => jobCardRepository.getDashboardSummaryRepository(stationId),
+    [`dashboard_summary_${stationId}`],
+    { revalidate: 30, tags: [`dashboard_summary_${stationId}`] }
+  );
+  const summary = await cachedFetch();
+  dashboardSummaryLocalCache.set(stationId, { data: summary, expiresAt: now + CACHE_TTL_MS });
   return summary;
 });
+

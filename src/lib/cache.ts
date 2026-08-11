@@ -1,44 +1,64 @@
 /**
- * High-performance In-Memory TTL Cache for Neon Serverless Prisma Queries
- * Accelerates tab switching and page transitions from ~400ms down to < 5ms
+ * Cross-instance persistent cache using Next.js unstable_cache.
+ *
+ * Unlike a plain Map (which only lives in one Lambda instance's memory),
+ * Next.js Data Cache is stored at the infrastructure layer and shared across
+ * ALL Lambda instances. This means even brand-new instances get fast responses.
+ *
+ * The in-memory fallback ensures sub-millisecond hits for repeat calls within
+ * the same instance (e.g. multiple components on one page render).
  */
 
+import { unstable_cache } from "next/cache";
+
+// Per-instance in-memory layer (sub-ms for same-instance repeat hits)
 type CacheEntry<T> = {
   data: T;
   expiresAt: number;
 };
 
-const cacheStore = new Map<string, CacheEntry<any>>();
+const localStore = new Map<string, CacheEntry<any>>();
 
+/**
+ * getCached — tiered caching:
+ *  1. Check local in-memory store (< 1ms, same-instance only)
+ *  2. Check Next.js Data Cache (shared across all Vercel Lambda instances)
+ *  3. Fetch from DB and populate both layers
+ */
 export async function getCached<T>(
   key: string,
   ttlSeconds: number,
   fetchFn: () => Promise<T>
 ): Promise<T> {
+  // Layer 1: In-memory (current Lambda instance only)
   const now = Date.now();
-  const entry = cacheStore.get(key);
-
-  if (entry && entry.expiresAt > now) {
-    return entry.data;
+  const local = localStore.get(key);
+  if (local && local.expiresAt > now) {
+    return local.data as T;
   }
 
-  const freshData = await fetchFn();
-  cacheStore.set(key, {
-    data: freshData,
-    expiresAt: now + ttlSeconds * 1000,
+  // Layer 2: Next.js Data Cache (shared across all instances)
+  const cachedFetch = unstable_cache(fetchFn, [key], {
+    revalidate: ttlSeconds,
+    tags: [key.split("_")[0]], // group by prefix for targeted invalidation
   });
 
-  return freshData;
+  const data = await cachedFetch();
+
+  // Populate in-memory layer for subsequent same-instance hits
+  localStore.set(key, { data, expiresAt: now + ttlSeconds * 1000 });
+
+  return data;
 }
 
 export function invalidateCache(keyPrefix?: string) {
   if (!keyPrefix) {
-    cacheStore.clear();
+    localStore.clear();
     return;
   }
-  for (const key of cacheStore.keys()) {
+  for (const key of localStore.keys()) {
     if (key.startsWith(keyPrefix)) {
-      cacheStore.delete(key);
+      localStore.delete(key);
     }
   }
 }

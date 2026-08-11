@@ -48,17 +48,26 @@ export async function createJobCard(
     throw new Error("Some selected services were not found or belong to another station.");
   }
 
-  const serviceSnapshots = services.map((s) => {
-    const priceObj = s.prices[0];
-    if (!priceObj) {
-      throw new Error(`Pricing not configured for service "${s.name}" and vehicle type ${vehicle.vehicleType}`);
-    }
-    return {
-      serviceId: s.id,
-      serviceNameSnapshot: s.name,
-      priceSnapshot: Number(priceObj.price),
-    };
-  });
+  const serviceSnapshots = await Promise.all(
+    services.map(async (s) => {
+      let priceObj = s.prices[0];
+      if (!priceObj) {
+        const fallback = await prisma.servicePrice.findFirst({
+          where: { serviceId: s.id },
+        });
+        return {
+          serviceId: s.id,
+          serviceNameSnapshot: s.name,
+          priceSnapshot: fallback ? Number(fallback.price) : 0,
+        };
+      }
+      return {
+        serviceId: s.id,
+        serviceNameSnapshot: s.name,
+        priceSnapshot: Number(priceObj.price),
+      };
+    })
+  );
 
   const jobCard = await jobCardRepository.createJobCard({
     stationId,

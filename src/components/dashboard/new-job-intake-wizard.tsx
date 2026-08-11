@@ -266,11 +266,18 @@ export function NewJobIntakeWizard({
             }),
           });
 
-          const createData = await createRes.json();
+          const createText = await createRes.text();
+          let createData: any = {};
+          try {
+            createData = createText ? JSON.parse(createText) : {};
+          } catch {
+            throw new Error(createText || `Vehicle registration failed (HTTP ${createRes.status})`);
+          }
+
           if (!createRes.ok || !createData.ok) {
             throw new Error(createData.error || "Failed to register new vehicle.");
           }
-          vehicleIdToUse = createData.vehicle.id;
+          vehicleIdToUse = createData.vehicle?.id;
         }
 
         // Create Job Card
@@ -282,11 +289,19 @@ export function NewJobIntakeWizard({
             serviceIds: selectedServiceIds,
             inspectionNotes: inspectionNotes.trim() || null,
             beforePhotos,
-            estimatedCompletionTime: new Date(etaTime).toISOString(),
+            expectedCompletionTime: etaTime ? new Date(etaTime).toISOString() : null,
+            estimatedCompletionTime: etaTime ? new Date(etaTime).toISOString() : null,
           }),
         });
 
-        const jobData = await jobRes.json();
+        const jobText = await jobRes.text();
+        let jobData: any = {};
+        try {
+          jobData = jobText ? JSON.parse(jobText) : {};
+        } catch {
+          throw new Error(jobText || `Job card creation failed (HTTP ${jobRes.status})`);
+        }
+
         if (!jobRes.ok || !jobData.ok) {
           throw new Error(jobData.error || "Failed to create job card.");
         }
@@ -296,7 +311,7 @@ export function NewJobIntakeWizard({
       } catch (err: any) {
         const msg = err.message || "Failed to create job card.";
         setError(msg);
-        toast.error("Registration Failed", msg);
+        toast.error("Registration Error", msg);
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });

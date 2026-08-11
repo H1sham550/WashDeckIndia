@@ -5,14 +5,18 @@ import { z } from "zod";
 import { checkStationStatus } from "@/lib/subscription-guard";
 
 const createJobCardSchema = z.object({
-  vehicleId: z.string().uuid("Invalid vehicle ID format"),
+  vehicleId: z.string().min(1, "Invalid vehicle ID format"),
   serviceIds: z
-    .array(z.string().uuid("Invalid service ID format"))
+    .array(z.string().min(1, "Invalid service ID format"))
     .min(1, "Select at least one service"),
-  inspectionNotes: z.string().trim().optional(),
+  inspectionNotes: z.string().trim().optional().nullable(),
   expectedCompletionTime: z
     .string()
-    .datetime({ offset: true })
+    .optional()
+    .nullable()
+    .or(z.literal("")),
+  estimatedCompletionTime: z
+    .string()
     .optional()
     .nullable()
     .or(z.literal("")),
@@ -48,7 +52,7 @@ export async function POST(request: NextRequest) {
       vehicleId: parsed.data.vehicleId,
       serviceIds: parsed.data.serviceIds,
       inspectionNotes: parsed.data.inspectionNotes || undefined,
-      expectedCompletionTime: parsed.data.expectedCompletionTime || undefined,
+      expectedCompletionTime: parsed.data.expectedCompletionTime || parsed.data.estimatedCompletionTime || undefined,
       beforePhotos: parsed.data.beforePhotos || [],
     });
 

@@ -38,15 +38,17 @@ interface MobileBottomNavProps {
   };
 }
 
-const BOTTOM_NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/finance", label: "Expenses", icon: Receipt },
-  { href: "/dashboard/vehicles", label: "Customers", icon: Car },
+const ALL_BOTTOM_NAV = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true, ownerOnly: false },
+  { href: "/dashboard/finance", label: "Expenses", icon: Receipt, ownerOnly: true },
+  { href: "/dashboard/vehicles", label: "Customers", icon: Car, ownerOnly: false },
 ];
 
 export function MobileBottomNav({ isOwner, features }: MobileBottomNavProps) {
   const pathname = usePathname();
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  const BOTTOM_NAV = ALL_BOTTOM_NAV.filter((item) => !item.ownerOnly || isOwner);
 
   useEffect(() => {
     if (!showMoreMenu) return;

@@ -78,7 +78,7 @@ export default async function SettingsPage() {
           currency: station?.country?.currencyCode || "INR",
           latitude: s.latitude ?? null,
           longitude: s.longitude ?? null,
-          allowedRadiusMeters: s.allowedRadiusMeters || 200,
+          allowedRadiusMeters: s.allowedRadiusMeters || 100,
         }}
       />
     </div>

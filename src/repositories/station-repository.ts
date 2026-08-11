@@ -116,7 +116,7 @@ export async function updateStationBranding(id: string, data: UpdateStationInput
         bookingLeadTime: data.defaultEta,
         latitude: data.latitude ?? null,
         longitude: data.longitude ?? null,
-        allowedRadiusMeters: data.allowedRadiusMeters || 200,
+        allowedRadiusMeters: data.allowedRadiusMeters || 100,
       },
       update: {
         bookingLeadTime: data.defaultEta !== undefined ? data.defaultEta : undefined,

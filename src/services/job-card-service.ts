@@ -139,7 +139,7 @@ import { cache } from "react";
 
 const dashboardSummaryCache = new Map<string, { data: any; expiresAt: number }>();
 const operationsBoardCache = new Map<string, { data: any; expiresAt: number }>();
-const CACHE_TTL_MS = 30000; // 30-second memory cache for instant tab switching
+const CACHE_TTL_MS = 60000; // 60-second memory cache for instant tab switching
 
 export function invalidateDashboardCache(stationId?: string) {
   if (stationId) {

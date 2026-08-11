@@ -517,9 +517,9 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     type="number"
                     min={50}
                     max={5000}
-                    value={formData.allowedRadiusMeters || 200}
-                    onChange={(e) => setFormData((prev: any) => ({ ...prev, allowedRadiusMeters: Number(e.target.value) || 200 }))}
-                    placeholder="200"
+                    value={formData.allowedRadiusMeters || 100}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, allowedRadiusMeters: Number(e.target.value) || 100 }))}
+                    placeholder="100"
                     className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
                   />
                 </div>

@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     let isGeofenced = true;
 
     if (!isOwnerOverride && settings?.latitude !== null && settings?.longitude !== null && settings?.latitude !== undefined && settings?.longitude !== undefined) {
-      const allowedRadius = settings.allowedRadiusMeters || 200;
+      const allowedRadius = settings.allowedRadiusMeters || 100;
 
       if (latitude === undefined || latitude === null || longitude === undefined || longitude === null) {
         return NextResponse.json(

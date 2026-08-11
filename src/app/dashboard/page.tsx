@@ -16,6 +16,7 @@ import { requireStationUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as jobCardService from "@/services/job-card-service";
 import { getStationEntitlements } from "@/lib/entitlement";
+import { getCached } from "@/lib/cache";
 import { VehicleSearch } from "@/components/dashboard/vehicle-search";
 import { OwnerProfitLossCard } from "@/components/dashboard/owner-profit-loss-card";
 import { DailyEodSummaryCard } from "@/components/dashboard/daily-eod-summary-card";
@@ -42,26 +43,25 @@ export default async function DashboardPage() {
     getStationEntitlements(stationId),
     jobCardService.getDashboardSummary(stationId),
     isOwner
-      ? prisma.expense.findMany({
-          where: {
-            stationId,
-            date: { gte: sevenDaysAgo },
-          },
-          orderBy: { date: "desc" },
-        }).catch(() => [])
+      ? getCached(`dashboard_expenses_${stationId}`, 30, () =>
+          prisma.expense.findMany({
+            where: { stationId, date: { gte: sevenDaysAgo } },
+            orderBy: { date: "desc" },
+          }).catch(() => [])
+        )
       : Promise.resolve([]),
-    prisma.user.count({
-      where: { stationId, role: "STAFF", isDeleted: false },
-    }).catch(() => 0),
-    prisma.jobCard.count({
-      where: { stationId, createdAt: { gte: todayStart, lte: todayEnd }, isDeleted: false },
-    }).catch(() => 0),
+    getCached(`dashboard_staff_count_${stationId}`, 60, () =>
+      prisma.user.count({
+        where: { stationId, role: "STAFF", isDeleted: false },
+      }).catch(() => 0)
+    ),
+    getCached(`dashboard_today_jobs_count_${stationId}`, 15, () =>
+      prisma.jobCard.count({
+        where: { stationId, createdAt: { gte: todayStart, lte: todayEnd }, isDeleted: false },
+      }).catch(() => 0)
+    ),
     prisma.attendanceLog.findFirst({
-      where: {
-        stationId,
-        staffId: session.id,
-        date: { gte: todayStart },
-      },
+      where: { stationId, staffId: session.id, date: { gte: todayStart } },
       orderBy: { date: "desc" },
     }).catch(() => null),
   ]);

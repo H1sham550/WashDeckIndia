@@ -27,6 +27,7 @@ import { VehicleType } from "@prisma/client";
 import { VehicleTypeSelector } from "./vehicle-type-selector";
 import { VehicleBrandInput } from "./vehicle-brand-input";
 import { useToast } from "@/components/ui/toast";
+import { compressImageFile } from "@/lib/image-compressor";
 
 type ServicePrice = {
   vehicleType: VehicleType;
@@ -200,9 +201,9 @@ export function NewJobIntakeWizard({
     try {
       const uploadedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+        const compressedFile = await compressImageFile(files[i]);
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressedFile);
 
         const res = await fetch("/api/upload", {
           method: "POST",

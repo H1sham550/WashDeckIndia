@@ -28,6 +28,7 @@ export function StaffClockInCard({
   const [todayLog, setTodayLog] = useState(initialTodayLog);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [stationGpsSet, setStationGpsSet] = useState<boolean>(true);
 
@@ -86,14 +87,15 @@ export function StaffClockInCard({
         setIsGettingLocation(false);
         let errMsg = "Unable to retrieve location.";
         if (error.code === error.PERMISSION_DENIED) {
-          errMsg = "Location permission denied. Please allow location access in your device settings to clock in.";
+          errMsg = "Location permission needed: Please tap 'Allow' when your device asks for location permission, or tap 'Request Permission Again' below.";
+          setShowPermissionModal(true);
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errMsg = "Location position unavailable. Ensure GPS is turned on.";
+          errMsg = "GPS signal weak or unavailable. Please ensure Location/GPS is turned ON on your phone.";
         } else if (error.code === error.TIMEOUT) {
-          errMsg = "Location request timed out. Please try again.";
+          errMsg = "GPS request timed out. Tap Clock In again to retry.";
         }
         setLocationError(errMsg);
-        toast.error("Location Error", errMsg);
+        toast.error("Location Required", errMsg);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
@@ -206,6 +208,52 @@ export function StaffClockInCard({
           )}
         </div>
       </div>
+
+      {/* Location Permission Help Modal */}
+      {showPermissionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white text-slate-900 border rounded-2xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-4">
+            <div className="flex items-center gap-3 border-b pb-3">
+              <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+                <Navigation size={22} />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900">Enable Location Permissions</h3>
+                <p className="text-xs text-slate-500 font-medium">GPS location is required to verify your attendance at the station</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-600 font-medium">
+              <p className="font-bold text-slate-800">To grant location access:</p>
+              <ol className="list-decimal list-inside space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <li>Tap <strong>"Request Permission & Clock In"</strong> below.</li>
+                <li>Tap <strong>"Allow"</strong> when your device popup asks for location access.</li>
+                <li>If blocked, tap the 🔒 lock icon near the website URL address bar.</li>
+              </ol>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowPermissionModal(false)}
+                className="w-1/2 py-2.5 px-4 text-xs font-bold text-slate-600 border rounded-xl hover:bg-slate-50 transition"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPermissionModal(false);
+                  handleClockIn();
+                }}
+                className="w-1/2 py-2.5 px-4 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
+              >
+                <MapPin size={14} /> Request & Clock In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

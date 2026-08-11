@@ -76,6 +76,9 @@ export default async function SettingsPage() {
           rewardEligibleTemplate: "Congratulations {customerName}! Your vehicle {vehicleNumber} has unlocked a loyalty reward. Redeem it on your next visit!",
           locale: station?.country?.defaultLocale || "en-IN",
           currency: station?.country?.currencyCode || "INR",
+          latitude: s.latitude ?? null,
+          longitude: s.longitude ?? null,
+          allowedRadiusMeters: s.allowedRadiusMeters || 200,
         }}
       />
     </div>

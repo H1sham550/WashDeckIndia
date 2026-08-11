@@ -47,6 +47,9 @@ type SettingsFormProps = {
     rewardEligibleTemplate: string;
     locale?: string;
     currency?: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    allowedRadiusMeters?: number;
   };
 };
 
@@ -443,6 +446,82 @@ export function SettingsForm({ station }: SettingsFormProps) {
                     />
                   </div>
                   <p className="text-[10px] text-slate-400 mt-1">Number of days online vehicle health check reports stay accessible for customers.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border rounded-xl p-6 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-3">
+                <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <MapPin size={18} style={{ color: formData.primaryColor }} />
+                  Station GPS Location & Attendance Geofence
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            latitude: pos.coords.latitude,
+                            longitude: pos.coords.longitude,
+                          }));
+                          alert(`Station GPS coordinates set: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
+                        },
+                        (err) => alert("Could not detect GPS location: " + err.message),
+                        { enableHighAccuracy: true }
+                      );
+                    } else {
+                      alert("Geolocation is not supported by your browser.");
+                    }
+                  }}
+                  className="px-3.5 py-2 bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold rounded-lg hover:bg-teal-100 transition flex items-center gap-1.5 shadow-xs"
+                >
+                  <MapPin size={14} /> Detect & Set Current GPS Location
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-500 font-medium">
+                Set your station's physical GPS coordinates to enforce location verification when staff mark daily attendance. Staff must be within the specified radius of the wash station to clock in.
+              </p>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide">Latitude</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={formData.latitude ?? ""}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, latitude: e.target.value ? Number(e.target.value) : null }))}
+                    placeholder="e.g. 12.9716"
+                    className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide">Longitude</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={formData.longitude ?? ""}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, longitude: e.target.value ? Number(e.target.value) : null }))}
+                    placeholder="e.g. 77.5946"
+                    className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide">Allowed Radius (Meters)</label>
+                  <input
+                    type="number"
+                    min={50}
+                    max={5000}
+                    value={formData.allowedRadiusMeters || 200}
+                    onChange={(e) => setFormData((prev: any) => ({ ...prev, allowedRadiusMeters: Number(e.target.value) || 200 }))}
+                    placeholder="200"
+                    className="h-11 w-full border rounded-md px-3 text-sm outline-none focus:border-[var(--primary-color)]"
+                  />
                 </div>
               </div>
             </div>

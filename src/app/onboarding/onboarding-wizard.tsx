@@ -57,6 +57,8 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
     phone: initialStation.phone,
     email: initialStation.email,
     address: initialStation.address,
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
 
   // Branding
@@ -303,6 +305,53 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, address: e.target.value }))}
                 className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
               />
+            </div>
+
+            {/* Station GPS Location */}
+            <div className="sm:col-span-2 p-4 bg-teal-50/60 border border-teal-200/80 rounded-2xl space-y-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-teal-200/60 pb-2">
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                    📍 Wash Station GPS Location (Attendance Geofence)
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-medium">Used to verify staff are physically present at the station when clocking in.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                          setBusinessProfile((p) => ({
+                            ...p,
+                            latitude: pos.coords.latitude,
+                            longitude: pos.coords.longitude,
+                          }));
+                          alert(`Station location set: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
+                        },
+                        (err) => alert("Location capture failed: " + err.message),
+                        { enableHighAccuracy: true }
+                      );
+                    } else {
+                      alert("Geolocation is not supported by your browser.");
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1 shrink-0"
+                >
+                  Detect & Set Station GPS
+                </button>
+              </div>
+
+              {businessProfile.latitude !== null && businessProfile.longitude !== null ? (
+                <div className="flex items-center gap-2 text-xs font-bold text-teal-800 bg-white p-2.5 rounded-xl border border-teal-200">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>GPS Coordinates Configured: {businessProfile.latitude.toFixed(5)}, {businessProfile.longitude.toFixed(5)}</span>
+                </div>
+              ) : (
+                <p className="text-[11px] text-slate-400 italic font-medium">
+                  Click "Detect & Set Station GPS" above to capture current station coordinates, or enter them manually.
+                </p>
+              )}
             </div>
 
             {/* Brand Color */}

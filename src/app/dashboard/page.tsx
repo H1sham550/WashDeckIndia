@@ -20,6 +20,7 @@ import { VehicleSearch } from "@/components/dashboard/vehicle-search";
 import { OwnerProfitLossCard } from "@/components/dashboard/owner-profit-loss-card";
 import { DailyEodSummaryCard } from "@/components/dashboard/daily-eod-summary-card";
 import { StaffClockInCard } from "@/components/dashboard/staff-clock-in-card";
+import { ActiveQueueTable } from "@/components/dashboard/active-queue-table";
 
 export const dynamic = "force-dynamic";
 
@@ -282,63 +283,27 @@ export default async function DashboardPage() {
               </Link>
             </div>
 
-            {activeJobs.length === 0 ? (
-              <div className="py-10 text-center">
-                <Clock size={28} strokeWidth={1} style={{ color: "hsl(var(--text-tertiary))", margin: "0 auto 8px" }} />
-                <p className="wd-body">No active jobs right now</p>
-                <Link href="/dashboard/jobs/new" className="btn btn-primary btn-sm mt-3">
-                  Start New Job
-                </Link>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="wd-table">
-                  <thead>
-                    <tr>
-                      <th>Vehicle</th>
-                      <th>Customer</th>
-                      <th>Service</th>
-                      <th>Status</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeJobs.map((job: any) => (
-                      <tr key={job.id}>
-                        <td>
-                          <span className="plate">{job.vehicle.vehicleNumber}</span>
-                          <span className="wd-caption block mt-0.5">{job.vehicle.vehicleType}</span>
-                        </td>
-                        <td>
-                          <span className="text-sm" style={{ fontWeight: 500 }}>
-                            {job.customer.name}
-                          </span>
-                          <span className="wd-caption block">{job.customer.mobile}</span>
-                        </td>
-                        <td>
-                          <span className="wd-body truncate max-w-[160px] block">
-                            {job.services.map((s: any) => s.serviceNameSnapshot).join(", ")}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={STATUS_BADGE[job.status] || "badge badge-neutral"}>
-                            {STATUS_LABEL[job.status] || job.status}
-                          </span>
-                        </td>
-                        <td className="text-right">
-                          <Link
-                            href={`/dashboard/jobs/${job.id}`}
-                            className="btn btn-ghost btn-sm"
-                          >
-                            Open
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <ActiveQueueTable
+              initialJobs={activeJobs.map((job: any) => ({
+                id: job.id,
+                status: job.status,
+                vehicle: {
+                  id: job.vehicle.id,
+                  vehicleNumber: job.vehicle.vehicleNumber,
+                  vehicleType: job.vehicle.vehicleType,
+                },
+                customer: {
+                  name: job.customer.name,
+                  mobile: job.customer.mobile,
+                },
+                services: Array.isArray(job.services)
+                  ? job.services.map((s: any) => ({
+                      serviceNameSnapshot: s.serviceNameSnapshot || "Car Wash",
+                      priceSnapshot: Number(s.priceSnapshot || 0),
+                    }))
+                  : [],
+              }))}
+            />
           </div>
         </div>
 

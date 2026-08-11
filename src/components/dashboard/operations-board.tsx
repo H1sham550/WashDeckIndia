@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Clock, ArrowRight, ChevronDown } from "lucide-react";
+import { Clock, ArrowRight, Play, CheckCircle2, Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/toast";
 
 type JobCard = {
   id: string;
@@ -26,14 +27,16 @@ type JobCard = {
   status: string;
 };
 
+type BoardData = {
+  RECEIVED: JobCard[];
+  IN_PROGRESS: JobCard[];
+  SERVICE_COMPLETED: JobCard[];
+  PAYMENT_PENDING: JobCard[];
+  DELIVERED: JobCard[];
+};
+
 type OperationsBoardProps = {
-  initialBoardData: {
-    RECEIVED: JobCard[];
-    IN_PROGRESS: JobCard[];
-    SERVICE_COMPLETED: JobCard[];
-    PAYMENT_PENDING: JobCard[];
-    DELIVERED: JobCard[];
-  };
+  initialBoardData: BoardData;
 };
 
 const COLUMNS = [
@@ -86,55 +89,211 @@ function formatTime(iso: string | null) {
   });
 }
 
-function JobCardItem({ job }: { job: JobCard }) {
+function JobCardItem({
+  job,
+  onUpdateStatus,
+  updatingId,
+}: {
+  job: JobCard;
+  onUpdateStatus: (jobId: string, nextStatus: string) => void;
+  updatingId: string | null;
+}) {
   const totalPrice = job.services.reduce((s, svc) => s + svc.priceSnapshot, 0);
   const eta = formatTime(job.expectedCompletionTime);
+  const isUpdating = updatingId === job.id;
 
   return (
-    <Link
-      href={`/dashboard/jobs/${job.id}`}
-      className="block p-3.5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-200 last:border-b-0 active-tap"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="plate bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[11px] tracking-wide">
-              {job.vehicle.vehicleNumber}
-            </span>
-            <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-              {job.vehicle.vehicleType}
-            </span>
+    <div className="p-3.5 bg-white hover:bg-slate-50/60 transition border-b border-slate-200 last:border-b-0 space-y-2.5">
+      <Link href={`/dashboard/jobs/${job.id}`} className="block group">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="plate bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[11px] tracking-wide group-hover:bg-teal-900 transition">
+                {job.vehicle.vehicleNumber}
+              </span>
+              <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                {job.vehicle.vehicleType}
+              </span>
+            </div>
+            <p className="text-xs font-extrabold text-slate-900 truncate group-hover:text-teal-700 transition">
+              {job.customer.name}
+            </p>
+            <p className="text-[11px] font-semibold text-slate-700 truncate">
+              {job.services.map((s) => s.serviceNameSnapshot).join(", ")}
+            </p>
           </div>
-          <p className="text-xs font-extrabold text-slate-900 truncate">
-            {job.customer.name}
-          </p>
-          <p className="text-[11px] font-semibold text-slate-700 truncate">
-            {job.services.map((s) => s.serviceNameSnapshot).join(", ")}
-          </p>
-        </div>
 
-        <div className="flex flex-col items-end gap-1 shrink-0">
-          <span className="text-xs font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-            ₹{totalPrice.toLocaleString("en-IN")}
-          </span>
-          {eta ? (
-            <span className="text-[10px] font-bold text-slate-600">ETA {eta}</span>
-          ) : (
-            <span className="text-[10px] font-bold text-slate-600">{formatElapsed(job.createdAt)}</span>
-          )}
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <span className="text-xs font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+              ₹{totalPrice.toLocaleString("en-IN")}
+            </span>
+            {eta ? (
+              <span className="text-[10px] font-bold text-slate-600">ETA {eta}</span>
+            ) : (
+              <span className="text-[10px] font-bold text-slate-600">{formatElapsed(job.createdAt)}</span>
+            )}
+          </div>
         </div>
+      </Link>
+
+      {/* 1-Tap Quick Action Buttons */}
+      <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-100">
+        {job.status === "RECEIVED" && (
+          <>
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(job.id, "IN_PROGRESS")}
+              className="flex-1 py-1.5 px-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+            >
+              {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
+              Start Wash
+            </button>
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(job.id, "SERVICE_COMPLETED")}
+              className="py-1.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 shrink-0 active:scale-95 disabled:opacity-50"
+              title="Mark Service Completed"
+            >
+              <CheckCircle2 size={12} /> Mark Ready
+            </button>
+          </>
+        )}
+
+        {job.status === "IN_PROGRESS" && (
+          <>
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(job.id, "SERVICE_COMPLETED")}
+              className="flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+            >
+              {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+              Mark Ready / Completed
+            </button>
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(job.id, "RECEIVED")}
+              className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] rounded-lg border transition shrink-0 disabled:opacity-50"
+            >
+              ↩ Waiting
+            </button>
+          </>
+        )}
+
+        {job.status === "SERVICE_COMPLETED" && (
+          <>
+            <button
+              type="button"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(job.id, "DELIVERED")}
+              className="flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+            >
+              {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+              Mark Delivered
+            </button>
+            <Link
+              href={`/dashboard/jobs/${job.id}`}
+              className="py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[11px] rounded-lg border border-blue-200 transition shrink-0"
+            >
+              Pay / Details
+            </Link>
+          </>
+        )}
+
+        {job.status === "PAYMENT_PENDING" && (
+          <button
+            type="button"
+            disabled={isUpdating}
+            onClick={() => onUpdateStatus(job.id, "DELIVERED")}
+            className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+          >
+            {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+            Mark Paid & Delivered
+          </button>
+        )}
+
+        {job.status === "DELIVERED" && (
+          <div className="w-full text-center py-0.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 rounded border border-emerald-100">
+            ✓ Delivered
+          </div>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
 
 export function OperationsBoard({ initialBoardData }: OperationsBoardProps) {
+  const toast = useToast();
+  const [boardData, setBoardData] = useState<BoardData>(initialBoardData);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const handleUpdateStatus = async (jobId: string, nextStatus: string) => {
+    setUpdatingId(jobId);
+
+    // Find the target job card across all columns
+    let targetJob: JobCard | null = null;
+    let oldColumnKey: keyof BoardData | null = null;
+
+    (Object.keys(boardData) as Array<keyof BoardData>).forEach((colKey) => {
+      const found = boardData[colKey].find((j) => j.id === jobId);
+      if (found) {
+        targetJob = { ...found, status: nextStatus };
+        oldColumnKey = colKey;
+      }
+    });
+
+    if (!targetJob || !oldColumnKey) return;
+
+    // Optimistic UI state update: remove from old column, insert at beginning of new column
+    setBoardData((prev) => {
+      const nextBoard = { ...prev };
+
+      // Remove from old column
+      nextBoard[oldColumnKey!] = nextBoard[oldColumnKey!].filter((j) => j.id !== jobId);
+
+      // Add to new column
+      const targetColKey = nextStatus as keyof BoardData;
+      if (nextBoard[targetColKey]) {
+        nextBoard[targetColKey] = [targetJob!, ...nextBoard[targetColKey]];
+      }
+
+      return nextBoard;
+    });
+
+    try {
+      const res = await fetch(`/api/job-cards/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Failed to update status.");
+      }
+
+      toast.success(
+        "Status Updated!",
+        `Vehicle ${targetJob.vehicle.vehicleNumber} updated.`
+      );
+    } catch (err: any) {
+      // Revert to initial board data on error
+      setBoardData(initialBoardData);
+      toast.error("Update Failed", err.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   return (
     <div>
       {/* ── Desktop View (5-Column Kanban Grid) ───────────────────── */}
       <div className="hidden md:grid grid-cols-5 gap-3.5">
         {COLUMNS.map((col) => {
-          const jobs = initialBoardData[col.key] || [];
+          const jobs = boardData[col.key] || [];
           return (
             <div
               key={col.key}
@@ -158,7 +317,14 @@ export function OperationsBoard({ initialBoardData }: OperationsBoardProps) {
                     No vehicles
                   </div>
                 ) : (
-                  jobs.map((job) => <JobCardItem key={job.id} job={job} />)
+                  jobs.map((job) => (
+                    <JobCardItem
+                      key={job.id}
+                      job={job}
+                      onUpdateStatus={handleUpdateStatus}
+                      updatingId={updatingId}
+                    />
+                  ))
                 )}
               </div>
 
@@ -182,7 +348,7 @@ export function OperationsBoard({ initialBoardData }: OperationsBoardProps) {
       {/* ── Mobile View (Vertical Section Tiles Stacked) ─────────── */}
       <div className="md:hidden flex flex-col space-y-4">
         {COLUMNS.map((col) => {
-          const jobs = initialBoardData[col.key] || [];
+          const jobs = boardData[col.key] || [];
           return (
             <div
               key={col.key}
@@ -208,7 +374,14 @@ export function OperationsBoard({ initialBoardData }: OperationsBoardProps) {
                     No vehicles in {col.label.toLowerCase()} stage
                   </div>
                 ) : (
-                  jobs.map((job) => <JobCardItem key={job.id} job={job} />)
+                  jobs.map((job) => (
+                    <JobCardItem
+                      key={job.id}
+                      job={job}
+                      onUpdateStatus={handleUpdateStatus}
+                      updatingId={updatingId}
+                    />
+                  ))
                 )}
               </div>
             </div>

@@ -193,7 +193,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
     setError("");
 
     const uploadPromises = Array.from(files).map(async (file) => {
-      const compressed = await compressImage(file, { maxWidth: 1024, quality: 0.75 });
+      const compressed = await compressImage(file, 1024, 1024, 0.75);
       const data = new FormData();
       data.append("file", compressed);
 

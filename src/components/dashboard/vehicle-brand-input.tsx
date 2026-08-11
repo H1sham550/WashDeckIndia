@@ -74,7 +74,7 @@ export function VehicleBrandInput({
 
       {/* Quick Pick Pills for Instant 1-Tap Mobile Selection */}
       {showPills && (
-        <div className="flex flex-wrap gap-1.5 pt-1 max-h-28 overflow-y-auto p-2 bg-slate-50 border border-slate-200 rounded-xl animate-in fade-in duration-150">
+        <div className="flex flex-wrap gap-1.5 pt-1.5 max-h-24 overflow-y-auto p-2 bg-slate-50 border border-slate-200 rounded-xl animate-in fade-in duration-150 max-w-full shadow-inner">
           {POPULAR_INDIAN_BRANDS.map((brand) => {
             const isSelected = value.toLowerCase() === brand.toLowerCase();
             return (
@@ -85,7 +85,7 @@ export function VehicleBrandInput({
                   onChange(brand);
                   setShowPills(false);
                 }}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition shrink-0 ${
                   isSelected
                     ? "bg-teal-700 text-white shadow-xs"
                     : "bg-white text-slate-700 border border-slate-200 hover:border-teal-500 hover:text-teal-700"

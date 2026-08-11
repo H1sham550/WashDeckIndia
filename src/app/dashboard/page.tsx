@@ -19,6 +19,7 @@ import { getStationEntitlements } from "@/lib/entitlement";
 import { VehicleSearch } from "@/components/dashboard/vehicle-search";
 import { OwnerProfitLossCard } from "@/components/dashboard/owner-profit-loss-card";
 import { DailyEodSummaryCard } from "@/components/dashboard/daily-eod-summary-card";
+import { StaffClockInCard } from "@/components/dashboard/staff-clock-in-card";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,7 @@ export default async function DashboardPage() {
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
-  const [entitlements, summary, expenses, activeStaffCount, todayDbJobsCount] = await Promise.all([
+  const [entitlements, summary, expenses, activeStaffCount, todayDbJobsCount, todayAttendanceLog] = await Promise.all([
     getStationEntitlements(stationId),
     jobCardService.getDashboardSummary(stationId),
     isOwner
@@ -54,6 +55,14 @@ export default async function DashboardPage() {
     prisma.jobCard.count({
       where: { stationId, createdAt: { gte: todayStart, lte: todayEnd }, isDeleted: false },
     }).catch(() => 0),
+    prisma.attendanceLog.findFirst({
+      where: {
+        stationId,
+        staffId: session.id,
+        date: { gte: todayStart },
+      },
+      orderBy: { date: "desc" },
+    }).catch(() => null),
   ]);
 
   const revenueToday = summary.revenueToday;
@@ -144,6 +153,24 @@ export default async function DashboardPage() {
           New Job
         </Link>
       </div>
+
+      {/* ── Staff Attendance Clock-In Widget ── */}
+      <StaffClockInCard
+        currentUserId={session.id}
+        currentUserName={session.name}
+        userRole={session.role}
+        stationId={stationId}
+        initialTodayLog={
+          todayAttendanceLog
+            ? {
+                id: todayAttendanceLog.id,
+                checkIn: todayAttendanceLog.checkIn ? todayAttendanceLog.checkIn.toISOString() : null,
+                checkOut: todayAttendanceLog.checkOut ? todayAttendanceLog.checkOut.toISOString() : null,
+                status: todayAttendanceLog.status,
+              }
+            : null
+        }
+      />
 
       {/* ── KPI Strip ────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">

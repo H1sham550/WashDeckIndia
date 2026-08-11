@@ -163,8 +163,12 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
     }
   }
 
-  // After Photos State
-  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  // Photos State
+  const [uploadingBeforePhotos, setUploadingBeforePhotos] = useState(false);
+  const [uploadingAfterPhotos, setUploadingAfterPhotos] = useState(false);
+  const [beforePhotos, setBeforePhotos] = useState<string[]>(
+    initialJob.photos.filter((p) => p.type === "BEFORE").map((p) => p.url)
+  );
   const [afterPhotos, setAfterPhotos] = useState<string[]>(
     initialJob.photos.filter((p) => p.type === "AFTER").map((p) => p.url)
   );
@@ -180,7 +184,58 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
   // Collect Payment State
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
 
-  const beforePhotos = job.photos.filter((p) => p.type === "BEFORE").map((p) => p.url);
+  async function handlePhotoUpload(type: "BEFORE" | "AFTER", e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (type === "BEFORE") setUploadingBeforePhotos(true);
+    else setUploadingAfterPhotos(true);
+    setError("");
+
+    const uploadPromises = Array.from(files).map(async (file) => {
+      const compressed = await compressImage(file, { maxWidth: 1024, quality: 0.75 });
+      const data = new FormData();
+      data.append("file", compressed);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.ok) {
+        throw new Error(json.error || "Upload failed");
+      }
+      return json.url;
+    });
+
+    try {
+      const urls = await Promise.all(uploadPromises);
+
+      const photoPromises = urls.map(async (url) => {
+        return fetch(`/api/job-cards/${job.id}/photos`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, type }),
+        }).then((res) => res.json());
+      });
+
+      await Promise.all(photoPromises);
+
+      if (type === "BEFORE") {
+        setBeforePhotos((prev) => [...prev, ...urls]);
+        setSuccess("Before servicing photo added successfully!");
+      } else {
+        setAfterPhotos((prev) => [...prev, ...urls]);
+        setSuccess("After servicing photo added successfully!");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to upload photo.");
+    } finally {
+      if (type === "BEFORE") setUploadingBeforePhotos(false);
+      else setUploadingAfterPhotos(false);
+    }
+  }
 
   async function handleStatusTransition(nextStatus: JobStatus) {
     setError("");
@@ -206,56 +261,6 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
         setError(err.message || "Could not transition status.");
       }
     });
-  }
-
-  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploadingPhotos(true);
-    setError("");
-
-    const uploadPromises = Array.from(files).map(async (file) => {
-      const compressed = await compressImage(file, { maxWidth: 1024, quality: 0.75 });
-      const data = new FormData();
-      data.append("file", compressed);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: data,
-      });
-
-      const json = await res.json();
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || "Upload failed");
-      }
-      return json.url;
-    });
-
-    try {
-      const urls = await Promise.all(uploadPromises);
-
-      // Save photos in DB linked to Job Card
-      // We will create them locally via an API call or just save status
-      // For this MVP, we save photos on status updates or append them.
-      // Let's call an API to save job photos!
-      const photoPromises = urls.map(async (url) => {
-        return fetch(`/api/job-cards/${job.id}/photos`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, type: "AFTER" }),
-        }).then((res) => res.json());
-      });
-
-      await Promise.all(photoPromises);
-
-      setAfterPhotos((prev) => [...prev, ...urls]);
-      setSuccess("After photo added successfully!");
-    } catch (err: any) {
-      setError(err.message || "Failed to upload after photos.");
-    } finally {
-      setUploadingPhotos(false);
-    }
   }
 
   async function handleCancelSubmit(e: React.FormEvent) {
@@ -588,15 +593,41 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
           )}
 
           {/* BEFORE Photos */}
-          {beforePhotos.length > 0 && (
+          {(beforePhotos.length > 0 || (job.status !== "DELIVERED" && job.status !== "CANCELLED")) && (
             <div className="bg-white border rounded-xl p-5 shadow-sm space-y-3">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2">Before Servicing Photos</h3>
+              <div className="flex items-center justify-between border-b pb-2">
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Before Servicing Photos</h3>
+                <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">Vehicle Intake</span>
+              </div>
               <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
                 {beforePhotos.map((url, idx) => (
-                  <div key={idx} className="h-24 border rounded-lg overflow-hidden bg-slate-50 relative">
+                  <div key={idx} className="h-24 border rounded-lg overflow-hidden bg-slate-50 relative group">
                     <img src={url} alt="Before" className="object-cover h-full w-full" />
                   </div>
                 ))}
+
+                {job.status !== "DELIVERED" && job.status !== "CANCELLED" && (
+                  <>
+                    {uploadingBeforePhotos ? (
+                      <div className="h-24 border rounded-lg bg-slate-50 flex items-center justify-center">
+                        <Loader2 className="animate-spin text-[var(--primary-color)]" size={24} />
+                      </div>
+                    ) : (
+                      <label className="h-24 border-2 border-dashed border-teal-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-teal-50/50 transition text-teal-700">
+                        <Camera size={22} />
+                        <span className="text-[10px] font-extrabold mt-1">Add Before Photo</span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          capture="environment"
+                          className="hidden"
+                          onChange={(e) => handlePhotoUpload("BEFORE", e)}
+                        />
+                      </label>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -607,7 +638,10 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
             job.status === "PAYMENT_PENDING" ||
             afterPhotos.length > 0) && (
             <div className="bg-white border rounded-xl p-5 shadow-sm space-y-3">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2">After Servicing Photos</h3>
+              <div className="flex items-center justify-between border-b pb-2">
+                <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">After Servicing Photos</h3>
+                <span className="text-[10px] font-bold text-slate-400">Completion</span>
+              </div>
               <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
                 {afterPhotos.map((url, idx) => (
                   <div key={idx} className="h-24 border rounded-lg overflow-hidden bg-slate-50 relative">
@@ -615,23 +649,23 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                   </div>
                 ))}
 
-                {/* If active, allow upload after photos */}
                 {job.status !== "DELIVERED" && job.status !== "CANCELLED" && (
                   <>
-                    {uploadingPhotos ? (
+                    {uploadingAfterPhotos ? (
                       <div className="h-24 border rounded-lg bg-slate-50 flex items-center justify-center">
                         <Loader2 className="animate-spin text-[var(--primary-color)]" size={24} />
                       </div>
                     ) : (
                       <label className="h-24 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition text-slate-400 hover:text-slate-600">
-                        <Camera size={24} />
-                        <span className="text-[10px] font-bold mt-1.5">Add After Photo</span>
+                        <Camera size={22} />
+                        <span className="text-[10px] font-bold mt-1">Add After Photo</span>
                         <input
                           type="file"
                           multiple
                           accept="image/*"
+                          capture="environment"
                           className="hidden"
-                          onChange={handlePhotoUpload}
+                          onChange={(e) => handlePhotoUpload("AFTER", e)}
                         />
                       </label>
                     )}

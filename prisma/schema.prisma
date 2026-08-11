@@ -253,6 +253,9 @@ model StationBranding {
 model StationSettings {
   id                          String  @id @default(uuid())
   stationId                   String  @unique
+  latitude                    Float?
+  longitude                   Float?
+  allowedRadiusMeters         Int?    @default(200)
   queueDisplayPreferencesJson Json?
   defaultDashboardLayout      String?
   bookingLeadTime             Int?
@@ -767,15 +770,18 @@ model Expense {
 }
 
 model AttendanceLog {
-  id        String    @id @default(uuid())
-  stationId String
-  staffId   String
-  staffName String
-  date      DateTime  @default(now())
-  status    String    @default("PRESENT") // "PRESENT", "ABSENT", "HALF_DAY", "LEAVE"
-  checkIn   DateTime?
-  checkOut  DateTime?
-  notes     String?
+  id          String    @id @default(uuid())
+  stationId   String
+  staffId     String
+  staffName   String
+  date        DateTime  @default(now())
+  status      String    @default("PRESENT") // "PRESENT", "ABSENT", "HALF_DAY", "LEAVE"
+  checkIn     DateTime?
+  checkOut    DateTime?
+  latitude    Float?
+  longitude   Float?
+  isGeofenced Boolean   @default(true)
+  notes       String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 

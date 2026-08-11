@@ -29,6 +29,9 @@ const updateBrandingSchema = z.object({
   rewardEligibleTemplate: z.string().nullable().optional(),
   locale: z.string().optional(),
   currency: z.string().optional(),
+  latitude: z.union([z.number(), z.null()]).optional(),
+  longitude: z.union([z.number(), z.null()]).optional(),
+  allowedRadiusMeters: z.union([z.number(), z.string().transform((v) => Number(v))]).optional(),
 });
 
 export async function GET(request: NextRequest) {

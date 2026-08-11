@@ -53,6 +53,9 @@ export type UpdateStationInput = {
   rewardEligibleTemplate?: string | null;
   locale?: string;
   currency?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  allowedRadiusMeters?: number;
 };
 
 export async function updateStationBranding(id: string, data: UpdateStationInput) {
@@ -98,15 +101,28 @@ export async function updateStationBranding(id: string, data: UpdateStationInput
     }
   });
 
-  if (data.defaultEta !== undefined || data.vipSpendThreshold !== undefined || data.vipVisitThreshold !== undefined) {
+  if (
+    data.defaultEta !== undefined ||
+    data.vipSpendThreshold !== undefined ||
+    data.vipVisitThreshold !== undefined ||
+    data.latitude !== undefined ||
+    data.longitude !== undefined ||
+    data.allowedRadiusMeters !== undefined
+  ) {
     await prisma.stationSettings.upsert({
       where: { stationId: id },
       create: {
         stationId: id,
         bookingLeadTime: data.defaultEta,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+        allowedRadiusMeters: data.allowedRadiusMeters || 200,
       },
       update: {
         bookingLeadTime: data.defaultEta !== undefined ? data.defaultEta : undefined,
+        latitude: data.latitude !== undefined ? data.latitude : undefined,
+        longitude: data.longitude !== undefined ? data.longitude : undefined,
+        allowedRadiusMeters: data.allowedRadiusMeters !== undefined ? data.allowedRadiusMeters : undefined,
       },
     });
   }

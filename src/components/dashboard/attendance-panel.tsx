@@ -15,6 +15,8 @@ import {
   Search 
 } from "lucide-react";
 
+import { StaffClockInCard } from "./staff-clock-in-card";
+
 type AttendanceLogItem = {
   id: string;
   staffId: string;
@@ -23,6 +25,9 @@ type AttendanceLogItem = {
   status: string; // "PRESENT", "ABSENT", "HALF_DAY", "LEAVE"
   checkIn: string | null;
   checkOut: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  isGeofenced?: boolean;
   notes: string | null;
 };
 
@@ -37,9 +42,26 @@ interface AttendancePanelProps {
   initialLogs: AttendanceLogItem[];
   staffMembers: StaffMember[];
   stationId: string;
+  currentUserId?: string;
+  currentUserName?: string;
+  userRole?: string;
+  initialTodayLog?: {
+    id: string;
+    checkIn: string | null;
+    checkOut: string | null;
+    status: string;
+  } | null;
 }
 
-export function AttendancePanel({ initialLogs, staffMembers, stationId }: AttendancePanelProps) {
+export function AttendancePanel({
+  initialLogs,
+  staffMembers,
+  stationId,
+  currentUserId = "",
+  currentUserName = "Staff User",
+  userRole = "STAFF",
+  initialTodayLog = null,
+}: AttendancePanelProps) {
   const [logs, setLogs] = useState<AttendanceLogItem[]>(initialLogs);
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,6 +142,16 @@ export function AttendancePanel({ initialLogs, staffMembers, stationId }: Attend
 
   return (
     <div className="space-y-6">
+      {currentUserId && (
+        <StaffClockInCard
+          currentUserId={currentUserId}
+          currentUserName={currentUserName}
+          userRole={userRole}
+          stationId={stationId}
+          initialTodayLog={initialTodayLog}
+        />
+      )}
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
         <div>

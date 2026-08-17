@@ -21,7 +21,8 @@ import {
   PieChart,
   ArrowUpRight,
   ArrowDownRight,
-  Sparkles
+  Sparkles,
+  Car
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 
@@ -79,6 +80,8 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"ALL" | "INCOME" | "EXPENSE">("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [hoveredDayIndex, setHoveredDayIndex] = useState<number | null>(null);
+  const [chartViewMode, setChartViewMode] = useState<"COMBINED" | "SALES" | "CARS">("COMBINED");
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseTransaction | null>(null);
@@ -205,40 +208,78 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
     categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
   });
 
-  // Render SVG Daily Profit Chart (maps 7 or 30 days)
-  const daysToDraw = dateRange === "month" ? 30 : 7;
-  const chartData: Array<{ label: string; income: number; expense: number }> = [];
-
-  for (let i = daysToDraw - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateKey = d.toDateString();
-    const label = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
-
-    // Aggregate values for this specific calendar day
-    const dayIncome = incomes
-      .filter((tx) => new Date(tx.date).toDateString() === dateKey)
-      .reduce((sum, tx) => sum + tx.amount, 0);
-
-    const dayExpense = expenses
-      .filter((tx) => new Date(tx.date).toDateString() === dateKey)
-      .reduce((sum, tx) => sum + tx.amount, 0);
-
-    chartData.push({ label, income: dayIncome, expense: dayExpense });
+  // Calculate daily Sales vs Car Volume (Vehicle Count) metrics
+  let daysToDraw = 7;
+  let chartEndAnchor = new Date();
+  if (dateRange === "today") {
+    daysToDraw = 7;
+  } else if (dateRange === "week") {
+    daysToDraw = 7;
+  } else if (dateRange === "month") {
+    daysToDraw = 30;
+  } else if (dateRange === "custom" && customStartDate && customEndDate) {
+    const s = new Date(customStartDate);
+    const e = new Date(customEndDate);
+    const diff = Math.max(1, Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+    daysToDraw = Math.min(diff, 45);
+    chartEndAnchor = new Date(e);
+  } else if (dateRange === "all") {
+    daysToDraw = 30;
   }
 
-  const maxChartVal = Math.max(
-    ...chartData.map((d) => Math.max(d.income, d.expense)),
-    1000
-  );
+  const todayStr = new Date().toDateString();
+  const salesVolumeData: Array<{
+    dateKey: string;
+    label: string;
+    dayName: string;
+    fullDateLabel: string;
+    sales: number;
+    carsCount: number;
+    avgTicket: number;
+    isToday: boolean;
+  }> = [];
 
-  // SVG Dimensions
-  const svgWidth = 600;
-  const svgHeight = 220;
-  const paddingX = 45;
-  const paddingY = 30;
-  const chartWidth = svgWidth - paddingX - 20;
-  const chartHeight = svgHeight - paddingY - 15;
+  for (let i = daysToDraw - 1; i >= 0; i--) {
+    const d = new Date(chartEndAnchor);
+    d.setDate(d.getDate() - i);
+    const dateKey = d.toDateString();
+    const isToday = dateKey === todayStr;
+    const label = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+    const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
+    const fullDateLabel = d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+
+    // Aggregate sales and vehicle counts on this date
+    const matchingIncomes = (incomes || []).filter((tx) => {
+      try {
+        return tx && tx.date && new Date(tx.date).toDateString() === dateKey;
+      } catch {
+        return false;
+      }
+    });
+
+    const daySales = matchingIncomes.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+    const dayCarsCount = matchingIncomes.length;
+    const avgTicket = dayCarsCount > 0 ? Math.round(daySales / dayCarsCount) : 0;
+
+    salesVolumeData.push({
+      dateKey,
+      label,
+      dayName,
+      fullDateLabel,
+      sales: daySales,
+      carsCount: dayCarsCount,
+      avgTicket,
+      isToday,
+    });
+  }
+
+  const totalPeriodSales = salesVolumeData.reduce((s, d) => s + d.sales, 0);
+  const totalPeriodCars = salesVolumeData.reduce((s, d) => s + d.carsCount, 0);
+  const overallAvgTicket = totalPeriodCars > 0 ? Math.round(totalPeriodSales / totalPeriodCars) : 0;
+  const maxPeriodSales = Math.max(...salesVolumeData.map((d) => d.sales), 500);
+  const maxPeriodCars = Math.max(...salesVolumeData.map((d) => d.carsCount), 3);
+  const peakCarDay = salesVolumeData.reduce((max, d) => (d.carsCount > (max?.carsCount || 0) ? d : max), salesVolumeData[0]);
+  const peakSalesDay = salesVolumeData.reduce((max, d) => (d.sales > (max?.sales || 0) ? d : max), salesVolumeData[0]);
 
   // Open Add/Edit Modal
   const openExpenseModal = (expense: ExpenseTransaction | null = null) => {
@@ -592,183 +633,420 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         )}
       </section>
 
-      {/* ── 2. EXPENSE & NET CASH FLOW GROWTH GRAPH ── */}
+      {/* ── 2. SALES VS CAR VOLUME (CARS WASHED) CORRELATION GRAPH ── */}
       <section className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <TrendingUp size={18} className="text-emerald-600" />
-                Cumulative Cash Flow & Expense Growth Graph
+              <div className="p-1.5 rounded-lg bg-teal-50 text-teal-700">
+                <Car size={18} />
+              </div>
+              <h3 className="text-sm font-bold text-slate-800">
+                Sales & Vehicle Volume (Cars Washed vs Sales)
               </h3>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Trajectory and growth curve comparing revenue inflow vs operational expense run-rate over {daysToDraw} days.
+              Correlates the number of cars serviced against generated sales revenue and average spend per vehicle over {daysToDraw} days.
             </p>
           </div>
 
-          {/* Growth Stat Badges */}
-          {(() => {
-            // Calculate growth stats
-            const mid = Math.floor(chartData.length / 2);
-            const firstHalfExp = chartData.slice(0, mid).reduce((s, d) => s + d.expense, 0);
-            const secondHalfExp = chartData.slice(mid).reduce((s, d) => s + d.expense, 0);
-            
-            let growthPct = 0;
-            if (firstHalfExp > 0) {
-              growthPct = Math.round(((secondHalfExp - firstHalfExp) / firstHalfExp) * 100);
-            }
-
-            const avgDailyExpense = chartData.length > 0 ? Math.round(totalExpense / chartData.length) : 0;
-            const maxSingleDayExp = Math.max(...chartData.map((d) => d.expense), 0);
-
-            return (
-              <div className="flex items-center gap-2 flex-wrap text-xs">
-                <div className={`px-2.5 py-1 rounded-lg border font-bold flex items-center gap-1 ${
-                  growthPct <= 0
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-amber-50 text-amber-700 border-amber-200"
-                }`}>
-                  <span>Expense Growth:</span>
-                  <span>{growthPct > 0 ? `+${growthPct}%` : `${growthPct}%`}</span>
-                </div>
-                <div className="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-bold">
-                  Avg Daily: {formatCurrency(avgDailyExpense)}
-                </div>
-                <div className="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg font-bold">
-                  Peak Day: {formatCurrency(maxSingleDayExp)}
-                </div>
-              </div>
-            );
-          })()}
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex bg-slate-100 p-1 rounded-xl gap-1 border border-slate-200 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setChartViewMode("COMBINED")}
+                className={`px-3 py-1 rounded-lg transition ${
+                  chartViewMode === "COMBINED" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                Combined (Sales + Cars)
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartViewMode("SALES")}
+                className={`px-3 py-1 rounded-lg transition ${
+                  chartViewMode === "SALES" ? "bg-white text-teal-700 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                Sales (₹)
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartViewMode("CARS")}
+                className={`px-3 py-1 rounded-lg transition ${
+                  chartViewMode === "CARS" ? "bg-white text-blue-700 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                Cars Serviced (🚗)
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Growth Line & Trajectory SVG Chart */}
+        {/* Top KPI Metrics Strip for Vehicle Sales Correlation */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {/* Total Cars Washed */}
+          <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100">
+            <div className="flex items-center justify-between text-blue-600">
+              <span className="text-[10px] font-black uppercase tracking-wider">Cars Serviced</span>
+              <Car size={15} />
+            </div>
+            <p className="text-xl font-black text-blue-900 mt-1">{totalPeriodCars}</p>
+            <p className="text-[10px] text-blue-600/80 mt-0.5">Vehicles washed in period</p>
+          </div>
+
+          {/* Total Sales Generated */}
+          <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
+            <div className="flex items-center justify-between text-emerald-600">
+              <span className="text-[10px] font-black uppercase tracking-wider">Total Sales</span>
+              <TrendingUp size={15} />
+            </div>
+            <p className="text-xl font-black text-emerald-900 mt-1">{formatCurrency(totalPeriodSales)}</p>
+            <p className="text-[10px] text-emerald-600/80 mt-0.5">Paid service inflow</p>
+          </div>
+
+          {/* Average Revenue Per Car */}
+          <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100">
+            <div className="flex items-center justify-between text-amber-600">
+              <span className="text-[10px] font-black uppercase tracking-wider">Avg Ticket / Car</span>
+              <Sparkles size={15} />
+            </div>
+            <p className="text-xl font-black text-amber-900 mt-1">{formatCurrency(overallAvgTicket)}</p>
+            <p className="text-[10px] text-amber-600/80 mt-0.5">Average spend per vehicle</p>
+          </div>
+
+          {/* Peak Volume Day */}
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex items-center justify-between text-slate-500">
+              <span className="text-[10px] font-black uppercase tracking-wider">Peak Traffic Day</span>
+              <Calendar size={15} />
+            </div>
+            <p className="text-sm font-black text-slate-800 mt-1 truncate">
+              {peakCarDay && peakCarDay.carsCount > 0 ? `${peakCarDay.dayName}, ${peakCarDay.label}` : "No traffic yet"}
+            </p>
+            <p className="text-[10px] text-slate-500 mt-0.5">
+              {peakCarDay && peakCarDay.carsCount > 0 ? `${peakCarDay.carsCount} cars • ${formatCurrency(peakCarDay.sales)}` : "0 cars logged"}
+            </p>
+          </div>
+        </div>
+
+        {/* Selected / Hovered Day Interactive Info Callout */}
         {(() => {
-          const gSvgW = 600;
-          const gSvgH = 220;
-          const gPadX = 50;
-          const gPadY = 25;
-          const gW = gSvgW - gPadX - 20;
-          const gH = gSvgH - gPadY - 25;
+          const activeItem = hoveredDayIndex !== null ? salesVolumeData[hoveredDayIndex] : (salesVolumeData.find(d => d.isToday) || peakSalesDay || salesVolumeData[salesVolumeData.length - 1]);
+          if (!activeItem) return null;
+          return (
+            <div className="p-3 rounded-xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 text-xs shadow-md animate-in fade-in duration-150">
+              <div className="flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
+                <span className="font-extrabold text-white text-sm">{activeItem.fullDateLabel}</span>
+                {activeItem.isToday && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                    Today
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-1.5">
+                  <Car size={14} className="text-blue-400" />
+                  <span className="text-slate-400">Cars:</span>
+                  <span className="font-black text-white">{activeItem.carsCount} vehicles</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp size={14} className="text-emerald-400" />
+                  <span className="text-slate-400">Sales:</span>
+                  <span className="font-black text-emerald-400">{formatCurrency(activeItem.sales)}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Sparkles size={14} className="text-amber-400" />
+                  <span className="text-slate-400">Avg / Car:</span>
+                  <span className="font-black text-amber-300">{formatCurrency(activeItem.avgTicket)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
-          // Calculate cumulative totals for smooth growth curve
-          let cumInc = 0;
-          let cumExp = 0;
-          const points = chartData.map((d, idx) => {
-            cumInc += d.income;
-            cumExp += d.expense;
-            return {
-              label: d.label,
-              income: d.income,
-              expense: d.expense,
-              cumInc,
-              cumExp,
-              idx,
-            };
-          });
+        {/* SVG Dual-Axis Chart Canvas */}
+        {(() => {
+          const svgW = 680;
+          const svgH = 260;
+          const padL = 50;
+          const padR = 45;
+          const padT = 25;
+          const padB = 35;
+          const cW = svgW - padL - padR;
+          const cH = svgH - padT - padB;
+          const n = salesVolumeData.length;
 
-          const maxCum = Math.max(...points.map((p) => Math.max(p.cumInc, p.cumExp)), 1000);
+          // X coordinate of day i
+          const getColX = (i: number) => padL + (i + 0.5) * (cW / n);
+          const colWidth = cW / n;
+          const barWidth = Math.min(Math.max(colWidth * 0.45, 8), 36);
 
-          // SVG coordinates generators
-          const getX = (idx: number) => gPadX + (idx / Math.max(points.length - 1, 1)) * gW;
-          const getIncY = (val: number) => gPadY + gH - (val / maxCum) * gH;
-          const getExpY = (val: number) => gPadY + gH - (val / maxCum) * gH;
+          // Left Y coordinate for Sales (0 to maxPeriodSales)
+          const getSalesY = (val: number) => padT + cH - (val / maxPeriodSales) * cH;
+          // Right Y coordinate for Cars (0 to maxPeriodCars)
+          const getCarsY = (val: number) => padT + cH - (val / maxPeriodCars) * cH;
 
-          // Generate SVG Path d strings for lines & areas
-          const incLineD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getIncY(p.cumInc)}`).join(" ");
-          const incAreaD = `${incLineD} L ${getX(points.length - 1)} ${gPadY + gH} L ${getX(0)} ${gPadY + gH} Z`;
+          // Line path for cars
+          const carPoints = salesVolumeData.map((d, i) => ({
+            x: getColX(i),
+            y: getCarsY(d.carsCount),
+            cars: d.carsCount,
+          }));
 
-          const expLineD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getExpY(p.cumExp)}`).join(" ");
-          const expAreaD = `${expLineD} L ${getX(points.length - 1)} ${gPadY + gH} L ${getX(0)} ${gPadY + gH} Z`;
+          const carLineD = carPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+          const carAreaD = `${carLineD} L ${carPoints[carPoints.length - 1]?.x || 0} ${padT + cH} L ${carPoints[0]?.x || 0} ${padT + cH} Z`;
 
           return (
-            <div className="w-full overflow-x-auto">
-              <div className="min-w-[520px] max-w-3xl mx-auto">
-                <svg viewBox={`0 0 ${gSvgW} ${gSvgH}`} className="w-full h-auto select-none">
+            <div className="w-full overflow-x-auto bg-slate-50/50 rounded-2xl p-3 border border-slate-200/80">
+              <div className="min-w-[560px] max-w-4xl mx-auto">
+                <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto select-none">
                   <defs>
-                    <linearGradient id="incGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                    <linearGradient id="salesBarGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.95" />
+                      <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.75" />
                     </linearGradient>
-                    <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.25" />
-                      <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
+                    <linearGradient id="salesBarGradHover" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0f766e" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.95" />
+                    </linearGradient>
+                    <linearGradient id="carsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
                     </linearGradient>
                   </defs>
 
-                  {/* Horizontal Grid lines */}
-                  {[0, 0.33, 0.66, 1].map((r) => {
-                    const y = gPadY + gH - r * gH;
-                    const val = Math.round(r * maxCum);
+                  {/* Horizontal Gridlines and Left Axis Labels (Sales ₹) */}
+                  {[0, 0.25, 0.5, 0.75, 1].map((r) => {
+                    const y = padT + cH - r * cH;
+                    const salesVal = Math.round(r * maxPeriodSales);
+                    const carsVal = Math.round(r * maxPeriodCars);
+
                     return (
                       <g key={r}>
                         <line
-                          x1={gPadX}
+                          x1={padL}
                           y1={y}
-                          x2={gSvgW - 15}
+                          x2={svgW - padR}
                           y2={y}
                           stroke="#e2e8f0"
                           strokeWidth="1"
-                          strokeDasharray="3 3"
+                          strokeDasharray={r === 0 ? "none" : "3 3"}
                         />
+                        {/* Left Y Axis label: Sales (₹) */}
                         <text
-                          x={gPadX - 8}
-                          y={y + 4}
+                          x={padL - 8}
+                          y={y + 3.5}
                           textAnchor="end"
-                          className="fill-slate-400 font-semibold text-[9px]"
+                          className="fill-slate-400 font-bold text-[9px]"
                         >
-                          {val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val}
+                          {salesVal >= 1000 ? `₹${(salesVal / 1000).toFixed(1)}k` : `₹${salesVal}`}
+                        </text>
+                        {/* Right Y Axis label: Cars count */}
+                        <text
+                          x={svgW - padR + 8}
+                          y={y + 3.5}
+                          textAnchor="start"
+                          className="fill-blue-500 font-bold text-[9px]"
+                        >
+                          {carsVal} {r === 1 ? "cars" : ""}
                         </text>
                       </g>
                     );
                   })}
 
-                  {/* Area Fills */}
-                  <path d={incAreaD} fill="url(#incGrad)" />
-                  <path d={expAreaD} fill="url(#expGrad)" />
+                  {/* Cars Volume Gradient Area (if view mode includes Cars) */}
+                  {chartViewMode !== "SALES" && (
+                    <path d={carAreaD} fill="url(#carsAreaGrad)" />
+                  )}
 
-                  {/* Smooth Lines */}
-                  <path d={incLineD} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d={expLineD} fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="5 3" />
+                  {/* Sales Revenue Bars (if view mode includes Sales) */}
+                  {chartViewMode !== "CARS" &&
+                    salesVolumeData.map((d, i) => {
+                      const cx = getColX(i);
+                      const barH = (d.sales / maxPeriodSales) * cH;
+                      const barY = padT + cH - barH;
+                      const isHovered = hoveredDayIndex === i;
 
-                  {/* Data Point Circles */}
-                  {points.map((p, i) => {
-                    const x = getX(i);
-                    const yInc = getIncY(p.cumInc);
-                    const yExp = getExpY(p.cumExp);
+                      return (
+                        <g key={d.dateKey}>
+                          {/* Bar glow when hovered */}
+                          {isHovered && d.sales > 0 && (
+                            <rect
+                              x={cx - barWidth / 2 - 2}
+                              y={barY - 2}
+                              width={barWidth + 4}
+                              height={barH + 2}
+                              rx={5}
+                              fill="#0d9488"
+                              opacity={0.3}
+                            />
+                          )}
+
+                          {/* Main Sales Bar */}
+                          {d.sales > 0 ? (
+                            <rect
+                              x={cx - barWidth / 2}
+                              y={barY}
+                              width={barWidth}
+                              height={barH}
+                              rx={4}
+                              fill={isHovered ? "url(#salesBarGradHover)" : "url(#salesBarGrad)"}
+                              className="transition-all duration-200 cursor-pointer"
+                            />
+                          ) : (
+                            /* Empty day dot marker */
+                            <circle cx={cx} cy={padT + cH - 2} r="2" fill="#cbd5e1" />
+                          )}
+
+                          {/* Value above bar if sales > 0 */}
+                          {d.sales > 0 && (
+                            <text
+                              x={cx}
+                              y={barY - 5}
+                              textAnchor="middle"
+                              className={`font-black text-[9px] ${
+                                isHovered ? "fill-teal-900 font-extrabold" : "fill-teal-700"
+                              }`}
+                            >
+                              {d.sales >= 1000 ? `₹${(d.sales / 1000).toFixed(1)}k` : `₹${d.sales}`}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
+
+                  {/* Cars Volume Line & Nodes (if view mode includes Cars) */}
+                  {chartViewMode !== "SALES" && (
+                    <g>
+                      <path
+                        d={carLineD}
+                        fill="none"
+                        stroke="#3b82f6"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      {carPoints.map((p, i) => {
+                        const isHovered = hoveredDayIndex === i;
+                        return (
+                          <g key={i}>
+                            {/* Outer halo */}
+                            <circle
+                              cx={p.x}
+                              cy={p.y}
+                              r={isHovered ? 7 : 4.5}
+                              fill="#ffffff"
+                              stroke="#3b82f6"
+                              strokeWidth={isHovered ? 3 : 2}
+                              className="transition-all duration-150 cursor-pointer"
+                            />
+                            {/* Inner dot */}
+                            <circle cx={p.x} cy={p.y} r={isHovered ? 3 : 2} fill="#1d4ed8" />
+
+                            {/* Car count pill above node */}
+                            {p.cars > 0 && (
+                              <g transform={`translate(${p.x}, ${p.y - 12})`}>
+                                <rect
+                                  x="-11"
+                                  y="-9"
+                                  width="22"
+                                  height="13"
+                                  rx="6.5"
+                                  fill="#1e40af"
+                                  className="shadow-xs"
+                                />
+                                <text
+                                  x="0"
+                                  y="0"
+                                  textAnchor="middle"
+                                  alignmentBaseline="middle"
+                                  className="fill-white font-extrabold text-[8px]"
+                                >
+                                  {p.cars}
+                                </text>
+                              </g>
+                            )}
+                          </g>
+                        );
+                      })}
+                    </g>
+                  )}
+
+                  {/* X-Axis Day Labels and Hover Columns */}
+                  {salesVolumeData.map((d, i) => {
+                    const cx = getColX(i);
+                    const isHovered = hoveredDayIndex === i;
 
                     return (
-                      <g key={i} className="group">
-                        <title>{`Date: ${p.label}\nCumulative Inflow: ${formatCurrency(p.cumInc)} (Daily: +${formatCurrency(p.income)})\nCumulative Expense: ${formatCurrency(p.cumExp)} (Daily: +${formatCurrency(p.expense)})`}</title>
+                      <g
+                        key={d.dateKey}
+                        onMouseEnter={() => setHoveredDayIndex(i)}
+                        onMouseLeave={() => setHoveredDayIndex(null)}
+                        className="cursor-pointer"
+                      >
+                        {/* Transparent hover target strip covering the whole column */}
+                        <rect
+                          x={cx - colWidth / 2}
+                          y={padT}
+                          width={colWidth}
+                          height={cH}
+                          fill={isHovered ? "#38bdf8" : "transparent"}
+                          opacity={isHovered ? 0.08 : 0}
+                          rx={6}
+                        />
 
-                        {/* Income Point */}
-                        <circle cx={x} cy={yInc} r="4" fill="#10b981" stroke="#ffffff" strokeWidth="2" className="group-hover:r-6 transition-all cursor-pointer" />
-
-                        {/* Expense Point */}
-                        <circle cx={x} cy={yExp} r="4" fill="#f43f5e" stroke="#ffffff" strokeWidth="2" className="group-hover:r-6 transition-all cursor-pointer" />
-
-                        {/* X-axis Label */}
-                        {(points.length <= 7 || i % 4 === 0 || i === points.length - 1) && (
-                          <text x={x} y={gSvgH - 8} textAnchor="middle" className="fill-slate-500 font-bold text-[9px]">
-                            {p.label}
-                          </text>
-                        )}
+                        {/* Day Name & Date Label */}
+                        <text
+                          x={cx}
+                          y={padT + cH + 14}
+                          textAnchor="middle"
+                          className={`font-bold text-[9px] transition-colors ${
+                            isHovered
+                              ? "fill-slate-900 font-extrabold"
+                              : d.isToday
+                              ? "fill-teal-700 font-black"
+                              : "fill-slate-500"
+                          }`}
+                        >
+                          {d.dayName}
+                        </text>
+                        <text
+                          x={cx}
+                          y={padT + cH + 25}
+                          textAnchor="middle"
+                          className={`text-[8px] font-semibold ${
+                            isHovered || d.isToday ? "fill-teal-700 font-bold" : "fill-slate-400"
+                          }`}
+                        >
+                          {d.label}
+                        </text>
                       </g>
                     );
                   })}
                 </svg>
 
-                {/* Legend */}
-                <div className="flex items-center justify-center gap-6 text-[11px] font-bold text-slate-600 pt-3 border-t border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-emerald-500 block" />
-                    <span>Cumulative Revenue Growth</span>
+                {/* Legend Bar below chart */}
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-slate-600 pt-3 border-t border-slate-200/80 mt-2 px-2">
+                  <div className="flex items-center gap-5 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="w-3.5 h-3 rounded-md bg-teal-600 shadow-2xs block" />
+                      <span className="text-slate-800">Sales Generated (₹)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <span className="w-3.5 h-0.5 bg-blue-600 block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-600 border border-white block" />
+                      </div>
+                      <span className="text-blue-800">Cars Serviced (🚗 Count)</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-0.5 bg-rose-500 border-t-2 border-dashed border-rose-500 block" />
-                    <span>Cumulative Expense Trajectory</span>
-                  </div>
+
+                  <span className="text-[11px] font-semibold text-slate-400 italic">
+                    💡 Hover any day column to view detailed throughput & revenue breakdown
+                  </span>
                 </div>
               </div>
             </div>

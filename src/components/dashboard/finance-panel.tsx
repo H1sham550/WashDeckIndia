@@ -736,31 +736,31 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
           const activeItem = hoveredDayIndex !== null ? salesVolumeData[hoveredDayIndex] : (salesVolumeData.find(d => d.isToday) || peakSalesDay || salesVolumeData[salesVolumeData.length - 1]);
           if (!activeItem) return null;
           return (
-            <div className="p-3 rounded-xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 text-xs shadow-md animate-in fade-in duration-150">
+            <div className="p-3 sm:p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 text-slate-900 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs animate-in fade-in duration-150">
               <div className="flex items-center gap-2.5">
-                <span className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
-                <span className="font-extrabold text-white text-sm">{activeItem.fullDateLabel}</span>
+                <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+                <span className="font-bold text-slate-900 text-sm">{activeItem.fullDateLabel}</span>
                 {activeItem.isToday && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white shadow-xs">
                     Today
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-1.5">
-                  <Car size={14} className="text-blue-400" />
-                  <span className="text-slate-400">Cars:</span>
-                  <span className="font-black text-white">{activeItem.carsCount} vehicles</span>
+                  <Car size={14} className="text-blue-600" />
+                  <span className="text-slate-500 font-medium">Cars:</span>
+                  <span className="font-bold text-slate-900">{activeItem.carsCount} vehicles</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <TrendingUp size={14} className="text-emerald-400" />
-                  <span className="text-slate-400">Sales:</span>
-                  <span className="font-black text-emerald-400">{formatCurrency(activeItem.sales)}</span>
+                  <TrendingUp size={14} className="text-emerald-600" />
+                  <span className="text-slate-500 font-medium">Sales:</span>
+                  <span className="font-bold text-emerald-700">{formatCurrency(activeItem.sales)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Sparkles size={14} className="text-amber-400" />
-                  <span className="text-slate-400">Avg / Car:</span>
-                  <span className="font-black text-amber-300">{formatCurrency(activeItem.avgTicket)}</span>
+                  <Sparkles size={14} className="text-amber-600" />
+                  <span className="text-slate-500 font-medium">Avg / Car:</span>
+                  <span className="font-bold text-amber-800">{formatCurrency(activeItem.avgTicket)}</span>
                 </div>
               </div>
             </div>

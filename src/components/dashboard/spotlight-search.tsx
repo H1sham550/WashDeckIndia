@@ -28,7 +28,12 @@ interface SearchResult {
   icon?: React.ElementType;
 }
 
-export function SpotlightSearch() {
+interface SpotlightSearchProps {
+  variant?: "button" | "bar";
+  className?: string;
+}
+
+export function SpotlightSearch({ variant = "button", className = "" }: SpotlightSearchProps = {}) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -203,19 +208,39 @@ export function SpotlightSearch() {
 
   return (
     <>
-      {/* Trigger Button in Topbar */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-white/20 bg-white/15 hover:bg-white/25 backdrop-blur-md transition-all text-white text-xs font-semibold group active:scale-95 shrink-0"
-        title="Universal Search Across Entire App (Ctrl+K / Cmd+K)"
-      >
-        <Search size={14} className="text-white/80 group-hover:text-white transition-colors shrink-0" />
-        <span className="hidden sm:inline">Universal Search...</span>
-        <span className="inline sm:hidden text-[11px] font-bold">Search</span>
-        <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 border border-white/20 text-white">
-          ⌘K
-        </kbd>
-      </button>
+      {/* Trigger in Topbar */}
+      {variant === "bar" ? (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl border border-white/20 bg-white/15 hover:bg-white/25 backdrop-blur-md transition-all text-white text-xs font-medium group active:scale-[0.99] text-left shadow-xs ${className}`}
+          title="Universal Search Across Entire App (Ctrl+K / Cmd+K)"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Search size={14} className="text-white/80 group-hover:text-white transition-colors shrink-0" />
+            <span className="text-white/80 group-hover:text-white text-xs truncate">
+              Search vehicles, job cards, customers...
+            </span>
+          </div>
+          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 border border-white/20 text-white shrink-0">
+            ⌘K
+          </kbd>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-white/20 bg-white/15 hover:bg-white/25 backdrop-blur-md transition-all text-white text-xs font-semibold group active:scale-95 shrink-0 ${className}`}
+          title="Universal Search Across Entire App (Ctrl+K / Cmd+K)"
+        >
+          <Search size={14} className="text-white/80 group-hover:text-white transition-colors shrink-0" />
+          <span className="hidden sm:inline">Universal Search...</span>
+          <span className="inline sm:hidden text-[11px] font-bold">Search</span>
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/20 border border-white/20 text-white">
+            ⌘K
+          </kbd>
+        </button>
+      )}
 
       {/* Modal Overlay */}
       {isOpen && (

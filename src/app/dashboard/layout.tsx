@@ -99,57 +99,66 @@ export default async function DashboardLayout({
               />
             )}
 
-            {/* Unified Single-Row Store Header Bar */}
-            <div className="relative z-10 px-3.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2.5 sm:gap-4">
-              {/* Left: Store Branding, Shop Name & POV */}
-              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-                {/* Store Custom Logo / Brand Icon */}
-                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white/10 backdrop-blur-md p-1 border border-white/20 flex items-center justify-center shrink-0 shadow-xs">
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt={station?.name}
-                      className="h-full w-full object-contain rounded-lg"
-                    />
-                  ) : (
-                    <Building2 className="text-white h-5 w-5" />
-                  )}
+            {/* Slim 2-Tier Store Header Bar */}
+            <div className="relative z-10 px-3.5 sm:px-6 py-2.5 sm:py-3 space-y-2">
+              {/* Row 1: Full Store Name, Branding, Location Selector & Plan */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  {/* Store Custom Logo / Brand Icon */}
+                  <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white/10 backdrop-blur-md p-1 border border-white/20 flex items-center justify-center shrink-0 shadow-xs">
+                    {logoUrl ? (
+                      <img
+                        src={logoUrl}
+                        alt={station?.name}
+                        className="h-full w-full object-contain rounded-lg"
+                      />
+                    ) : (
+                      <Building2 className="text-white h-5 w-5" />
+                    )}
+                  </div>
+
+                  {/* Full Store Name (Ample Space, Unclipped) */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <h1 className="text-sm sm:text-base md:text-lg font-bold text-white tracking-tight leading-tight">
+                        {station?.name || "WashDeck Car Wash"}
+                      </h1>
+                      <span className="inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 shrink-0">
+                        <Sparkles size={9} />
+                        {station?.branchCode || "MAIN"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-white/75 font-medium truncate mt-0.5">
+                      {session.role === "OWNER" ? "Store Management Portal • Owner POV" : "Operator Intake Center"}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Shop Name & POV */}
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <h1 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate max-w-[130px] xs:max-w-[190px] sm:max-w-[280px] md:max-w-none">
-                      {station?.name || "WashDeck Car Wash"}
-                    </h1>
-                    <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 shrink-0">
-                      <Sparkles size={9} />
-                      {station?.branchCode || "MAIN"}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-white/75 font-medium truncate hidden xs:block">
-                    {session.role === "OWNER" ? "Store Management Portal • Owner POV" : "Operator Intake Center"}
-                  </p>
+                {/* Right side of Row 1: Station Selector & Plan Badge */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <StationSelector
+                    currentStation={{
+                      id: station?.id || session.stationId,
+                      name: station?.name || "WashDeck Station",
+                      slug: station?.slug || "station",
+                    }}
+                    userStations={userStations}
+                  />
+
+                  <span className="hidden sm:inline-flex text-[10px] font-extrabold px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-xs shrink-0">
+                    {planLabel || "Pro Store"}
+                  </span>
                 </div>
               </div>
 
-              {/* Right: Actions in one line: Location Selector, Plan Badge, Search, Notifications */}
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <StationSelector
-                  currentStation={{
-                    id: station?.id || session.stationId,
-                    name: station?.name || "WashDeck Station",
-                    slug: station?.slug || "station",
-                  }}
-                  userStations={userStations}
-                />
-
-                <span className="hidden md:inline-flex text-[10px] font-extrabold px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-xs shrink-0">
-                  {planLabel || "Pro Store"}
-                </span>
-
-                <SpotlightSearch />
-                <NotificationCenter align="right" />
+              {/* Row 2: Search Bar on the Left & Notification Icon on the Right */}
+              <div className="flex items-center justify-between gap-3 pt-1 border-t border-white/10">
+                <div className="flex-1 min-w-0 max-w-md sm:max-w-lg">
+                  <SpotlightSearch variant="bar" />
+                </div>
+                <div className="shrink-0 flex items-center">
+                  <NotificationCenter align="right" />
+                </div>
               </div>
             </div>
           </div>

@@ -433,8 +433,9 @@ a[role="button"],
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow-y: auto;
   min-width: 0;
+  height: 100%;
 }
 
 .wd-topbar {
@@ -452,7 +453,6 @@ a[role="button"],
 
 .wd-main {
   flex: 1;
-  overflow-y: auto;
   padding: 20px;
 }
 

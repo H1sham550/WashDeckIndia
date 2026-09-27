@@ -99,50 +99,42 @@ export default async function DashboardLayout({
               />
             )}
 
-            {/* Extended Banner Header - Row 1: Store Branding & Full Shop Name */}
-            <div className="relative z-10 px-4 py-4 sm:px-6 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5 min-w-0 flex-1">
+            {/* Unified Single-Row Store Header Bar */}
+            <div className="relative z-10 px-3.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2.5 sm:gap-4">
+              {/* Left: Store Branding, Shop Name & POV */}
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                 {/* Store Custom Logo / Brand Icon */}
-                <div className="h-11 w-11 sm:h-14 sm:w-14 rounded-2xl bg-white/10 backdrop-blur-md p-1.5 border border-white/20 flex items-center justify-center shrink-0 shadow-md">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-white/10 backdrop-blur-md p-1 border border-white/20 flex items-center justify-center shrink-0 shadow-xs">
                   {logoUrl ? (
                     <img
                       src={logoUrl}
                       alt={station?.name}
-                      className="h-full w-full object-contain rounded-xl"
+                      className="h-full w-full object-contain rounded-lg"
                     />
                   ) : (
-                    <Building2 className="text-white h-7 w-7" />
+                    <Building2 className="text-white h-5 w-5" />
                   )}
                 </div>
 
-                {/* Store Name & Sub-details - Full width unobstructed */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-base sm:text-2xl font-black text-white tracking-tight leading-snug">
+                {/* Shop Name & POV */}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h1 className="text-sm sm:text-base font-bold text-white tracking-tight leading-tight truncate max-w-[130px] xs:max-w-[190px] sm:max-w-[280px] md:max-w-none">
                       {station?.name || "WashDeck Car Wash"}
                     </h1>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 shrink-0">
-                      <Sparkles size={10} />
+                    <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 shrink-0">
+                      <Sparkles size={9} />
                       {station?.branchCode || "MAIN"}
                     </span>
                   </div>
-                  <p className="text-xs text-white/80 font-medium truncate mt-0.5">
+                  <p className="text-[11px] text-white/75 font-medium truncate hidden xs:block">
                     {session.role === "OWNER" ? "Store Management Portal • Owner POV" : "Operator Intake Center"}
                   </p>
                 </div>
               </div>
-            </div>
 
-            {/* Extended Banner Header - Row 2: Navbar Action Strip */}
-            <div className="relative z-10 px-4 py-2.5 sm:px-6 flex items-center justify-between gap-3 border-t border-white/15 bg-white/10 backdrop-blur-md">
-              {/* Right Side: Notifications, Search */}
-              <div className="flex items-center gap-2 shrink-0">
-                <NotificationCenter align="right" />
-                <SpotlightSearch />
-              </div>
-
-              {/* Left Side: Location Selector & Plan Name Badge */}
-              <div className="flex items-center gap-2.5 shrink-0">
+              {/* Right: Actions in one line: Location Selector, Plan Badge, Search, Notifications */}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <StationSelector
                   currentStation={{
                     id: station?.id || session.stationId,
@@ -151,9 +143,13 @@ export default async function DashboardLayout({
                   }}
                   userStations={userStations}
                 />
-                <span className="text-[10px] font-extrabold px-3 py-1 rounded-xl bg-white/20 backdrop-blur-md text-white border border-white/25 shadow-xs shrink-0">
+
+                <span className="hidden md:inline-flex text-[10px] font-extrabold px-2.5 py-1 rounded-xl bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-xs shrink-0">
                   {planLabel || "Pro Store"}
                 </span>
+
+                <SpotlightSearch />
+                <NotificationCenter align="right" />
               </div>
             </div>
           </div>

@@ -129,27 +129,27 @@ export function StaffClockInCard({
   }
 
   return (
-    <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white rounded-2xl p-5 shadow-xl border border-teal-800/40 relative overflow-hidden">
+    <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200 relative overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="flex h-2 w-2 relative">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isClockedIn ? "bg-emerald-400" : "bg-amber-400"}`} />
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${isClockedIn ? "bg-emerald-500" : "bg-amber-500"}`} />
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isClockedIn ? "bg-emerald-400" : isClockedOut ? "bg-slate-400" : "bg-blue-400"}`} />
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isClockedIn ? "bg-emerald-500" : isClockedOut ? "bg-slate-500" : "bg-blue-600"}`} />
             </span>
-            <span className="text-[11px] font-black uppercase tracking-wider text-teal-300">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700">
               Staff Shift & Attendance
             </span>
-            <span className="text-[10px] bg-teal-900/60 border border-teal-700/50 px-2 py-0.5 rounded-full text-teal-200 font-semibold flex items-center gap-1">
-              <ShieldCheck size={10} className="text-emerald-400" /> GPS Geofenced
+            <span className="text-[10px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full text-slate-600 font-semibold flex items-center gap-1">
+              <ShieldCheck size={11} className="text-blue-600" /> GPS Geofenced
             </span>
           </div>
 
-          <h3 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
+          <h3 className="text-lg font-bold tracking-tight text-slate-900 flex items-center gap-2">
             Hello, {currentUserName}
           </h3>
 
-          <p className="text-xs text-slate-300 font-medium">
+          <p className="text-xs text-slate-600 font-medium">
             {isClockedIn
               ? `Shift Active • Clocked in at ${new Date(todayLog.checkIn!).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`
               : isClockedOut
@@ -158,8 +158,8 @@ export function StaffClockInCard({
           </p>
 
           {locationError && (
-            <div className="flex items-start gap-1.5 p-2.5 bg-rose-950/80 border border-rose-700/60 text-rose-200 rounded-xl text-xs mt-2 font-medium">
-              <AlertTriangle size={15} className="shrink-0 text-rose-400 mt-0.5" />
+            <div className="flex items-start gap-2 p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs mt-2 font-medium">
+              <AlertTriangle size={15} className="shrink-0 text-rose-500 mt-0.5" />
               <span>{locationError}</span>
             </div>
           )}
@@ -171,7 +171,7 @@ export function StaffClockInCard({
             <button
               onClick={handleClockIn}
               disabled={isGettingLocation || isPending}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wide px-6 py-3 rounded-xl shadow-lg transition active:scale-95 disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wide px-6 py-2.5 sm:py-3 rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
             >
               {isGettingLocation || isPending ? (
                 <>
@@ -189,7 +189,7 @@ export function StaffClockInCard({
             <button
               onClick={handleClockOut}
               disabled={isPending}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-white font-black text-xs uppercase tracking-wide px-6 py-3 rounded-xl shadow-lg transition active:scale-95 disabled:opacity-50"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs uppercase tracking-wide px-6 py-2.5 sm:py-3 rounded-xl shadow-xs transition active:scale-95 disabled:opacity-50"
             >
               {isPending ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -201,8 +201,8 @@ export function StaffClockInCard({
               )}
             </button>
           ) : (
-            <div className="bg-teal-900/40 border border-teal-700/40 text-teal-200 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5">
-              <CheckCircle2 size={16} className="text-emerald-400" />
+            <div className="bg-blue-50 border border-blue-200/80 text-blue-900 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs">
+              <CheckCircle2 size={16} className="text-blue-600" />
               Attendance Recorded Today
             </div>
           )}

@@ -6,23 +6,48 @@ const config: Config = {
     extend: {
       colors: {
         border: "hsl(var(--border))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: "hsl(var(--bg))",
+        foreground: "hsl(var(--text-primary))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(var(--brand-blue))",
+          foreground: "hsl(var(--text-inverse))",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "hsl(var(--bg-subtle))",
+          foreground: "hsl(var(--text-tertiary))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "hsl(var(--surface))",
+          foreground: "hsl(var(--text-primary))",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "hsl(var(--brand-blue-light))",
+          foreground: "hsl(var(--brand-blue))",
+        },
+        // Clownfish theme mapping for blue scale (seamless dashboard & app adoption)
+        blue: {
+          50:  "#FFF7ED", // Warm peach light tint
+          100: "#FFEDD5", // Soft peach
+          200: "#FED7AA", // Warm sand-orange border
+          300: "#FDBA74", // Apricot
+          400: "#FB923C", // Bright tangerine
+          500: "#F28705", // Clownfish Golden Tangerine
+          600: "#F25C05", // Clownfish Vivid Warm Orange (Primary Brand / CTA)
+          700: "#F24405", // Clownfish Fiery Vermilion (Hover / Active)
+          800: "#C23603", // Deep burnt orange
+          900: "#7C2202", // Deep rust
+          950: "#431201", // Dark mahogany
+        },
+        // Dedicated Clownfish semantic tokens
+        clownfish: {
+          canvas: "#F2F0E4",
+          card: "#FFFFFF",
+          black: "#000000",
+          orange: "#F25C05",
+          vermilion: "#F24405",
+          tangerine: "#F28705",
+          sand: "#E0DAC8",
+          peach: "#FFF7ED",
         },
         // WashDeck brand teal — rich high-contrast scale
         "wd-teal": {

@@ -42,8 +42,8 @@ export default async function DashboardLayout({
   const logoUrl = entitlements.features.branding ? station?.logoUrl : null;
   const bannerUrl = entitlements.features.branding ? station?.bannerUrl : null;
   const primaryColor = entitlements.features.branding
-    ? station?.primaryColor || "#2563EB"
-    : "#2563EB";
+    ? station?.primaryColor || "#F25C05"
+    : "#F25C05";
 
   const planLabel = entitlements.currentPlanName
     ? `${entitlements.currentPlanName} Plan`
@@ -83,18 +83,18 @@ export default async function DashboardLayout({
         <div className="wd-content-area" style={{ marginTop: session.impersonatorId ? 36 : 0 }}>
           
           {/* ── 1. Store Header / Custom Store Banner ───────────────── */}
-          <div className="relative w-full bg-slate-900 text-white shadow-sm z-30">
+          <div className="relative w-full bg-black text-white shadow-sm z-30">
             {/* Custom Banner Image overlay if uploaded by store owner */}
             {bannerUrl ? (
               <div className="absolute inset-0 z-0 opacity-40 overflow-hidden">
                 <img src={bannerUrl} alt={station?.name} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
               </div>
             ) : (
               <div 
                 className="absolute inset-0 z-0 opacity-90 overflow-hidden"
                 style={{
-                  background: `linear-gradient(135deg, ${primaryColor} 0%, #0b192c 100%)`
+                  background: `linear-gradient(135deg, #18181B 0%, #000000 100%)`
                 }}
               />
             )}

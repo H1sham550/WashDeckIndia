@@ -42,8 +42,8 @@ export default async function DashboardLayout({
   const logoUrl = entitlements.features.branding ? station?.logoUrl : null;
   const bannerUrl = entitlements.features.branding ? station?.bannerUrl : null;
   const primaryColor = entitlements.features.branding
-    ? station?.primaryColor || "#F25C05"
-    : "#F25C05";
+    ? station?.primaryColor || "#F78024"
+    : "#F78024";
 
   const planLabel = entitlements.currentPlanName
     ? `${entitlements.currentPlanName} Plan`

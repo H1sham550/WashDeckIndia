@@ -26,28 +26,27 @@ const config: Config = {
         },
         // Clownfish theme mapping for blue scale (seamless dashboard & app adoption)
         blue: {
-          50:  "#FFF7ED", // Warm peach light tint
-          100: "#FFEDD5", // Soft peach
-          200: "#FED7AA", // Warm sand-orange border
-          300: "#FDBA74", // Apricot
-          400: "#FB923C", // Bright tangerine
-          500: "#F28705", // Clownfish Golden Tangerine
-          600: "#F25C05", // Clownfish Vivid Warm Orange (Primary Brand / CTA)
-          700: "#F24405", // Clownfish Fiery Vermilion (Hover / Active)
-          800: "#C23603", // Deep burnt orange
-          900: "#7C2202", // Deep rust
-          950: "#431201", // Dark mahogany
+          50:  "#FFF8F3", // Softest warm peach tint
+          100: "#FEEFDF", // Soft warm cream
+          200: "#FEDCBE", // Delicate warm sand-peach border
+          300: "#FDC294", // Light apricot
+          400: "#FBA868", // Soft warm amber
+          500: "#FA8C38", // Lighter warm orange
+          600: "#F78024", // Refined Light Warm Orange (Primary Brand / CTA)
+          700: "#E26E12", // Warm amber hover / active
+          800: "#BA550A", // Warm terracotta
+          900: "#8A3C06", // Deep mahogany stone
+          950: "#4D1F03", // Dark espresso
         },
         // Dedicated Clownfish semantic tokens
         clownfish: {
           canvas: "#F2F0E4",
           card: "#FFFFFF",
           black: "#000000",
-          orange: "#F25C05",
-          vermilion: "#F24405",
-          tangerine: "#F28705",
+          orange: "#FA8C38",
+          hover: "#E26E12",
           sand: "#E0DAC8",
-          peach: "#FFF7ED",
+          peach: "#FFF8F3",
         },
         // WashDeck brand teal — rich high-contrast scale
         "wd-teal": {

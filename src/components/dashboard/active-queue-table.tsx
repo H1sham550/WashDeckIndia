@@ -145,7 +145,7 @@ export function ActiveQueueTable({ initialJobs }: { initialJobs: JobCard[] }) {
                         <button
                           disabled={isUpdating}
                           onClick={() => handleUpdateStatus(job.id, "SERVICE_COMPLETED")}
-                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
                         >
                           <CheckCircle2 size={12} /> Complete
                         </button>
@@ -156,7 +156,7 @@ export function ActiveQueueTable({ initialJobs }: { initialJobs: JobCard[] }) {
                       <button
                         disabled={isUpdating}
                         onClick={() => handleUpdateStatus(job.id, "SERVICE_COMPLETED")}
-                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
+                        className="px-3 py-1 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
                       >
                         {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                         Mark Completed
@@ -167,7 +167,7 @@ export function ActiveQueueTable({ initialJobs }: { initialJobs: JobCard[] }) {
                       <button
                         disabled={isUpdating}
                         onClick={() => handleUpdateStatus(job.id, "DELIVERED")}
-                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
+                        className="px-3 py-1 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
                       >
                         {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                         Deliver
@@ -178,7 +178,7 @@ export function ActiveQueueTable({ initialJobs }: { initialJobs: JobCard[] }) {
                       <button
                         disabled={isUpdating}
                         onClick={() => handleUpdateStatus(job.id, "DELIVERED")}
-                        className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
+                        className="px-3 py-1 bg-slate-900 hover:bg-black text-white font-bold text-xs rounded-lg shadow-xs transition flex items-center gap-1 disabled:opacity-50"
                       >
                         {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
                         Deliver

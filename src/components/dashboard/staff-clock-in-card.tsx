@@ -134,14 +134,14 @@ export function StaffClockInCard({
         <div className="space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="flex h-2 w-2 relative">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isClockedIn ? "bg-emerald-400" : isClockedOut ? "bg-slate-400" : "bg-blue-400"}`} />
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${isClockedIn ? "bg-emerald-500" : isClockedOut ? "bg-slate-500" : "bg-blue-600"}`} />
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isClockedIn ? "bg-blue-400" : isClockedOut ? "bg-slate-400" : "bg-blue-300"}`} />
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isClockedIn ? "bg-blue-600" : isClockedOut ? "bg-slate-500" : "bg-blue-500"}`} />
             </span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-800">
               Staff Shift & Attendance
             </span>
-            <span className="text-[10px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full text-slate-600 font-semibold flex items-center gap-1">
-              <ShieldCheck size={11} className="text-blue-600" /> GPS Geofenced
+            <span className="text-[10px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full text-slate-700 font-semibold flex items-center gap-1">
+              <ShieldCheck size={11} className="text-slate-700" /> GPS Geofenced
             </span>
           </div>
 

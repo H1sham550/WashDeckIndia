@@ -70,10 +70,10 @@ export function OwnerProfitLossCard({
       {/* Financial Metrics Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Gross Income */}
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-[10px] font-black uppercase tracking-wider">Gross Inflow</span>
-            <TrendingUp size={14} className="text-emerald-500" />
+            <TrendingUp size={14} className="text-blue-600" />
           </div>
           <p className="text-lg font-extrabold text-slate-800 mt-1">
             {formatCurrency(totalIncome)}
@@ -81,10 +81,10 @@ export function OwnerProfitLossCard({
         </div>
 
         {/* Expenses */}
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-[10px] font-black uppercase tracking-wider">Expenses</span>
-            <TrendingDown size={14} className="text-rose-500" />
+            <TrendingDown size={14} className="text-slate-500" />
           </div>
           <p className="text-lg font-extrabold text-slate-800 mt-1">
             {formatCurrency(totalExpense)}
@@ -92,19 +92,19 @@ export function OwnerProfitLossCard({
         </div>
 
         {/* Net Profit */}
-        <div className={`p-3.5 rounded-xl border ${netProfit >= 0 ? "bg-emerald-50/60 border-emerald-200" : "bg-rose-50/60 border-rose-200"}`}>
-          <div className="flex items-center justify-between text-slate-500">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="flex items-center justify-between text-slate-400">
             <span className="text-[10px] font-black uppercase tracking-wider">Net Profit</span>
-            <Coins size={14} className={netProfit >= 0 ? "text-emerald-600" : "text-rose-600"} />
+            <Coins size={14} className="text-blue-600" />
           </div>
-          <p className={`text-lg font-extrabold mt-1 ${netProfit >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+          <p className="text-lg font-extrabold text-slate-900 mt-1">
             {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}
           </p>
         </div>
 
         {/* Profit Margin */}
-        <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-200">
-          <div className="flex items-center justify-between text-blue-600">
+        <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200">
+          <div className="flex items-center justify-between text-blue-700">
             <span className="text-[10px] font-black uppercase tracking-wider">Profit Margin</span>
             <DollarSign size={14} />
           </div>
@@ -119,11 +119,11 @@ export function OwnerProfitLossCard({
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold text-slate-700">Daily Cashflow (Inflow vs Outflow)</span>
           <div className="flex items-center gap-4 text-[10px] font-bold">
-            <span className="flex items-center gap-1 text-emerald-600">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Income
+            <span className="flex items-center gap-1 text-blue-700">
+              <span className="h-2.5 w-2.5 rounded-full bg-blue-500" /> Income
             </span>
-            <span className="flex items-center gap-1 text-rose-600">
-              <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /> Expense
+            <span className="flex items-center gap-1 text-slate-700">
+              <span className="h-2.5 w-2.5 rounded-full bg-slate-800" /> Expense
             </span>
           </div>
         </div>
@@ -168,7 +168,7 @@ export function OwnerProfitLossCard({
                       width={barW}
                       height={incH}
                       rx={2}
-                      className="fill-emerald-500 hover:fill-emerald-600 transition-colors"
+                      className="fill-blue-500 hover:fill-blue-600 transition-colors"
                     />
                   )}
                   {/* Expense bar */}
@@ -179,7 +179,7 @@ export function OwnerProfitLossCard({
                       width={barW}
                       height={expH}
                       rx={2}
-                      className="fill-rose-500 hover:fill-rose-600 transition-colors"
+                      className="fill-slate-800 hover:fill-slate-900 transition-colors"
                     />
                   )}
                   {/* Label */}

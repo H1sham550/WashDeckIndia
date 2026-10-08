@@ -18,32 +18,32 @@ type StatusVariant =
   | "default";
 
 const STATUS_STYLES: Record<StatusVariant, string> = {
-  ACTIVE:    "bg-emerald-50 text-emerald-700 border-emerald-200",
+  ACTIVE:    "bg-stone-100 text-stone-800 border-stone-200",
   TRIAL:     "bg-blue-50 text-blue-700 border-blue-200",
-  GRACE:     "bg-amber-50 text-amber-700 border-amber-200",
+  GRACE:     "bg-amber-50/60 text-amber-800 border-amber-200/60",
   EXPIRED:   "bg-slate-100 text-slate-500 border-slate-200",
-  SUSPENDED: "bg-red-50 text-red-700 border-red-200",
-  PENDING:   "bg-amber-50 text-amber-700 border-amber-200",
-  PAID:      "bg-emerald-50 text-emerald-700 border-emerald-200",
+  SUSPENDED: "bg-rose-50/60 text-rose-800 border-rose-200/60",
+  PENDING:   "bg-amber-50/60 text-amber-800 border-amber-200/60",
+  PAID:      "bg-stone-100 text-stone-800 border-stone-200",
   DRAFT:     "bg-slate-100 text-slate-500 border-slate-200",
   SENT:      "bg-blue-50 text-blue-700 border-blue-200",
-  APPROVED:  "bg-emerald-50 text-emerald-700 border-emerald-200",
-  REJECTED:  "bg-red-50 text-red-700 border-red-200",
+  APPROVED:  "bg-stone-100 text-stone-800 border-stone-200",
+  REJECTED:  "bg-rose-50/60 text-rose-800 border-rose-200/60",
   default:   "bg-slate-100 text-slate-600 border-slate-200",
 };
 
 const STATUS_DOTS: Record<StatusVariant, string> = {
-  ACTIVE:    "bg-emerald-500",
-  TRIAL:     "bg-blue-500",
-  GRACE:     "bg-amber-500",
+  ACTIVE:    "bg-slate-800",
+  TRIAL:     "bg-blue-600",
+  GRACE:     "bg-amber-600",
   EXPIRED:   "bg-slate-400",
-  SUSPENDED: "bg-red-500",
-  PENDING:   "bg-amber-500",
-  PAID:      "bg-emerald-500",
+  SUSPENDED: "bg-rose-600",
+  PENDING:   "bg-amber-600",
+  PAID:      "bg-slate-800",
   DRAFT:     "bg-slate-400",
-  SENT:      "bg-blue-500",
-  APPROVED:  "bg-emerald-500",
-  REJECTED:  "bg-red-500",
+  SENT:      "bg-blue-600",
+  APPROVED:  "bg-slate-800",
+  REJECTED:  "bg-rose-600",
   default:   "bg-slate-400",
 };
 
@@ -126,13 +126,13 @@ export function PlanBadge({ plan, size = "sm", className }: PlanBadgeProps) {
 type BadgeVariant = "default" | "teal" | "blue" | "amber" | "red" | "green" | "slate";
 
 const BADGE_STYLES: Record<BadgeVariant, string> = {
-  default: "bg-slate-100 text-slate-600",
-  teal:    "bg-wd-teal-50 text-wd-teal-800",
+  default: "bg-slate-100 text-slate-700",
+  teal:    "bg-stone-100 text-stone-800",
   blue:    "bg-blue-50 text-blue-700",
-  amber:   "bg-amber-50 text-amber-700",
-  red:     "bg-red-50 text-red-700",
-  green:   "bg-emerald-50 text-emerald-700",
-  slate:   "bg-slate-100 text-slate-500",
+  amber:   "bg-amber-50/60 text-amber-800",
+  red:     "bg-rose-50/60 text-rose-800",
+  green:   "bg-stone-100 text-stone-800",
+  slate:   "bg-slate-100 text-slate-600",
 };
 
 interface BadgeProps {

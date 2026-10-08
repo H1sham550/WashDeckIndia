@@ -15,11 +15,11 @@
    ============================================================ */
 
 :root {
-  /* ── Brand: Clownfish Vivid Warm Orange & Fiery Vermilion ─────── */
-  --brand-blue: 22 96% 48%;          /* #F25C05 — Clownfish vivid warm orange */
-  --brand-blue-hover: 16 96% 48%;    /* #F24405 — fiery vermilion */
-  --brand-blue-light: 33 100% 96%;   /* #FFF7ED — soft warm peach tab bg */
-  --brand-blue-border: 28 100% 86%;  /* #FED7AA — warm orange border */
+  /* ── Brand: Refined Light Warm Orange & Warm Amber ───────────── */
+  --brand-blue: 26 92% 58%;          /* #FA8C38 — refined light warm orange (less harsh) */
+  --brand-blue-hover: 26 88% 50%;    /* #E87016 — warm amber hover */
+  --brand-blue-light: 28 85% 97%;   /* #FFF8F3 — delicate soft peach tint */
+  --brand-blue-border: 25 80% 86%;  /* #FEDCBE — warm sand-peach border */
 
   /* ── Surface: Crisp White on Warm Alabaster Canvas ───────────── */
   --surface: 0 0% 100%;               /* #FFFFFF — crisp white cards */
@@ -38,22 +38,22 @@
   --border: 44 24% 83%;              /* #E0DAC8 Warm Sand */
   --border-strong: 43 21% 72%;       /* #C8C0AA Warm Sand Strong */
 
-  /* ── Semantic Colors ─────────────────────────────────── */
-  --success: 142 76% 36%;             /* #15803D */
-  --success-bg: 141 84% 93%;          /* #DCFCE7 */
-  --success-border: 141 69% 82%;      /* #BBF7D0 */
+  /* ── Semantic Colors (Harmonized Warm Palette) ───────────────── */
+  --success: 152 35% 38%;             /* #3F825F — calm sage green */
+  --success-bg: 150 25% 96%;          /* #F2F7F4 */
+  --success-border: 150 20% 88%;      /* #DCEAE2 */
 
-  --warning: 32 95% 36%;              /* #B45309 */
-  --warning-bg: 48 100% 89%;          /* #FEF3C7 */
-  --warning-border: 46 97% 77%;       /* #FDE68A */
+  --warning: 34 65% 42%;              /* #B27524 — warm amber sand */
+  --warning-bg: 36 50% 96%;           /* #FAF7F0 */
+  --warning-border: 36 40% 88%;       /* #EEE5D5 */
 
-  --danger: 0 84% 45%;                /* #DC2626 */
-  --danger-bg: 0 86% 97%;             /* #FEF2F2 */
-  --danger-border: 0 94% 87%;         /* #FECACA */
+  --danger: 12 55% 46%;               /* #B54531 — warm terracotta/brick */
+  --danger-bg: 12 50% 97%;            /* #FAF2F0 */
+  --danger-border: 12 40% 88%;        /* #F2DAD5 */
 
-  --info: 22 96% 48%;                 /* #F25C05 Clownfish vivid orange */
-  --info-bg: 33 100% 96%;             /* #FFF7ED soft warm peach */
-  --info-border: 28 100% 86%;         /* #FED7AA */
+  --info: 26 92% 58%;                 /* #FA8C38 — matches light warm orange */
+  --info-bg: 28 85% 97%;              /* #FFF8F3 */
+  --info-border: 25 80% 86%;          /* #FEDCBE */
 
   /* ── Radius ──────────────────────────────────────────── */
   --radius-sm: 6px;
@@ -298,31 +298,31 @@ a[role="button"],
 
 .badge-success {
   background: hsl(var(--success-bg));
-  color: #15803D;
+  color: hsl(var(--success));
   border-color: hsl(var(--success-border));
 }
 
 .badge-warning {
   background: hsl(var(--warning-bg));
-  color: #92400E;
+  color: hsl(var(--warning));
   border-color: hsl(var(--warning-border));
 }
 
 .badge-danger {
   background: hsl(var(--danger-bg));
-  color: #B91C1C;
+  color: hsl(var(--danger));
   border-color: hsl(var(--danger-border));
 }
 
 .badge-info {
   background: hsl(var(--info-bg));
-  color: #0369A1;
+  color: hsl(var(--info));
   border-color: hsl(var(--info-border));
 }
 
 .badge-blue {
   background: hsl(var(--brand-blue-light));
-  color: #C2410C;
+  color: #A04A15;
   border-color: hsl(var(--brand-blue-border));
 }
 
@@ -378,11 +378,11 @@ a[role="button"],
   flex-shrink: 0;
 }
 
-.status-dot-received  { background: #FB923C; } /* warm tangerine */
-.status-dot-progress  { background: #FBBF24; } /* amber-400 */
-.status-dot-completed { background: #A78BFA; } /* violet-400 */
-.status-dot-payment   { background: #F87171; } /* red-400 */
-.status-dot-delivered { background: #34D399; } /* emerald-400 */
+.status-dot-received  { background: #FA8C38; } /* light warm orange */
+.status-dot-progress  { background: #D9822B; } /* warm amber */
+.status-dot-completed { background: #1C1917; } /* pitch stone/black */
+.status-dot-payment   { background: #B54531; } /* warm terracotta */
+.status-dot-delivered { background: #78716C; } /* warm stone gray */
 
 /* ============================================================
    SHIMMER LOADING

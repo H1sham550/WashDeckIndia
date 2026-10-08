@@ -179,7 +179,7 @@ export default async function DashboardPage() {
         <div className="wd-card p-4 col-span-2 md:col-span-1">
           <div className="flex items-start justify-between">
             <span className="wd-label">Revenue Today</span>
-            <TrendingUp size={14} strokeWidth={1.75} style={{ color: "hsl(var(--success))" }} />
+            <TrendingUp size={14} strokeWidth={1.75} style={{ color: "hsl(var(--brand-blue))" }} />
           </div>
           <p className="text-xl font-600 mt-2 tracking-tight" style={{ fontWeight: 600 }}>
             {formatCurrency(revenueToday)}
@@ -187,16 +187,16 @@ export default async function DashboardPage() {
         </div>
 
         {/* Waiting */}
-        <Link href="/dashboard/queue?tab=RECEIVED" className="wd-card p-4 hover:border-blue-300 transition-colors block">
+        <Link href="/dashboard/queue?tab=RECEIVED" className="wd-card p-4 hover:border-blue-400 hover:shadow-xs transition-all block">
           <div className="flex items-start justify-between">
             <span className="wd-label">Waiting</span>
-            <Clock size={14} strokeWidth={1.75} style={{ color: "hsl(var(--info))" }} />
+            <Clock size={14} strokeWidth={1.75} className="text-slate-600" />
           </div>
           <p className="text-xl mt-2 tracking-tight" style={{ fontWeight: 600 }}>{waitingCount}</p>
         </Link>
 
         {/* In Progress */}
-        <Link href="/dashboard/queue?tab=IN_PROGRESS" className="wd-card p-4 hover:border-amber-300 transition-colors block">
+        <Link href="/dashboard/queue?tab=IN_PROGRESS" className="wd-card p-4 hover:border-blue-400 hover:shadow-xs transition-all block">
           <div className="flex items-start justify-between">
             <span className="wd-label">In Progress</span>
             <span className="status-dot status-dot-progress mt-0.5" />
@@ -205,30 +205,30 @@ export default async function DashboardPage() {
         </Link>
 
         {/* Ready */}
-        <Link href="/dashboard/queue?tab=SERVICE_COMPLETED" className="wd-card p-4 hover:border-violet-300 transition-colors block">
+        <Link href="/dashboard/queue?tab=SERVICE_COMPLETED" className="wd-card p-4 hover:border-blue-400 hover:shadow-xs transition-all block">
           <div className="flex items-start justify-between">
             <span className="wd-label">Ready</span>
-            <CheckCircle size={14} strokeWidth={1.75} style={{ color: "#8B5CF6" }} />
+            <CheckCircle size={14} strokeWidth={1.75} className="text-slate-800" />
           </div>
           <p className="text-xl mt-2 tracking-tight" style={{ fontWeight: 600 }}>{completedCount}</p>
         </Link>
 
         {/* Pay Pending */}
-        <Link href="/dashboard/queue?tab=PAYMENT_PENDING" className="wd-card p-4 hover:border-red-300 transition-colors block">
+        <Link href="/dashboard/queue?tab=PAYMENT_PENDING" className="wd-card p-4 hover:border-blue-400 hover:shadow-xs transition-all block">
           <div className="flex items-start justify-between">
             <span className="wd-label">Pay Pending</span>
-            <CreditCard size={14} strokeWidth={1.75} style={{ color: "hsl(var(--danger))" }} />
+            <CreditCard size={14} strokeWidth={1.75} className="text-slate-600" />
           </div>
           <p className="text-xl mt-2 tracking-tight" style={{ fontWeight: 600 }}>{paymentPendingCount}</p>
           {outstandingAmount > 0 && (
-            <p className="text-xs mt-1" style={{ color: "hsl(var(--danger))" }}>
+            <p className="text-xs mt-1 text-slate-600 font-medium">
               {formatCurrency(outstandingAmount)} due
             </p>
           )}
         </Link>
 
         {/* Today's Bookings */}
-        <Link href="/dashboard/bookings" className="wd-card p-4 hover:border-blue-300 transition-colors block">
+        <Link href="/dashboard/bookings" className="wd-card p-4 hover:border-blue-400 hover:shadow-xs transition-all block">
           <div className="flex items-start justify-between">
             <span className="wd-label">Bookings</span>
             <Calendar size={14} strokeWidth={1.75} style={{ color: "hsl(var(--brand-blue))" }} />

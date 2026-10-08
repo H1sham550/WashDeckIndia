@@ -247,19 +247,19 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
   const getJobBadgeColor = (status: string) => {
     switch (status) {
       case "RECEIVED":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-50 text-blue-800 border border-blue-200";
       case "IN_PROGRESS":
-        return "bg-amber-100 text-amber-800";
+        return "bg-amber-50/70 text-amber-800 border border-amber-200/60";
       case "SERVICE_COMPLETED":
-        return "bg-purple-100 text-purple-800";
+        return "bg-slate-900 text-white";
       case "PAYMENT_PENDING":
-        return "bg-rose-100 text-rose-800";
+        return "bg-rose-50/70 text-rose-800 border border-rose-200/60";
       case "DELIVERED":
-        return "bg-emerald-100 text-emerald-800";
+        return "bg-stone-100 text-stone-800 border border-stone-200";
       case "CANCELLED":
-        return "bg-slate-200 text-slate-700";
+        return "bg-slate-100 text-slate-600";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-slate-100 text-slate-700";
     }
   };
 

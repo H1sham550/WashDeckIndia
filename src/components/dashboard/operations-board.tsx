@@ -50,25 +50,25 @@ const COLUMNS = [
     key: "IN_PROGRESS" as const,
     label: "In Progress",
     dotClass: "status-dot status-dot-progress",
-    headerClass: "text-amber-600",
+    headerClass: "text-slate-900",
   },
   {
     key: "SERVICE_COMPLETED" as const,
     label: "Ready",
     dotClass: "status-dot status-dot-completed",
-    headerClass: "text-violet-600",
+    headerClass: "text-slate-900",
   },
   {
     key: "PAYMENT_PENDING" as const,
     label: "Pay Pending",
     dotClass: "status-dot status-dot-payment",
-    headerClass: "text-red-600",
+    headerClass: "text-slate-900",
   },
   {
     key: "DELIVERED" as const,
     label: "Delivered",
     dotClass: "status-dot status-dot-delivered",
-    headerClass: "text-emerald-600",
+    headerClass: "text-slate-900",
   },
 ];
 
@@ -153,7 +153,7 @@ function JobCardItem({
               type="button"
               disabled={isUpdating}
               onClick={() => onUpdateStatus(job.id, "SERVICE_COMPLETED")}
-              className="py-1.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 shrink-0 active:scale-95 disabled:opacity-50"
+              className="py-1.5 px-2.5 bg-slate-900 hover:bg-black text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 shrink-0 active:scale-95 disabled:opacity-50"
               title="Mark Service Completed"
             >
               <CheckCircle2 size={12} /> Mark Ready
@@ -167,7 +167,7 @@ function JobCardItem({
               type="button"
               disabled={isUpdating}
               onClick={() => onUpdateStatus(job.id, "SERVICE_COMPLETED")}
-              className="flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+              className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-black text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
             >
               {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
               Mark Ready / Completed
@@ -189,7 +189,7 @@ function JobCardItem({
               type="button"
               disabled={isUpdating}
               onClick={() => onUpdateStatus(job.id, "DELIVERED")}
-              className="flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+              className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-black text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
             >
               {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
               Mark Delivered
@@ -208,7 +208,7 @@ function JobCardItem({
             type="button"
             disabled={isUpdating}
             onClick={() => onUpdateStatus(job.id, "DELIVERED")}
-            className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
+            className="w-full py-1.5 px-2 bg-slate-900 hover:bg-black text-white font-bold text-[11px] rounded-lg shadow-xs transition flex items-center justify-center gap-1 active:scale-95 disabled:opacity-50"
           >
             {isUpdating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
             Mark Paid & Delivered
@@ -216,7 +216,7 @@ function JobCardItem({
         )}
 
         {job.status === "DELIVERED" && (
-          <div className="w-full text-center py-0.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 rounded border border-emerald-100">
+          <div className="w-full text-center py-0.5 text-[10px] font-bold text-slate-700 bg-slate-100 rounded border border-slate-200">
             ✓ Delivered
           </div>
         )}

@@ -143,7 +143,7 @@ export default async function AnalyticsPage() {
 
       <section className="grid gap-3 grid-cols-1 md:grid-cols-3">
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
+          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
             <TrendingUp size={22} />
           </div>
           <div>
@@ -226,7 +226,7 @@ export default async function AnalyticsPage() {
 
         <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4 h-fit">
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
-            <Car size={16} className="text-emerald-500" />
+            <Car size={16} className="text-blue-600" />
             Vehicle Type Distribution
           </h3>
           <div className="space-y-3">
@@ -239,7 +239,7 @@ export default async function AnalyticsPage() {
                   </div>
                   <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-emerald-600 rounded-full"
+                      className="h-full bg-blue-600 rounded-full"
                       style={{ width: `${Math.min((v.count / (jobCards.length || 1)) * 100, 100)}%` }}
                     />
                   </div>

@@ -246,15 +246,15 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
     <div className="space-y-6">
       {/* Messages */}
       {error && (
-        <div className="flex items-center gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl">
+        <div className="flex items-center gap-3 p-4 text-sm text-stone-800 bg-stone-100 border border-stone-200 rounded-xl">
           <AlertCircle size={18} className="shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl">
-          <CheckCircle2 size={18} className="shrink-0" />
+        <div className="flex items-center gap-3 p-4 text-sm text-slate-800 bg-slate-100 border border-slate-200 rounded-xl">
+          <CheckCircle2 size={18} className="shrink-0 text-slate-700" />
           <span>{success}</span>
         </div>
       )}
@@ -263,7 +263,7 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
       <div className="bg-white border rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
               {limits.planName}
             </span>
             <span className="text-xs font-semibold text-slate-500">Allowed Staff: {limits.allowedStaff}</span>
@@ -272,7 +272,7 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
             Registered: <span className="text-lg font-extrabold text-[var(--primary-color)]">{limits.usedStaff}</span> / {limits.allowedStaff} staff users
           </p>
           {isLimitReached && (
-            <p className="text-xs text-rose-600 font-bold flex items-center gap-1">
+            <p className="text-xs text-stone-700 font-bold flex items-center gap-1">
               <ShieldAlert size={14} />
               Staff limit reached. Upgrade your plan to add more users.
             </p>
@@ -329,8 +329,8 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
                     <td className="px-6 py-4">
                       <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase ${
                         member.status === "ACTIVE"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-rose-50 text-rose-700 border-rose-200"
+                          ? "bg-slate-100 text-slate-800 border-slate-200"
+                          : "bg-stone-100 text-stone-800 border-stone-200"
                       }`}>
                         {member.status === "ACTIVE" ? "Active" : "Disabled"}
                       </span>
@@ -359,7 +359,7 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
                         <button
                           onClick={() => openResetPasswordModal(member)}
                           title="Reset Password"
-                          className="h-8 w-8 rounded-lg border text-slate-400 hover:text-amber-600 hover:border-amber-600 transition-all bg-white flex items-center justify-center"
+                          className="h-8 w-8 rounded-lg border text-slate-400 hover:text-slate-800 hover:border-slate-800 transition-all bg-white flex items-center justify-center"
                         >
                           <Key size={14} />
                         </button>
@@ -368,8 +368,8 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
                           title={member.status === "ACTIVE" ? "Disable User" : "Activate User"}
                           className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-all bg-white ${
                             member.status === "ACTIVE"
-                              ? "text-rose-400 border-rose-200 hover:text-rose-600 hover:border-rose-600"
-                              : "text-emerald-400 border-emerald-200 hover:text-emerald-600 hover:border-emerald-600"
+                              ? "text-slate-400 border-slate-200 hover:text-slate-700 hover:border-slate-400"
+                              : "text-blue-600 border-blue-200 hover:text-blue-800 hover:border-blue-400"
                           }`}
                         >
                           {member.status === "ACTIVE" ? <UserX size={14} /> : <UserCheck size={14} />}
@@ -378,7 +378,7 @@ export function StaffPanel({ initialStaff, limits: initialLimits }: StaffPanelPr
                           <button
                             onClick={() => handleDeleteStaff(member)}
                             title="Remove / Delete Staff Member"
-                            className="h-8 w-8 rounded-lg border text-rose-500 border-rose-200 hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all bg-white flex items-center justify-center"
+                            className="h-8 w-8 rounded-lg border text-slate-400 border-slate-200 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all bg-white flex items-center justify-center"
                           >
                             <Trash2 size={14} />
                           </button>

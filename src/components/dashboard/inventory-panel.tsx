@@ -158,19 +158,19 @@ export function InventoryPanel({ initialItems, stationId }: InventoryPanelProps)
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-xs flex items-center gap-3">
-          <div className={`p-3 rounded-xl ${lowStockCount > 0 ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"}`}>
+          <div className="p-3 rounded-xl bg-slate-100 text-slate-700">
             <AlertTriangle size={20} />
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Low Stock Alerts</p>
-            <p className={`text-2xl font-black mt-0.5 ${lowStockCount > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+            <p className="text-2xl font-black mt-0.5 text-slate-800">
               {lowStockCount} {lowStockCount === 1 ? "item" : "items"}
             </p>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-xs flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-purple-50 text-purple-600">
+          <div className="p-3 rounded-xl bg-slate-100 text-slate-700">
             <Package size={20} />
           </div>
           <div>
@@ -257,11 +257,11 @@ export function InventoryPanel({ initialItems, stationId }: InventoryPanelProps)
                   {/* Threshold Status */}
                   <div>
                     {isLow ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-extrabold uppercase tracking-wide">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-100 text-stone-800 border border-stone-200 text-[10px] font-extrabold uppercase tracking-wide">
                         <AlertTriangle size={12} /> Low Stock (Min: {item.minThreshold})
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold uppercase tracking-wide">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-extrabold uppercase tracking-wide">
                         <CheckCircle2 size={12} /> Optimal Stock
                       </span>
                     )}
@@ -276,20 +276,20 @@ export function InventoryPanel({ initialItems, stationId }: InventoryPanelProps)
                   <div className="flex items-center justify-end gap-1.5 pt-2 md:pt-0 border-t md:border-0 border-slate-100">
                     <button
                       onClick={() => handleUpdateStock(item.id, -1)}
-                      className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-50 hover:text-rose-600 font-extrabold flex items-center justify-center transition-colors text-sm"
+                      className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold flex items-center justify-center transition-colors text-sm"
                       title="Consume 1 Unit"
                     >
                       -1
                     </button>
                     <button
                       onClick={() => handleUpdateStock(item.id, 5)}
-                      className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] border border-blue-200 transition-colors"
+                      className="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-[10px] border border-blue-200 transition-colors"
                     >
                       +5 Restock
                     </button>
                     <button
                       onClick={() => handleUpdateStock(item.id, 10)}
-                      className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] border border-emerald-200 transition-colors"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[10px] border border-slate-200 transition-colors"
                     >
                       +10 Restock
                     </button>

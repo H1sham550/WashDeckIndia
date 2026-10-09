@@ -63,7 +63,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
 
   // Branding
   const [branding, setBranding] = useState({
-    primaryColor: initialStation.primaryColor || "#0f766e",
+    primaryColor: initialStation.primaryColor && initialStation.primaryColor.toLowerCase() !== "#0f766e" ? initialStation.primaryColor : "#7C2D12",
     logoUrl: initialStation.logoUrl,
   });
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -243,8 +243,8 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs font-bold flex items-center gap-3">
-          <AlertTriangle className="shrink-0" size={18} />
+        <div className="p-4 bg-stone-100 border border-stone-200 rounded-2xl text-stone-800 text-xs font-bold flex items-center gap-3">
+          <AlertTriangle className="shrink-0 text-stone-600" size={18} />
           <span>{error}</span>
         </div>
       )}
@@ -253,7 +253,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
         {/* SECTION 1: Business Identity & Branding */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Building2 className="text-teal-600" size={20} />
+            <Building2 className="text-blue-600" size={20} />
             <h2 className="text-base font-extrabold text-slate-800">1. Business Profile & Branding</h2>
           </div>
 
@@ -267,7 +267,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 placeholder="e.g. Al-Wash Express Auto Spa"
                 value={businessProfile.name}
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, name: e.target.value }))}
-                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
+                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-blue-600"
               />
             </div>
 
@@ -279,7 +279,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 placeholder="+91 98765 43210"
                 value={businessProfile.phone}
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, phone: e.target.value }))}
-                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
+                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-blue-600"
               />
             </div>
 
@@ -291,7 +291,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 placeholder="info@stationname.com"
                 value={businessProfile.email}
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, email: e.target.value }))}
-                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
+                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-blue-600"
               />
             </div>
 
@@ -303,13 +303,13 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 placeholder="Shop No. 5, MG Road, Bengaluru, Karnataka"
                 value={businessProfile.address}
                 onChange={(e) => setBusinessProfile((p) => ({ ...p, address: e.target.value }))}
-                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
+                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-blue-600"
               />
             </div>
 
             {/* Station GPS Location */}
-            <div className="sm:col-span-2 p-4 bg-teal-50/60 border border-teal-200/80 rounded-2xl space-y-3">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-teal-200/60 pb-2">
+            <div className="sm:col-span-2 p-4 bg-blue-50/60 border border-blue-200/80 rounded-2xl space-y-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-blue-200/60 pb-2">
                 <div>
                   <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                     📍 Wash Station GPS Location (Attendance Geofence)
@@ -336,15 +336,15 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                       alert("Geolocation is not supported by your browser.");
                     }
                   }}
-                  className="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1 shrink-0"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1 shrink-0"
                 >
                   Detect & Set Station GPS
                 </button>
               </div>
 
               {businessProfile.latitude !== null && businessProfile.longitude !== null ? (
-                <div className="flex items-center gap-2 text-xs font-bold text-teal-800 bg-white p-2.5 rounded-xl border border-teal-200">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-800 bg-white p-2.5 rounded-xl border border-blue-200">
+                  <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
                   <span>GPS Coordinates Configured: {businessProfile.latitude.toFixed(5)}, {businessProfile.longitude.toFixed(5)}</span>
                 </div>
               ) : (
@@ -375,7 +375,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 {branding.logoUrl ? (
                   <img src={branding.logoUrl} alt="Logo" className="h-11 w-11 rounded-xl object-cover border" />
                 ) : null}
-                <label className="h-11 px-4 border border-slate-200 hover:border-teal-600 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 transition flex items-center justify-center gap-2 cursor-pointer">
+                <label className="h-11 px-4 border border-slate-200 hover:border-blue-600 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 transition flex items-center justify-center gap-2 cursor-pointer">
                   <Upload size={14} />
                   <span>{uploadingLogo ? "Uploading..." : branding.logoUrl ? "Change Logo" : "Upload Logo"}</span>
                   <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
@@ -389,13 +389,13 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="text-amber-500" size={20} />
+              <Sparkles className="text-blue-600" size={20} />
               <h2 className="text-base font-extrabold text-slate-800">2. Wash Services & Pricing</h2>
             </div>
             <button
               type="button"
               onClick={handleAddService}
-              className="inline-flex items-center gap-1 text-xs font-bold text-teal-700 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline"
             >
               <Plus size={14} />
               <span>Add Package</span>
@@ -415,13 +415,13 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                         prev.map((s, i) => (i === sIdx ? { ...s, name: e.target.value } : s))
                       )
                     }
-                    className="font-bold text-sm text-slate-800 bg-white border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-teal-600 w-full max-w-xs"
+                    className="font-bold text-sm text-slate-800 bg-white border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:border-blue-600 w-full max-w-xs"
                   />
                   {services.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveService(sIdx)}
-                      className="text-slate-400 hover:text-rose-600 transition p-1"
+                      className="text-slate-400 hover:text-slate-900 transition p-1"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -458,7 +458,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
         {/* SECTION 3: VIP Loyalty & Thresholds */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-            <Percent className="text-purple-600" size={20} />
+            <Percent className="text-blue-600" size={20} />
             <h2 className="text-base font-extrabold text-slate-800">3. VIP Customer Thresholds</h2>
           </div>
 
@@ -469,7 +469,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 type="number"
                 value={loyalty.vipSpendThreshold}
                 onChange={(e) => setLoyalty((l) => ({ ...l, vipSpendThreshold: Number(e.target.value) }))}
-                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
+                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-blue-600"
               />
             </div>
             <div className="space-y-1">
@@ -478,7 +478,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 type="number"
                 value={loyalty.vipVisitThreshold}
                 onChange={(e) => setLoyalty((l) => ({ ...l, vipVisitThreshold: Number(e.target.value) }))}
-                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-teal-600"
+                className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs font-medium outline-none focus:border-blue-600"
               />
             </div>
           </div>
@@ -496,7 +496,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                 type="checkbox"
                 checked={staffConfig.addStaff}
                 onChange={(e) => setStaffConfig((s) => ({ ...s, addStaff: e.target.checked }))}
-                className="rounded text-teal-600 focus:ring-teal-500 h-4 w-4"
+                className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
               />
               <span className="text-xs font-bold text-slate-700">Add Staff Account Now</span>
             </label>
@@ -511,7 +511,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                   placeholder="e.g. Tariq Al-Mansoor"
                   value={staffConfig.name}
                   onChange={(e) => setStaffConfig((s) => ({ ...s, name: e.target.value }))}
-                  className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs outline-none focus:border-teal-600"
+                  className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs outline-none focus:border-blue-600"
                 />
               </div>
               <div className="space-y-1">
@@ -521,7 +521,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                   placeholder="tariq@station.com"
                   value={staffConfig.email}
                   onChange={(e) => setStaffConfig((s) => ({ ...s, email: e.target.value }))}
-                  className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs outline-none focus:border-teal-600"
+                  className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs outline-none focus:border-blue-600"
                 />
               </div>
               <div className="space-y-1">
@@ -531,7 +531,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
                   placeholder="••••••••"
                   value={staffConfig.password}
                   onChange={(e) => setStaffConfig((s) => ({ ...s, password: e.target.value }))}
-                  className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs outline-none focus:border-teal-600"
+                  className="h-11 w-full border border-slate-200 rounded-xl px-3.5 text-xs outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -543,7 +543,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-14 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white rounded-2xl font-black text-base shadow-xl flex items-center justify-center gap-2 transition active:scale-[0.99]"
+            className="w-full h-14 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-2xl font-black text-base shadow-xl flex items-center justify-center gap-2 transition active:scale-[0.99]"
           >
             {loading ? (
               <span>Saving Station Details...</span>

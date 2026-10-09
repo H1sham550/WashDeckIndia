@@ -217,12 +217,12 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
   const getStatusChip = (status: Booking["status"]) => {
     switch (status) {
       case "PENDING":
-        return { label: "Pending", className: "bg-amber-50 text-amber-700 border-amber-200/80 font-semibold" };
+        return { label: "Pending", className: "bg-stone-100 text-stone-800 border-stone-200 font-semibold" };
       case "CONFIRMED":
-        return { label: "Confirmed", className: "bg-blue-50 text-blue-700 border-blue-200/80 font-semibold" };
+        return { label: "Confirmed", className: "bg-blue-50 text-blue-800 border-blue-200/80 font-semibold" };
       case "CHECKED_IN" as any:
       case "COMPLETED":
-        return { label: status === "COMPLETED" ? "Completed" : "Checked In", className: "bg-emerald-50 text-emerald-700 border-emerald-200/80 font-semibold" };
+        return { label: status === "COMPLETED" ? "Completed" : "Checked In", className: "bg-slate-100 text-slate-800 border-slate-200 font-semibold" };
       case "CANCELLED":
         return { label: "Cancelled", className: "bg-slate-100 text-slate-500 border-slate-200 font-medium" };
       default:
@@ -270,8 +270,8 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-900">Booking Portal</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 text-[11px] font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                 <span>Online</span>
               </span>
             </div>
@@ -291,7 +291,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
             }}
             className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs border border-slate-200 transition-colors"
           >
-            {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+            {copied ? <Check size={13} className="text-blue-700" /> : <Copy size={13} />}
             <span>{copied ? "Copied" : "Copy Link"}</span>
           </button>
 
@@ -346,8 +346,8 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
         <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
           <span className="text-[10px] font-semibold text-slate-500 leading-tight">Checked In</span>
           <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-xl font-bold tracking-tight text-emerald-600">{stats.checkedIn}</span>
-            <span className="text-[10px] font-medium text-emerald-600">On-site</span>
+            <span className="text-xl font-bold tracking-tight text-slate-900">{stats.checkedIn}</span>
+            <span className="text-[10px] font-medium text-slate-500">On-site</span>
           </div>
         </div>
 
@@ -370,8 +370,8 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
         <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-2xs flex flex-col justify-between min-h-[72px]">
           <span className="text-[10px] font-semibold text-slate-500 leading-tight">Walk-ins Today</span>
           <div className="flex items-baseline justify-between mt-1.5">
-            <span className="text-xl font-bold tracking-tight text-indigo-600">{stats.walkIns}</span>
-            <span className="text-[10px] font-medium text-indigo-500">Direct</span>
+            <span className="text-xl font-bold tracking-tight text-slate-900">{stats.walkIns}</span>
+            <span className="text-[10px] font-medium text-slate-500">Direct</span>
           </div>
         </div>
       </div>
@@ -384,14 +384,14 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
             <span>Bay Capacity Status:</span>
           </span>
           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="w-2 h-2 rounded-full bg-blue-600" />
             <span className="font-semibold text-slate-900">Bay 1:</span>
-            <span className="text-emerald-700 font-semibold">Available</span>
+            <span className="text-slate-800 font-semibold">Available</span>
           </div>
           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-stone-500 animate-pulse" />
             <span className="font-semibold text-slate-900">Bay 2:</span>
-            <span className="text-amber-700 font-semibold">Occupied</span>
+            <span className="text-slate-800 font-semibold">Occupied</span>
           </div>
           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-md">
             <span className="w-2 h-2 rounded-full bg-purple-500" />
@@ -614,7 +614,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
                         {/* Payment */}
                         <td className="py-2.5 px-3.5 whitespace-nowrap text-slate-600 font-medium">
                           {b.status === "COMPLETED" ? (
-                            <span className="text-emerald-700 font-semibold">Paid / Billed</span>
+                            <span className="text-slate-800 font-semibold">Paid / Billed</span>
                           ) : (
                             <span className="text-slate-500">On Arrival</span>
                           )}
@@ -652,7 +652,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
                               <button
                                 type="button"
                                 onClick={() => handleUpdateStatus(b.id, "CANCELLED")}
-                                className="px-2 py-1 rounded hover:bg-rose-50 text-rose-600 font-medium text-[11px] transition-colors"
+                                className="px-2 py-1 rounded hover:bg-stone-100 text-stone-700 font-medium text-[11px] transition-colors"
                                 title="Cancel"
                               >
                                 Cancel
@@ -722,7 +722,7 @@ export function BookingsPanel({ initialBookings, stationId, stationSlug, station
                           <button
                             type="button"
                             onClick={() => handleUpdateStatus(b.id, "CANCELLED")}
-                            className="px-2.5 py-1 rounded hover:bg-rose-50 text-rose-600 font-medium text-xs"
+                            className="px-2.5 py-1 rounded hover:bg-stone-100 text-stone-700 font-medium text-xs"
                           >
                             Cancel
                           </button>

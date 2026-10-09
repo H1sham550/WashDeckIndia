@@ -24,44 +24,44 @@ const config: Config = {
           DEFAULT: "hsl(var(--brand-blue-light))",
           foreground: "hsl(var(--brand-blue))",
         },
-        // Clownfish theme mapping for blue scale (seamless dashboard & app adoption)
+        // Clownfish theme mapping for blue scale (darkened, grounded burnt orange)
         blue: {
-          50:  "#FFF8F3", // Softest warm peach tint
-          100: "#FEEFDF", // Soft warm cream
-          200: "#FEDCBE", // Delicate warm sand-peach border
-          300: "#FDC294", // Light apricot
-          400: "#FBA868", // Soft warm amber
-          500: "#FA8C38", // Lighter warm orange
-          600: "#F78024", // Refined Light Warm Orange (Primary Brand / CTA)
-          700: "#E26E12", // Warm amber hover / active
-          800: "#BA550A", // Warm terracotta
-          900: "#8A3C06", // Deep mahogany stone
-          950: "#4D1F03", // Dark espresso
+          50:  "#FAF6F2", // Softest warm neutral tint
+          100: "#F5ECE5", // Subtle warm sand
+          200: "#E8D5C6", // Muted warm border
+          300: "#CFAAA0", // Muted terracotta
+          400: "#A96240", // Soft warm clay
+          500: "#8F3C18", // Warm roasted amber
+          600: "#7C2D12", // Deep Darkened Burnt Orange (Primary CTA — grounded, mature, glare-free)
+          700: "#63230D", // Dark roasted terracotta hover
+          800: "#4D1B0A", // Deep mahogany rust
+          900: "#361307", // Dark espresso
+          950: "#1F0B04", // Deep charcoal ember
         },
         // Dedicated Clownfish semantic tokens
         clownfish: {
           canvas: "#F2F0E4",
           card: "#FFFFFF",
           black: "#000000",
-          orange: "#FA8C38",
-          hover: "#E26E12",
+          orange: "#7C2D12",
+          hover: "#63230D",
           sand: "#E0DAC8",
-          peach: "#FFF8F3",
+          peach: "#FAF6F2",
         },
-        // WashDeck brand teal — rich high-contrast scale
+        // WashDeck brand teal remapped to darkened burnt orange palette (eliminates residual teal)
         "wd-teal": {
-          DEFAULT: "#0F766E",
-          50:  "#f0fdfa",
-          100: "#ccfbf1",
-          200: "#99f6e4",
-          300: "#2dd4bf",
-          400: "#0d9488",
-          500: "#0f766e",
-          600: "#115e59",
-          700: "#134e4a",
-          800: "#042f2e",
-          900: "#02201e",
-          950: "#011211",
+          DEFAULT: "#7C2D12",
+          50:  "#FAF6F2",
+          100: "#F5ECE5",
+          200: "#E8D5C6",
+          300: "#CFAAA0",
+          400: "#8F3C18",
+          500: "#7C2D12",
+          600: "#63230D",
+          700: "#4D1B0A",
+          800: "#361307",
+          900: "#1F0B04",
+          950: "#120602",
         },
       },
       borderRadius: {

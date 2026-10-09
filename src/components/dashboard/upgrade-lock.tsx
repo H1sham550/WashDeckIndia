@@ -29,7 +29,7 @@ export function UpgradeLock({
     <div className="mx-auto max-w-4xl py-12 px-4 text-center space-y-8 animate-fade-in">
       {/* Header icon and message */}
       <div className="space-y-3">
-        <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60 shadow-sm">
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm">
           <Lock size={32} />
         </div>
         <h2 className="text-2xl font-black text-slate-800 tracking-tight">
@@ -48,7 +48,7 @@ export function UpgradeLock({
             className="relative bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col justify-between overflow-hidden"
           >
             {plan.name.toLowerCase() === "growth" && (
-              <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-extrabold px-3 py-1 uppercase rounded-bl-xl tracking-wider">
+              <div className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-extrabold px-3 py-1 uppercase rounded-bl-xl tracking-wider">
                 Popular
               </div>
             )}
@@ -72,15 +72,15 @@ export function UpgradeLock({
               {/* Limits list */}
               <ul className="space-y-2 border-t pt-4 text-xs font-bold text-slate-500">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-teal-500 flex-shrink-0" />
+                  <CheckCircle2 size={14} className="text-blue-700 flex-shrink-0" />
                   <span>Up to {plan.staffLimit} Staff Accounts</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-teal-500 flex-shrink-0" />
+                  <CheckCircle2 size={14} className="text-blue-700 flex-shrink-0" />
                   <span>{plan.reportLimit >= 9999 ? "Unlimited" : `${plan.reportLimit} Reports /month`}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-teal-500 flex-shrink-0" />
+                  <CheckCircle2 size={14} className="text-blue-700 flex-shrink-0" />
                   <span>Dynamic Branding {plan.name.toLowerCase() !== "starter" ? "Enabled" : "Disabled"}</span>
                 </li>
               </ul>

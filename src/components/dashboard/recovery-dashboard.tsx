@@ -91,7 +91,7 @@ export function RecoveryDashboard({ dueForVisit, lostVehicles, stationName }: Re
             <div
               key={item.vehicleId}
               className={`bg-white border rounded-xl p-5 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition-all border-l-4 ${
-                activeList === "due" ? "border-l-amber-500" : "border-l-rose-500"
+                activeList === "due" ? "border-l-blue-600" : "border-l-slate-800"
               }`}
             >
               <div className="flex justify-between items-start gap-4">
@@ -151,8 +151,8 @@ export function RecoveryDashboard({ dueForVisit, lostVehicles, stationName }: Re
                   onClick={() => handleReachOut(item, activeList)}
                   className={`flex h-9 items-center justify-center gap-1.5 rounded-lg text-white text-xs font-bold px-3 transition shadow-sm ${
                     activeList === "due"
-                      ? "bg-amber-600 hover:bg-amber-700"
-                      : "bg-rose-600 hover:bg-rose-700"
+                      ? "bg-blue-600 hover:bg-blue-700"
+                      : "bg-slate-900 hover:bg-black"
                   }`}
                 >
                   <MessageSquare size={14} />

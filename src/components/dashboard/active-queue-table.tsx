@@ -109,7 +109,7 @@ export function ActiveQueueTable({ initialJobs }: { initialJobs: JobCard[] }) {
             return (
               <tr key={job.id} className="hover:bg-slate-50 transition">
                 <td>
-                  <Link href={`/dashboard/jobs/${job.id}`} className="font-bold text-slate-900 hover:text-teal-700">
+                  <Link href={`/dashboard/jobs/${job.id}`} className="font-bold text-slate-900 hover:text-blue-700">
                     <span className="plate">{job.vehicle.vehicleNumber}</span>
                     <span className="wd-caption block mt-0.5">{job.vehicle.vehicleType}</span>
                   </Link>

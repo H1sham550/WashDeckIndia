@@ -129,13 +129,13 @@ export function AttendancePanel({
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "PRESENT":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-blue-50 text-blue-800 border-blue-200";
       case "HALF_DAY":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-stone-100 text-stone-800 border-stone-200";
       case "LEAVE":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-slate-100 text-slate-700 border-slate-200";
       case "ABSENT":
-        return "bg-rose-50 text-rose-700 border-rose-200";
+        return "bg-stone-100 text-stone-800 border-stone-200";
       default:
         return "bg-slate-50 text-slate-700 border-slate-200";
     }
@@ -157,7 +157,7 @@ export function AttendancePanel({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
         <div>
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
-            <UserCheck className="text-emerald-600" size={22} />
+            <UserCheck className="text-blue-600" size={22} />
             Staff Attendance & Shift Logs
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
@@ -217,19 +217,19 @@ export function AttendancePanel({
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => handleLogAttendance(staff, "PRESENT")}
-                        className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition-colors"
+                        className="px-2 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] transition-colors"
                       >
                         Present
                       </button>
                       <button
                         onClick={() => handleLogAttendance(staff, "HALF_DAY")}
-                        className="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px] transition-colors"
+                        className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-800 text-white font-bold text-[10px] transition-colors"
                       >
                         Half
                       </button>
                       <button
                         onClick={() => handleLogAttendance(staff, "ABSENT")}
-                        className="px-2 py-1 rounded bg-rose-500 hover:bg-rose-600 text-white font-bold text-[10px] transition-colors"
+                        className="px-2 py-1 rounded bg-slate-900 hover:bg-black text-white font-bold text-[10px] transition-colors"
                       >
                         Absent
                       </button>

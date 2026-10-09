@@ -68,15 +68,15 @@ export default function ResetPasswordPage() {
         </div>
 
         {error && (
-          <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-lg">
-            <AlertTriangle className="shrink-0 text-rose-500" size={16} />
+          <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
+            <AlertTriangle className="shrink-0 text-stone-600" size={16} />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg">
-            <CheckCircle2 className="shrink-0 text-emerald-500" size={16} />
+          <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 rounded-lg">
+            <CheckCircle2 className="shrink-0 text-blue-700" size={16} />
             <span>Password updated successfully! Redirecting...</span>
           </div>
         )}

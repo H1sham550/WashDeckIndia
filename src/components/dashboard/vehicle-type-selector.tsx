@@ -125,7 +125,7 @@ export function VehicleTypeSelector({ value, onChange, showDetails = true }: Veh
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <label className="block text-xs font-bold text-slate-700">
-          Vehicle Category <span className="text-red-500">*</span>
+          Vehicle Category <span className="text-blue-700">*</span>
         </label>
         <span className="text-[11px] font-medium text-slate-400">Tap reference card to select</span>
       </div>

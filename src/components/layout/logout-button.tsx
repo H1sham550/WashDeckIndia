@@ -20,7 +20,7 @@ export function LogoutButton({ collapsed, className }: LogoutButtonProps) {
       title={collapsed ? "Sign out" : undefined}
       className={
         className ||
-        `flex h-9 items-center justify-center gap-1.5 rounded-xl bg-slate-100/80 hover:bg-red-50 hover:text-red-600 border border-slate-200/60 px-3 text-xs font-bold text-slate-600 transition duration-150 active-tap`
+        `flex h-9 items-center justify-center gap-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-200 hover:text-slate-900 border border-slate-200/60 px-3 text-xs font-bold text-slate-600 transition duration-150 active-tap`
       }
     >
       <LogOut size={14} className="flex-shrink-0" />

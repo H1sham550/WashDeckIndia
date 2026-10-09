@@ -108,14 +108,14 @@ function JobCardItem({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="plate bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[11px] tracking-wide group-hover:bg-teal-900 transition">
+              <span className="plate bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[11px] tracking-wide group-hover:bg-slate-800 transition">
                 {job.vehicle.vehicleNumber}
               </span>
               <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
                 {job.vehicle.vehicleType}
               </span>
             </div>
-            <p className="text-xs font-extrabold text-slate-900 truncate group-hover:text-teal-700 transition">
+            <p className="text-xs font-extrabold text-slate-900 truncate group-hover:text-blue-700 transition">
               {job.customer.name}
             </p>
             <p className="text-[11px] font-semibold text-slate-700 truncate">

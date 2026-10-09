@@ -294,8 +294,8 @@ export function CustomersPanel({ stations }: CustomersPanelProps) {
                   className={cn(
                     "flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-colors",
                     station.status === "SUSPENDED"
-                      ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                      : "bg-red-50 text-red-700 hover:bg-red-100"
+                      ? "bg-blue-50 text-blue-800 hover:bg-blue-100"
+                      : "bg-stone-100 text-stone-700 hover:bg-stone-200"
                   )}
                 >
                   {station.status === "SUSPENDED" ? (

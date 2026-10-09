@@ -245,11 +245,11 @@ export function getDaysRemainingLabel(days: number | null): {
   colorClass: string;
 } {
   if (days === null) return { label: "Unknown", colorClass: "text-slate-400" };
-  if (days < 0) return { label: `Expired ${Math.abs(days)}d ago`, colorClass: "text-red-600" };
-  if (days === 0) return { label: "Expires today", colorClass: "text-red-600" };
-  if (days <= 7) return { label: `${days}d left`, colorClass: "text-red-600" };
-  if (days <= 30) return { label: `${days}d left`, colorClass: "text-amber-600" };
-  return { label: `${days}d left`, colorClass: "text-emerald-600" };
+  if (days < 0) return { label: `Expired ${Math.abs(days)}d ago`, colorClass: "text-slate-500" };
+  if (days === 0) return { label: "Expires today", colorClass: "text-amber-800" };
+  if (days <= 7) return { label: `${days}d left`, colorClass: "text-amber-800" };
+  if (days <= 30) return { label: `${days}d left`, colorClass: "text-blue-700" };
+  return { label: `${days}d left`, colorClass: "text-blue-800" };
 }
 
 // ─── Supported Countries ─────────────────────────────────────────────────────

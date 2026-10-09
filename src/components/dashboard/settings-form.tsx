@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Gift,
   Globe,
-  LogOut
+  LogOut,
+  Info
 } from "lucide-react";
 import { LogoutButton } from "@/components/layout/logout-button";
 
@@ -54,7 +55,19 @@ type SettingsFormProps = {
 };
 
 export function SettingsForm({ station }: SettingsFormProps) {
-  const [formData, setFormData] = useState(station);
+  const initialColor = (() => {
+    const raw = station.primaryColor;
+    const isLegacy =
+      !raw ||
+      raw.toLowerCase() === "#0f766e" ||
+      raw.toLowerCase() === "#0d9488" ||
+      raw.toLowerCase() === "#f78024" ||
+      raw.toLowerCase() === "#f25c05" ||
+      raw.toLowerCase() === "#c2541a" ||
+      raw.toLowerCase() === "#943b10";
+    return isLegacy ? "#7C2D12" : raw;
+  })();
+  const [formData, setFormData] = useState({ ...station, primaryColor: initialColor });
   const [activeTab, setActiveTab] = useState<"branding" | "operations" | "communication" | "localization">("branding");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -153,15 +166,15 @@ export function SettingsForm({ station }: SettingsFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6" style={primaryStyle}>
       {error && (
-        <div className="flex items-center gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center gap-3 p-4 text-sm text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
           <AlertCircle className="shrink-0" size={18} />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
-          <CheckCircle2 className="shrink-0" size={18} />
+        <div className="flex items-center gap-3 p-4 text-sm text-slate-800 bg-slate-100 border border-slate-200 rounded-lg">
+          <CheckCircle2 className="shrink-0 text-slate-700" size={18} />
           <span>{success}</span>
         </div>
       )}
@@ -277,7 +290,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       type="text"
                       value={formData.primaryColor}
                       onChange={(e) => setFormData((prev) => ({ ...prev, primaryColor: e.target.value }))}
-                      placeholder="#0f766e"
+                      placeholder="#7C2D12"
                       className="h-10 border rounded-md px-3 text-sm font-medium w-32 outline-none focus:border-[var(--primary-color)]"
                       style={{ focusBorderColor: formData.primaryColor } as React.CSSProperties}
                     />
@@ -476,7 +489,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       alert("Geolocation is not supported by your browser.");
                     }
                   }}
-                  className="px-3.5 py-2 bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold rounded-lg hover:bg-teal-100 transition flex items-center gap-1.5 shadow-xs"
+                  className="px-3.5 py-2 bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold rounded-lg hover:bg-blue-100 transition flex items-center gap-1.5 shadow-xs"
                 >
                   <MapPin size={14} /> Detect & Set Current GPS Location
                 </button>
@@ -636,18 +649,18 @@ export function SettingsForm({ station }: SettingsFormProps) {
               </div>
 
               {/* Template Helper Card */}
-              <div className="p-4 bg-amber-50/50 border border-amber-200 rounded-lg space-y-2">
-                <h4 className="text-xs font-bold text-amber-800 flex items-center gap-1.5">
-                  <AlertTriangle size={14} className="shrink-0" />
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <Info size={14} className="shrink-0 text-blue-700" />
                   Available Placeholders
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] text-slate-600">
-                  <div><strong className="text-amber-900 font-semibold">{"{customerName}"}</strong> - Customer's name</div>
-                  <div><strong className="text-amber-900 font-semibold">{"{vehicleNumber}"}</strong> - Vehicle license plate</div>
-                  <div><strong className="text-amber-900 font-semibold">{"{reportUrl}"}</strong> - Health report PDF link</div>
-                  <div><strong className="text-amber-900 font-semibold">{"{amount}"}</strong> - Invoice bill amount</div>
-                  <div><strong className="text-amber-900 font-semibold">{"{upiId}"}</strong> - UPI payment ID</div>
-                  <div><strong className="text-amber-900 font-semibold">{"{stationName}"}</strong> - Your wash station name</div>
+                  <div><strong className="text-slate-900 font-semibold">{"{customerName}"}</strong> - Customer's name</div>
+                  <div><strong className="text-slate-900 font-semibold">{"{vehicleNumber}"}</strong> - Vehicle license plate</div>
+                  <div><strong className="text-slate-900 font-semibold">{"{reportUrl}"}</strong> - Health report PDF link</div>
+                  <div><strong className="text-slate-900 font-semibold">{"{amount}"}</strong> - Invoice bill amount</div>
+                  <div><strong className="text-slate-900 font-semibold">{"{upiId}"}</strong> - UPI payment ID</div>
+                  <div><strong className="text-slate-900 font-semibold">{"{stationName}"}</strong> - Your wash station name</div>
                 </div>
               </div>
 

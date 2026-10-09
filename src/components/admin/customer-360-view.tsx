@@ -104,11 +104,11 @@ export function Customer360View({
   const lastLoginDays = owner?.lastLogin ? Math.floor((Date.now() - new Date(owner.lastLogin).getTime()) / (1000 * 3600 * 24)) : 3;
   const isHealthy = station.status === "ACTIVE" && lastLoginDays <= 7;
   const healthBadge = isHealthy ? {
-    label: "🟢 Healthy",
+    label: "Healthy",
     sub: "High Daily Activity & Stable Renewal Probability (95%)",
-    color: "bg-emerald-50 border-emerald-200 text-emerald-900",
+    color: "bg-blue-50 border-blue-200 text-blue-900",
   } : {
-    label: "🟠 Attention Needed",
+    label: "Attention Needed",
     sub: `Last owner login ${lastLoginDays} days ago • Renewal follow-up recommended`,
     color: "bg-amber-50 border-amber-200 text-amber-900",
   };
@@ -202,7 +202,7 @@ export function Customer360View({
       {/* ── 1. STICKY QUICK ACTIONS HEADER (ALWAYS VISIBLE) ────────────────────── */}
       <div className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md text-white px-6 py-3.5 rounded-2xl shadow-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all">
         <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 font-extrabold text-xs text-white shadow-sm flex-shrink-0">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 font-extrabold text-xs text-white shadow-sm flex-shrink-0">
             W
           </span>
           <div className="min-w-0 flex-1">
@@ -220,7 +220,7 @@ export function Customer360View({
           <button
             onClick={handleImpersonate}
             disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition-all"
             title="Log into owner dashboard with temporary impersonation session"
           >
             <LogIn className="h-3.5 w-3.5" />
@@ -241,7 +241,7 @@ export function Customer360View({
             disabled={isPending}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-700 transition-all"
           >
-            <RefreshCw className="h-3.5 w-3.5 text-emerald-400" />
+            <RefreshCw className="h-3.5 w-3.5 text-blue-400" />
             <span>Renew (+30 Days)</span>
           </button>
 
@@ -260,7 +260,7 @@ export function Customer360View({
               "flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs border transition-all",
               station.status === "SUSPENDED"
                 ? "bg-amber-600 hover:bg-amber-500 text-white border-amber-500"
-                : "bg-slate-800 hover:bg-rose-950/60 text-rose-300 border-slate-700 hover:border-rose-800"
+                : "bg-slate-800 hover:bg-stone-800 text-stone-300 border-slate-700 hover:border-stone-600"
             )}
           >
             <Ban className="h-3.5 w-3.5" />
@@ -296,7 +296,7 @@ export function Customer360View({
       {/* Toast Notification */}
       {statusMessage && (
         <div className="fixed bottom-6 right-6 z-50 rounded-2xl bg-slate-900 text-white px-5 py-3.5 shadow-2xl border border-slate-700 flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-200 text-xs font-bold">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+          <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0" />
           <span>{statusMessage}</span>
         </div>
       )}
@@ -309,9 +309,9 @@ export function Customer360View({
             <p className="text-xs text-slate-500">
               A new temporary security credential has been generated for owner <b>{owner?.email}</b>.
             </p>
-            <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-4 text-center">
-              <span className="text-xs font-bold text-emerald-800 block uppercase tracking-wider mb-1">Temporary Password</span>
-              <span className="font-mono text-xl font-extrabold text-emerald-950">{tempPasswordModal}</span>
+            <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/70 p-4 text-center">
+              <span className="text-xs font-bold text-blue-800 block uppercase tracking-wider mb-1">Temporary Password</span>
+              <span className="font-mono text-xl font-extrabold text-blue-950">{tempPasswordModal}</span>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
@@ -320,7 +320,7 @@ export function Customer360View({
                   showToast("✓ Temporary password copied to clipboard!");
                   setTempPasswordModal(null);
                 }}
-                className="w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition-all"
+                className="w-full rounded-xl bg-blue-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition-all"
               >
                 Copy Password & Close
               </button>
@@ -358,11 +358,11 @@ export function Customer360View({
           </div>
           <div>
             <span className="text-[10px] font-bold uppercase opacity-60 block">Payment Status</span>
-            <span className="font-bold mt-0.5 text-emerald-700 block">✓ Paid in Full</span>
+            <span className="font-bold mt-0.5 text-blue-800 block">✓ Paid in Full</span>
           </div>
           <div>
             <span className="text-[10px] font-bold uppercase opacity-60 block">Revenue Trend</span>
-            <span className="font-bold mt-0.5 text-emerald-700 block">↗ Increasing</span>
+            <span className="font-bold mt-0.5 text-blue-800 block">↗ Increasing</span>
           </div>
         </div>
       </div>
@@ -435,7 +435,7 @@ export function Customer360View({
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2.5">
-                  <Building2 className="h-5 w-5 text-emerald-600" />
+                  <Building2 className="h-5 w-5 text-blue-700" />
                   Business Profile & Regional Settings
                 </h3>
                 <StatusBadge status={station.status} />
@@ -448,7 +448,7 @@ export function Customer360View({
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">URL Slug / Identifier</span>
-                  <span className="font-mono font-bold text-emerald-800 text-sm mt-1 block">@{station.slug}</span>
+                  <span className="font-mono font-bold text-blue-800 text-sm mt-1 block">@{station.slug}</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Country & Currency</span>
@@ -488,7 +488,7 @@ export function Customer360View({
             {/* Staff Users list */}
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-4">
               <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
-                <User className="h-5 w-5 text-emerald-600" />
+                <User className="h-5 w-5 text-blue-700" />
                 Staff Accounts ({staffMembers.length})
               </h3>
               {staffMembers.length === 0 ? (
@@ -517,16 +517,16 @@ export function Customer360View({
               <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                    <User className="h-4 w-4 text-emerald-600" />
+                    <User className="h-4 w-4 text-blue-700" />
                     Owner Administrator
                   </h3>
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px] uppercase">
+                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 font-bold text-[10px] uppercase">
                     Primary Owner
                   </span>
                 </div>
 
                 <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-                  <div className="h-12 w-12 rounded-2xl bg-emerald-600 text-white font-extrabold text-base flex items-center justify-center shadow-sm">
+                  <div className="h-12 w-12 rounded-2xl bg-blue-600 text-white font-extrabold text-base flex items-center justify-center shadow-sm">
                     {owner.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0">
@@ -539,7 +539,7 @@ export function Customer360View({
                 <div className="space-y-3 pt-2 text-xs">
                   <div className="flex justify-between py-1.5 border-b border-slate-100">
                     <span className="text-slate-500 font-medium">Account Status</span>
-                    <span className="font-bold text-emerald-700">✓ Active</span>
+                    <span className="font-bold text-blue-800">✓ Active</span>
                   </div>
                   <div className="flex justify-between py-1.5 border-b border-slate-100">
                     <span className="text-slate-500 font-medium">Temporary Password</span>
@@ -563,10 +563,10 @@ export function Customer360View({
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <Package className="h-5 w-5 text-emerald-600" />
+                  <Package className="h-5 w-5 text-blue-700" />
                   <h3 className="text-base font-extrabold text-slate-900">Monthly Subscription Plan</h3>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs uppercase tracking-wider">
+                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 font-bold text-xs uppercase tracking-wider">
                   Monthly SaaS Billing
                 </span>
               </div>
@@ -581,7 +581,7 @@ export function Customer360View({
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Monthly Price</span>
-                  <span className="text-base font-extrabold text-emerald-700 mt-1 block">
+                  <span className="text-base font-extrabold text-blue-800 mt-1 block">
                     {formatCurrency(activeSub?.subscription?.price ?? 2999, currency)} / Mo
                   </span>
                 </div>
@@ -594,7 +594,7 @@ export function Customer360View({
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Next Billing Date</span>
                   <span className="text-base font-extrabold text-slate-900 mt-1 flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4 text-emerald-600" />
+                    <Calendar className="h-4 w-4 text-blue-700" />
                     <span>25 July 2026</span>
                   </span>
                 </div>
@@ -604,7 +604,7 @@ export function Customer360View({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs pt-2">
                 <div className="bg-white p-4 rounded-2xl border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Days Until Renewal</span>
-                  <span className="text-sm font-extrabold text-emerald-700 mt-1 block">14 Days Until Renewal</span>
+                  <span className="text-sm font-extrabold text-blue-800 mt-1 block">14 Days Until Renewal</span>
                 </div>
                 <div className="bg-white p-4 rounded-2xl border border-slate-200">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Grace Period Buffer</span>
@@ -620,7 +620,7 @@ export function Customer360View({
               <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
                 <button
                   onClick={handleRenewSubscription}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
+                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-2"
                 >
                   <RefreshCw className="h-4 w-4" />
                   <span>Renew Monthly Subscription</span>
@@ -633,7 +633,7 @@ export function Customer360View({
                 </button>
                 <button
                   onClick={handleToggleSuspend}
-                  className="px-4 py-2.5 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-all"
+                  className="px-4 py-2.5 rounded-xl border border-stone-300 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs transition-all"
                 >
                   Suspend Station Access
                 </button>
@@ -656,15 +656,15 @@ export function Customer360View({
                   <span>Monthly Service Reports</span>
                   <span className="font-bold text-slate-900">{activeSub?.subscription?.reportLimit ?? 500} Reports</span>
                 </div>
-                <div className="flex items-center justify-between text-emerald-700">
+                <div className="flex items-center justify-between text-blue-800">
                   <span>WhatsApp Automated Job Alerts</span>
                   <span>✓ Included</span>
                 </div>
-                <div className="flex items-center justify-between text-emerald-700">
+                <div className="flex items-center justify-between text-blue-800">
                   <span>Vehicle Digital Passports</span>
                   <span>✓ Included</span>
                 </div>
-                <div className="flex items-center justify-between text-emerald-700">
+                <div className="flex items-center justify-between text-blue-800">
                   <span>Dynamic Service Templates</span>
                   <span>✓ Included</span>
                 </div>
@@ -682,10 +682,10 @@ export function Customer360View({
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <Receipt className="h-5 w-5 text-emerald-600" />
+                  <Receipt className="h-5 w-5 text-blue-700" />
                   <h3 className="text-base font-extrabold text-slate-900">Current Billing & Invoice Status</h3>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs uppercase">
+                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 font-bold text-xs uppercase">
                   Invoice Paid
                 </span>
               </div>
@@ -703,7 +703,7 @@ export function Customer360View({
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Next Renewal</span>
-                  <span className="text-sm font-extrabold text-emerald-700 mt-1.5 block">25 July 2026</span>
+                  <span className="text-sm font-extrabold text-blue-800 mt-1.5 block">25 July 2026</span>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Outstanding Balance</span>
@@ -754,7 +754,7 @@ export function Customer360View({
                       <span className="font-extrabold text-slate-900 text-sm block">
                         {inv.amount > 0 ? formatCurrency(inv.amount, currency) : "Free Trial"}
                       </span>
-                      <span className="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mt-1 inline-block">
+                      <span className="text-[10px] font-bold uppercase text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full mt-1 inline-block">
                         {inv.status}
                       </span>
                     </div>
@@ -773,7 +773,7 @@ export function Customer360View({
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <Tag className="h-5 w-5 text-emerald-600" />
+                  <Tag className="h-5 w-5 text-blue-700" />
                   <h3 className="text-base font-extrabold text-slate-900">Internal Super Admin Notes</h3>
                 </div>
                 <span className="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold text-[10px] uppercase tracking-wider">
@@ -791,7 +791,7 @@ export function Customer360View({
                   value={newNoteText}
                   onChange={(e) => setNewNoteText(e.target.value)}
                   placeholder="e.g. Interested in WhatsApp API or VIP Customer requiring high priority tickets..."
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 bg-white"
+                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
                 />
                 <div className="flex items-center justify-between gap-3 pt-1">
                   <div className="flex items-center gap-2 overflow-x-auto">
@@ -802,7 +802,7 @@ export function Customer360View({
                         onClick={() => setNewNoteTag(t)}
                         className={cn(
                           "px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap",
-                          newNoteTag === t ? "bg-emerald-600 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                          newNoteTag === t ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
                         )}
                       >
                         + {t}
@@ -835,7 +835,7 @@ export function Customer360View({
                 {filteredNotes.map((n) => (
                   <div key={n.id} className="p-4 rounded-2xl border border-slate-200/80 bg-white hover:border-slate-300 transition-all space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-[10px] uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200 font-bold text-[10px] uppercase tracking-wider">
                         {n.tag}
                       </span>
                       <span className="text-[11px] font-medium text-slate-400">{n.date}</span>
@@ -856,12 +856,12 @@ export function Customer360View({
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <FileCheck className="h-5 w-5 text-emerald-600" />
+                  <FileCheck className="h-5 w-5 text-blue-700" />
                   <h3 className="text-base font-extrabold text-slate-900">Customer Verification Documents</h3>
                 </div>
                 <button
                   onClick={() => showToast("✓ File upload modal activated. Select Trade License or GST certificate.")}
-                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5"
                 >
                   <UploadCloud className="h-4 w-4" />
                   <span>Upload Document</span>
@@ -902,7 +902,7 @@ export function Customer360View({
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-7 space-y-6">
               <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
-                <Clock className="h-5 w-5 text-emerald-600" />
+                <Clock className="h-5 w-5 text-blue-700" />
                 Complete Operational Audit & Event Timeline
               </h3>
 
@@ -987,7 +987,7 @@ export function Customer360View({
                           <div className="flex items-center gap-2">
                             <h4 className="text-sm font-extrabold text-slate-900">{p.name} Plan</h4>
                             {isCurrent && (
-                              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-200">
+                              <span className="bg-blue-50 text-blue-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-blue-200">
                                 Current Plan
                               </span>
                             )}

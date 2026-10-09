@@ -48,7 +48,7 @@ export default async function AnalyticsPage() {
   const arpc = activeCount > 0 ? Math.round(mrr / activeCount) : 0;
 
   // Plan distribution for Pie chart
-  const COLORS = ["#0F766E", "#3B82F6", "#8B5CF6", "#F59E0B", "#10B981", "#64748B"];
+  const COLORS = ["#7C2D12", "#3B82F6", "#8B5CF6", "#F59E0B", "#63230D", "#64748B"];
   const planDistribution = plans.map((p, i) => ({
     name: p.name,
     count: p.stationSubscriptions.length,
@@ -57,9 +57,9 @@ export default async function AnalyticsPage() {
 
   // Status distribution for Bar chart
   const statusDistribution = [
-    { status: "Active", count: stations.filter((s) => s.status === "ACTIVE").length, color: "#10B981" },
+    { status: "Active", count: stations.filter((s) => s.status === "ACTIVE").length, color: "#7C2D12" },
     { status: "Trial", count: stations.filter((s) => s.status === "TRIAL").length, color: "#3B82F6" },
-    { status: "Suspended", count: stations.filter((s) => s.status === "SUSPENDED").length, color: "#EF4444" },
+    { status: "Suspended", count: stations.filter((s) => s.status === "SUSPENDED").length, color: "#78716C" },
     { status: "Expired", count: stations.filter((s) => s.status === "EXPIRED").length, color: "#64748B" },
   ];
 

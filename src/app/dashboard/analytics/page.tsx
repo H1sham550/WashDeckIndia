@@ -13,7 +13,7 @@ export default async function AnalyticsPage() {
   if (session.role !== "OWNER") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shadow-sm">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm">
           <ShieldAlert size={24} />
         </div>
         <h2 className="text-xl font-bold text-slate-800">Store Owner Access Required</h2>
@@ -177,7 +177,7 @@ export default async function AnalyticsPage() {
         <div className="space-y-6">
           <div className="bg-white border rounded-xl p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider border-b pb-2 flex items-center gap-1.5">
-              <Sparkles size={16} className="text-amber-500" />
+              <Sparkles size={16} className="text-blue-700" />
               Most Popular Services
             </h3>
             <div className="space-y-3">

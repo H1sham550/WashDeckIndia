@@ -164,7 +164,7 @@ export default async function SubscriptionsPage() {
                       >
                         <div
                           className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            feat.enabled ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
+                            feat.enabled ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-400"
                           }`}
                         >
                           <Check size={10} strokeWidth={3} />

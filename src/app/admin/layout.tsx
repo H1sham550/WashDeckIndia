@@ -118,7 +118,7 @@ export default async function AdminLayout({
                 {/* Left Side (RTL): Super Admin Session Info & Logout */}
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/15 backdrop-blur-md border border-white/20 text-xs text-white font-bold">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
                     <span>{session.name}</span>
                   </div>
                   <div className="lg:hidden">

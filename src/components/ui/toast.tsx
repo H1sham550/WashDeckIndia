@@ -124,17 +124,17 @@ function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id
 // ─── Toast Item ───────────────────────────────────────────────────────────────
 
 const ICONS: Record<ToastType, React.ReactNode> = {
-  success: <CheckCircle size={16} className="text-emerald-600 flex-shrink-0 mt-0.5" />,
-  error:   <XCircle    size={16} className="text-red-500 flex-shrink-0 mt-0.5" />,
-  warning: <AlertTriangle size={16} className="text-amber-500 flex-shrink-0 mt-0.5" />,
-  info:    <Info       size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />,
+  success: <CheckCircle size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />,
+  error:   <XCircle    size={16} className="text-stone-700 flex-shrink-0 mt-0.5" />,
+  warning: <AlertTriangle size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />,
+  info:    <Info       size={16} className="text-slate-700 flex-shrink-0 mt-0.5" />,
 };
 
 const BORDERS: Record<ToastType, string> = {
-  success: "border-l-emerald-500",
-  error:   "border-l-red-500",
-  warning: "border-l-amber-500",
-  info:    "border-l-blue-500",
+  success: "border-l-blue-600",
+  error:   "border-l-stone-700",
+  warning: "border-l-blue-600",
+  info:    "border-l-slate-700",
 };
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {

@@ -234,11 +234,11 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
   const getNoteStyle = (type: string) => {
     switch (type) {
       case "WARNING":
-        return "bg-rose-50 border-rose-200 text-rose-800";
+        return "bg-stone-100 border-stone-300 text-stone-800 font-bold";
       case "VIP":
-        return "bg-amber-50 border-amber-200 text-amber-800";
+        return "bg-slate-900 text-white";
       case "PREFERENCE":
-        return "bg-sky-50 border-sky-200 text-sky-800";
+        return "bg-blue-50 border-blue-200 text-blue-800";
       default:
         return "bg-slate-50 border-slate-200 text-slate-800";
     }
@@ -249,11 +249,11 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
       case "RECEIVED":
         return "bg-blue-50 text-blue-800 border border-blue-200";
       case "IN_PROGRESS":
-        return "bg-amber-50/70 text-amber-800 border border-amber-200/60";
+        return "bg-slate-100 text-slate-800 border border-slate-200";
       case "SERVICE_COMPLETED":
         return "bg-slate-900 text-white";
       case "PAYMENT_PENDING":
-        return "bg-rose-50/70 text-rose-800 border border-rose-200/60";
+        return "bg-stone-100 text-stone-800 border border-stone-200";
       case "DELIVERED":
         return "bg-stone-100 text-stone-800 border border-stone-200";
       case "CANCELLED":
@@ -292,19 +292,19 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
               {vehicle.vehicleNumber.replace(/(.{2})(.{2})(.{2})(.{4})/, "$1-$2-$3-$4")}
             </h1>
             {metrics.vipStatus === "VIP" && (
-              <span className="flex items-center gap-1 text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500 text-white shadow-sm animate-pulse">
+              <span className="flex items-center gap-1 text-xs font-extrabold px-3 py-1 rounded-full bg-slate-900 text-white shadow-xs">
                 <Award size={14} />
                 VIP CLIENT
               </span>
             )}
-            <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-sm ${
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border shadow-xs ${
               metrics.dueStatus === "Overdue"
-                ? "bg-rose-50 border-rose-200 text-rose-700 font-extrabold"
+                ? "bg-stone-100 border-stone-300 text-stone-800 font-extrabold"
                 : metrics.dueStatus === "Due Soon"
-                ? "bg-amber-50 border-amber-200 text-amber-700"
-                : "bg-emerald-50 border-emerald-200 text-emerald-700"
+                ? "bg-stone-100 border-stone-200 text-stone-800"
+                : "bg-blue-50 border-blue-200 text-blue-800"
             }`}>
-              {metrics.dueStatus === "Overdue" ? "🚨 Overdue for Visit" : metrics.dueStatus === "Due Soon" ? "⏳ Due Soon" : "✅ Active Client"}
+              {metrics.dueStatus === "Overdue" ? "Overdue for Visit" : metrics.dueStatus === "Due Soon" ? "Due Soon" : "Active Client"}
             </span>
           </div>
 
@@ -338,7 +338,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                 {isOwner && (
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="hover:text-rose-600 transition text-slate-400 ml-0.5"
+                    className="hover:text-slate-900 transition text-slate-400 ml-0.5"
                     title="Remove Tag"
                   >
                     <X size={12} />
@@ -430,7 +430,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
 
             {/* Note form */}
             <form onSubmit={handleAddNote} className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-              {noteError && <p className="text-xs text-red-600 font-semibold">{noteError}</p>}
+              {noteError && <p className="text-xs text-stone-700 font-bold">{noteError}</p>}
               <textarea
                 required
                 value={newNoteContent}
@@ -535,12 +535,12 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                         <span
                           className={`h-2 w-2 rounded-full ${
                             event.type === "job"
-                              ? event.status === "CANCELLED" ? "bg-slate-400" : "bg-teal-600"
+                              ? event.status === "CANCELLED" ? "bg-slate-400" : "bg-blue-600"
                               : event.type === "payment"
-                              ? "bg-emerald-500"
+                              ? "bg-slate-900"
                               : event.type === "report"
-                              ? "bg-purple-500"
-                              : "bg-amber-400"
+                              ? "bg-blue-500"
+                              : "bg-stone-500"
                           }`}
                         />
                       </span>
@@ -574,7 +574,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                                 <span>Invoice:</span>
                                 <span className="font-bold text-slate-700">₹{event.meta.invoice.amount}</span>
                                 <span className={`text-[10px] font-extrabold uppercase px-1.5 rounded-md ${
-                                  event.meta.invoice.status === "PAID" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                                  event.meta.invoice.status === "PAID" ? "bg-slate-100 text-slate-800 border border-slate-200" : "bg-stone-100 text-stone-800 border border-stone-200"
                                 }`}>
                                   {event.meta.invoice.status}
                                 </span>
@@ -660,7 +660,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                           <p className="text-xs text-slate-500 mt-0.5">{op.offer.rewardDescription}</p>
                         </div>
                         {isUnlocked && !op.rewardRedeemed && (
-                          <span className="shrink-0 flex items-center gap-0.5 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500 text-white animate-pulse">
+                          <span className="shrink-0 flex items-center gap-0.5 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white animate-pulse">
                             Reward Available
                           </span>
                         )}
@@ -677,7 +677,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                             className="h-full rounded-full transition-all duration-500"
                             style={{
                               width: `${progressPct}%`,
-                              backgroundColor: isUnlocked ? "#10b981" : "var(--primary-color)",
+                              backgroundColor: "var(--primary-color)",
                             }}
                           />
                         </div>
@@ -687,7 +687,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                       {isUnlocked && !op.rewardRedeemed && (
                         <button
                           onClick={() => handleRedeemReward(op.id)}
-                          className="w-full mt-2 h-9 text-xs font-bold text-white rounded-lg bg-emerald-600 hover:bg-emerald-700 transition flex items-center justify-center gap-1.5"
+                          className="w-full mt-2 h-9 text-xs font-bold text-white rounded-lg bg-blue-600 hover:bg-blue-700 transition flex items-center justify-center gap-1.5"
                         >
                           <FileCheck2 size={14} />
                           Redeem Reward Now
@@ -695,7 +695,7 @@ export function VehiclePassportView({ userRole, passport }: VehiclePassportViewP
                       )}
 
                       {op.rewardRedeemed && (
-                        <div className="text-[10px] text-emerald-600 font-bold bg-emerald-50 p-2 rounded-lg text-center">
+                        <div className="text-[10px] text-blue-800 font-bold bg-blue-50 p-2 rounded-lg text-center">
                           ✓ Reward Redeemed
                         </div>
                       )}

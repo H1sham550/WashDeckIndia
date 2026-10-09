@@ -325,7 +325,7 @@ export function NewJobIntakeWizard({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-black text-slate-900 tracking-tight">New Job Card Intake</h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-[10px] font-black uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200 text-[10px] font-black uppercase tracking-wider">
               Single-Page Express Mode
             </span>
           </div>
@@ -336,7 +336,7 @@ export function NewJobIntakeWizard({
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-3">
+        <div className="p-4 bg-stone-100 border border-stone-200 rounded-xl text-stone-800 text-xs font-bold flex items-center gap-3">
           <AlertCircle className="shrink-0" size={18} />
           <span>{error}</span>
         </div>
@@ -345,7 +345,7 @@ export function NewJobIntakeWizard({
       {/* ── SECTION 1: VEHICLE & CUSTOMER INFORMATION ── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
         <div className="flex items-center gap-2.5 border-b pb-3">
-          <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+          <div className="h-8 w-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
             <Car size={18} />
           </div>
           <div>
@@ -364,7 +364,7 @@ export function NewJobIntakeWizard({
               placeholder="Type License Plate (e.g. 1234 ABC) or Customer Mobile..."
               value={vehicleSearchQuery}
               onChange={(e) => setVehicleSearchQuery(e.target.value)}
-              className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-slate-50/50"
+              className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-slate-50/50"
             />
             {searchingVehicles && (
               <Loader2 size={16} className="absolute right-3.5 top-3.5 text-slate-400 animate-spin" />
@@ -384,7 +384,7 @@ export function NewJobIntakeWizard({
                       setShowSearchDropdown(false);
                       setVehicleSearchQuery("");
                     }}
-                    className="p-3 hover:bg-teal-50/60 cursor-pointer transition flex items-center justify-between"
+                    className="p-3 hover:bg-slate-50 cursor-pointer transition flex items-center justify-between"
                   >
                     <div>
                       <span className="font-black text-xs text-slate-900 uppercase">{v.vehicleNumber}</span>
@@ -395,7 +395,7 @@ export function NewJobIntakeWizard({
                         <p className="text-[11px] text-slate-400">{primary.customer.name} • {primary.customer.mobile}</p>
                       )}
                     </div>
-                    <span className="text-xs font-bold text-teal-700">Select Vehicle →</span>
+                    <span className="text-xs font-bold text-blue-700">Select Vehicle →</span>
                   </div>
                 );
               })}
@@ -405,9 +405,9 @@ export function NewJobIntakeWizard({
 
         {/* Selected Vehicle Badge or New Vehicle Form */}
         {selectedVehicle ? (
-          <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-xl flex items-center justify-between">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-black">
+              <div className="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black">
                 <Car size={20} />
               </div>
               <div>
@@ -415,7 +415,7 @@ export function NewJobIntakeWizard({
                   <span className="font-black text-sm text-slate-900 uppercase tracking-wide">
                     {selectedVehicle.vehicleNumber}
                   </span>
-                  <span className="px-2 py-0.5 rounded bg-teal-100 text-teal-800 text-[10px] font-extrabold uppercase">
+                  <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 text-[10px] font-extrabold uppercase">
                     {selectedVehicle.vehicleType}
                   </span>
                 </div>
@@ -458,7 +458,7 @@ export function NewJobIntakeWizard({
                 placeholder="e.g. MH12AB1234"
                 value={newVehicleNumber}
                 onChange={(e) => setNewVehicleNumber(e.target.value)}
-                className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-black uppercase text-slate-800 outline-none focus:border-teal-700"
+                className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-black uppercase text-slate-800 outline-none focus:border-blue-600"
               />
             </div>
 
@@ -478,7 +478,7 @@ export function NewJobIntakeWizard({
                     placeholder="e.g. Swift, Creta, Nexon"
                     value={newModel}
                     onChange={(e) => setNewModel(e.target.value)}
-                    className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                    className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-blue-600"
                   />
                 </div>
 
@@ -489,7 +489,7 @@ export function NewJobIntakeWizard({
                     placeholder="e.g. Pearl White, Black"
                     value={newColor}
                     onChange={(e) => setNewColor(e.target.value)}
-                    className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                    className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-blue-600"
                   />
                 </div>
               </div>
@@ -504,7 +504,7 @@ export function NewJobIntakeWizard({
                   placeholder="e.g. Ahmad Al-Fahad"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-blue-600"
                 />
               </div>
 
@@ -516,7 +516,7 @@ export function NewJobIntakeWizard({
                   placeholder="+91 98765 43210"
                   value={customerMobile}
                   onChange={(e) => setCustomerMobile(e.target.value)}
-                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-teal-700"
+                  className="h-11 w-full px-3 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -528,7 +528,7 @@ export function NewJobIntakeWizard({
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
         <div className="flex items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+            <div className="h-8 w-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
               <Sparkles size={18} />
             </div>
             <div>
@@ -536,7 +536,7 @@ export function NewJobIntakeWizard({
               <p className="text-[11px] text-slate-400 font-medium">Select wash package templates or check individual services</p>
             </div>
           </div>
-          <span className="text-xs font-extrabold text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+          <span className="text-xs font-extrabold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
             {selectedServiceIds.length} Selected
           </span>
         </div>
@@ -554,7 +554,7 @@ export function NewJobIntakeWizard({
                     onClick={() => handleSelectTemplate(tmpl)}
                     className={`p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
                       isSelected
-                        ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/20 shadow-sm"
+                        ? "border-blue-600 bg-blue-50/70 ring-2 ring-blue-600/20 shadow-sm"
                         : "border-slate-200 bg-slate-50/60 hover:border-slate-300"
                     }`}
                   >
@@ -562,7 +562,7 @@ export function NewJobIntakeWizard({
                       <span className="font-extrabold text-xs text-slate-800 block">{tmpl.name}</span>
                       <span className="text-[10px] text-slate-400">{tmpl.items.length} Included Services</span>
                     </div>
-                    {isSelected && <CheckCircle2 size={16} className="text-teal-700 shrink-0" />}
+                    {isSelected && <CheckCircle2 size={16} className="text-blue-700 shrink-0" />}
                   </div>
                 );
               })}
@@ -583,7 +583,7 @@ export function NewJobIntakeWizard({
                   onClick={() => handleToggleService(service.id)}
                   className={`p-3.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${
                     isChecked
-                      ? "border-teal-700 bg-teal-50/60 ring-1 ring-teal-700/30"
+                      ? "border-blue-600 bg-blue-50/60 ring-1 ring-blue-600/30"
                       : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
@@ -592,7 +592,7 @@ export function NewJobIntakeWizard({
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => {}}
-                      className="h-4 w-4 rounded text-teal-700 focus:ring-teal-700 cursor-pointer"
+                      className="h-4 w-4 rounded text-blue-600 focus:ring-blue-600 cursor-pointer"
                     />
                     <div>
                       <span className="font-bold text-xs text-slate-800 block">{service.name}</span>
@@ -612,7 +612,7 @@ export function NewJobIntakeWizard({
       {/* ── SECTION 3: EXPECTED COMPLETION TIME & INSPECTION ── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
         <div className="flex items-center gap-2.5 border-b pb-3">
-          <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+          <div className="h-8 w-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
             <Clock size={18} />
           </div>
           <div>
@@ -629,7 +629,7 @@ export function NewJobIntakeWizard({
               required
               value={etaTime}
               onChange={(e) => setEtaTime(e.target.value)}
-              className="h-11 border border-slate-300 rounded-xl px-3 text-xs font-semibold outline-none focus:border-teal-700 w-full bg-slate-50/50"
+              className="h-11 border border-slate-300 rounded-xl px-3 text-xs font-semibold outline-none focus:border-blue-600 w-full bg-slate-50/50"
             />
           </div>
 
@@ -656,7 +656,7 @@ export function NewJobIntakeWizard({
                     }}
                     className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border transition ${
                       isIncluded
-                        ? "bg-rose-50 border-rose-300 text-rose-700 font-extrabold"
+                        ? "bg-slate-900 border-slate-900 text-white font-extrabold shadow-xs"
                         : "bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200/70"
                     }`}
                   >
@@ -676,7 +676,7 @@ export function NewJobIntakeWizard({
             value={inspectionNotes}
             onChange={(e) => setInspectionNotes(e.target.value)}
             placeholder="e.g. Client requested extra interior vacuum and leather conditioner..."
-            className="w-full border border-slate-300 rounded-xl p-3 text-xs font-medium outline-none focus:border-teal-700 bg-slate-50/50 resize-none"
+            className="w-full border border-slate-300 rounded-xl p-3 text-xs font-medium outline-none focus:border-blue-600 bg-slate-50/50 resize-none"
           />
         </div>
       </div>
@@ -684,7 +684,7 @@ export function NewJobIntakeWizard({
       {/* ── SECTION 4: BEFORE PHOTOS (OPTIONAL) ── */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
         <div className="flex items-center gap-2.5 border-b pb-3">
-          <div className="h-8 w-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
+          <div className="h-8 w-8 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
             <Camera size={18} />
           </div>
           <div>
@@ -700,7 +700,7 @@ export function NewJobIntakeWizard({
               <button
                 type="button"
                 onClick={() => handleRemovePhoto(idx)}
-                className="absolute top-1.5 right-1.5 bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-700 transition"
+                className="absolute top-1.5 right-1.5 bg-slate-900 text-white rounded-full p-1 shadow-md hover:bg-black transition"
               >
                 <Trash2 size={12} />
               </button>
@@ -709,7 +709,7 @@ export function NewJobIntakeWizard({
 
           {uploadingPhotos ? (
             <div className="h-24 border rounded-xl bg-slate-50 flex items-center justify-center">
-              <Loader2 className="animate-spin text-teal-700" size={24} />
+              <Loader2 className="animate-spin text-blue-600" size={24} />
             </div>
           ) : (
             <label className="h-24 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition text-slate-400 hover:text-slate-600">
@@ -739,7 +739,7 @@ export function NewJobIntakeWizard({
             type="button"
             onClick={handleCreateJob}
             disabled={isPending}
-            className="h-11 sm:h-12 px-6 sm:px-8 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg flex items-center gap-2 transition active-tap"
+            className="h-11 sm:h-12 px-6 sm:px-8 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg flex items-center gap-2 transition active-tap"
           >
             {isPending ? (
               <>

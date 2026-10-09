@@ -71,33 +71,33 @@ export function NotificationsPanel({ initialNotifications }: NotificationsPanelP
 
   function getNotificationIcon(type: string) {
     if (type.startsWith("REWARD_ELIGIBLE")) {
-      return <Gift className="text-emerald-500" size={18} />;
+      return <Gift className="text-blue-700" size={18} />;
     }
     if (type.startsWith("REWARD_NEAR")) {
-      return <Gift className="text-amber-500" size={18} />;
+      return <Gift className="text-slate-700" size={18} />;
     }
     if (type === "PAYMENT_PENDING") {
-      return <AlertTriangle className="text-rose-500" size={18} />;
+      return <AlertTriangle className="text-stone-700" size={18} />;
     }
     if (type === "STAFF_LIMIT") {
-      return <Users className="text-orange-500" size={18} />;
+      return <Users className="text-blue-700" size={18} />;
     }
     if (type === "VEHICLES_DUE_VISIT") {
-      return <Calendar className="text-blue-500" size={18} />;
+      return <Calendar className="text-slate-700" size={18} />;
     }
     if (type === "SUBSCRIPTION_EXPIRY") {
-      return <Hourglass className="text-rose-600" size={18} />;
+      return <Hourglass className="text-stone-800" size={18} />;
     }
     return <Info className="text-slate-400" size={18} />;
   }
 
   function getNotificationBg(type: string) {
-    if (type.startsWith("REWARD_ELIGIBLE")) return "bg-emerald-50";
-    if (type.startsWith("REWARD_NEAR")) return "bg-amber-50";
-    if (type === "PAYMENT_PENDING") return "bg-rose-50";
-    if (type === "STAFF_LIMIT") return "bg-orange-50";
-    if (type === "VEHICLES_DUE_VISIT") return "bg-blue-50";
-    if (type === "SUBSCRIPTION_EXPIRY") return "bg-red-50";
+    if (type.startsWith("REWARD_ELIGIBLE")) return "bg-blue-50/70";
+    if (type.startsWith("REWARD_NEAR")) return "bg-slate-100";
+    if (type === "PAYMENT_PENDING") return "bg-stone-100";
+    if (type === "STAFF_LIMIT") return "bg-blue-50/70";
+    if (type === "VEHICLES_DUE_VISIT") return "bg-slate-100";
+    if (type === "SUBSCRIPTION_EXPIRY") return "bg-stone-100";
     return "bg-slate-50";
   }
 

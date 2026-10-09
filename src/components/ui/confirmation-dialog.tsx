@@ -60,15 +60,15 @@ export function ConfirmationDialog({
   const Icon = CustomIcon ?? (variant === "danger" ? Trash2 : AlertTriangle);
 
   const iconStyles = {
-    danger: "bg-red-50 text-red-600",
-    warning: "bg-amber-50 text-amber-600",
+    danger: "bg-stone-100 text-stone-700",
+    warning: "bg-blue-50 text-blue-700",
     default: "bg-slate-50 text-slate-600",
   }[variant];
 
   const confirmStyles = {
-    danger: "bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white",
-    warning: "bg-amber-500 hover:bg-amber-600 focus:ring-amber-400 text-white",
-    default: "bg-wd-teal-700 hover:bg-wd-teal-800 focus:ring-wd-teal-500 text-white",
+    danger: "bg-slate-900 hover:bg-black focus:ring-slate-500 text-white",
+    warning: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-400 text-white",
+    default: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white",
   }[variant];
 
   return (

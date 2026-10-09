@@ -22,13 +22,13 @@ const STATUS_STYLES: Record<StatusVariant, string> = {
   TRIAL:     "bg-blue-50 text-blue-700 border-blue-200",
   GRACE:     "bg-amber-50/60 text-amber-800 border-amber-200/60",
   EXPIRED:   "bg-slate-100 text-slate-500 border-slate-200",
-  SUSPENDED: "bg-rose-50/60 text-rose-800 border-rose-200/60",
+  SUSPENDED: "bg-stone-100 text-stone-800 border-stone-200",
   PENDING:   "bg-amber-50/60 text-amber-800 border-amber-200/60",
   PAID:      "bg-stone-100 text-stone-800 border-stone-200",
   DRAFT:     "bg-slate-100 text-slate-500 border-slate-200",
   SENT:      "bg-blue-50 text-blue-700 border-blue-200",
   APPROVED:  "bg-stone-100 text-stone-800 border-stone-200",
-  REJECTED:  "bg-rose-50/60 text-rose-800 border-rose-200/60",
+  REJECTED:  "bg-stone-100 text-stone-800 border-stone-200",
   default:   "bg-slate-100 text-slate-600 border-slate-200",
 };
 
@@ -37,13 +37,13 @@ const STATUS_DOTS: Record<StatusVariant, string> = {
   TRIAL:     "bg-blue-600",
   GRACE:     "bg-amber-600",
   EXPIRED:   "bg-slate-400",
-  SUSPENDED: "bg-rose-600",
+  SUSPENDED: "bg-stone-700",
   PENDING:   "bg-amber-600",
   PAID:      "bg-slate-800",
   DRAFT:     "bg-slate-400",
   SENT:      "bg-blue-600",
   APPROVED:  "bg-slate-800",
-  REJECTED:  "bg-rose-600",
+  REJECTED:  "bg-stone-700",
   default:   "bg-slate-400",
 };
 
@@ -88,7 +88,7 @@ const PLAN_STYLES: Record<string, string> = {
   Trial:        "bg-slate-100 text-slate-600 border-slate-200",
   Starter:      "bg-blue-50 text-blue-700 border-blue-200",
   Growth:       "bg-violet-50 text-violet-700 border-violet-200",
-  Professional: "bg-wd-teal-50 text-wd-teal-800 border-wd-teal-200",
+  Professional: "bg-blue-50 text-blue-800 border-blue-200",
   Enterprise:   "bg-slate-900 text-white border-slate-800",
 };
 
@@ -130,7 +130,7 @@ const BADGE_STYLES: Record<BadgeVariant, string> = {
   teal:    "bg-stone-100 text-stone-800",
   blue:    "bg-blue-50 text-blue-700",
   amber:   "bg-amber-50/60 text-amber-800",
-  red:     "bg-rose-50/60 text-rose-800",
+  red:     "bg-stone-100 text-stone-800",
   green:   "bg-stone-100 text-stone-800",
   slate:   "bg-slate-100 text-slate-600",
 };

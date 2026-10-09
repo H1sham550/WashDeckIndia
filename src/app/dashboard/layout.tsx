@@ -41,9 +41,17 @@ export default async function DashboardLayout({
   const isOwner = session.role === "OWNER";
   const logoUrl = entitlements.features.branding ? station?.logoUrl : null;
   const bannerUrl = entitlements.features.branding ? station?.bannerUrl : null;
-  const primaryColor = entitlements.features.branding
-    ? station?.primaryColor || "#F78024"
-    : "#F78024";
+  const isLegacyColor =
+    !station?.primaryColor ||
+    station.primaryColor.toLowerCase() === "#0f766e" ||
+    station.primaryColor.toLowerCase() === "#0d9488" ||
+    station.primaryColor.toLowerCase() === "#f78024" ||
+    station.primaryColor.toLowerCase() === "#f25c05" ||
+    station.primaryColor.toLowerCase() === "#c2541a" ||
+    station.primaryColor.toLowerCase() === "#943b10";
+  const primaryColor = entitlements.features.branding && !isLegacyColor
+    ? station?.primaryColor
+    : "#7C2D12";
 
   const planLabel = entitlements.currentPlanName
     ? `${entitlements.currentPlanName} Plan`

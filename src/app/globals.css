@@ -15,11 +15,11 @@
    ============================================================ */
 
 :root {
-  /* ── Brand: Refined Light Warm Orange & Warm Amber ───────────── */
-  --brand-blue: 26 92% 58%;          /* #FA8C38 — refined light warm orange (less harsh) */
-  --brand-blue-hover: 26 88% 50%;    /* #E87016 — warm amber hover */
-  --brand-blue-light: 28 85% 97%;   /* #FFF8F3 — delicate soft peach tint */
-  --brand-blue-border: 25 80% 86%;  /* #FEDCBE — warm sand-peach border */
+  /* ── Brand: Deep Grounded Burnt Orange (Darkened, mature, glare-free) ── */
+  --brand-blue: 15 75% 28%;          /* #7C2D12 — deep darkened burnt orange */
+  --brand-blue-hover: 15 78% 21%;    /* #63230D — rich dark roasted terracotta hover */
+  --brand-blue-light: 25 30% 97%;   /* #FAF6F2 — delicate warm sand-cream tint */
+  --brand-blue-border: 22 25% 87%;  /* #E8D5C6 — subtle warm sand border */
 
   /* ── Surface: Crisp White on Warm Alabaster Canvas ───────────── */
   --surface: 0 0% 100%;               /* #FFFFFF — crisp white cards */
@@ -38,22 +38,22 @@
   --border: 44 24% 83%;              /* #E0DAC8 Warm Sand */
   --border-strong: 43 21% 72%;       /* #C8C0AA Warm Sand Strong */
 
-  /* ── Semantic Colors (Harmonized Warm Palette) ───────────────── */
-  --success: 152 35% 38%;             /* #3F825F — calm sage green */
-  --success-bg: 150 25% 96%;          /* #F2F7F4 */
-  --success-border: 150 20% 88%;      /* #DCEAE2 */
+  /* ── Semantic Colors (Harmonized Orange & Black/Slate Theme) ──── */
+  --success: 222 47% 11%;             /* #0F172A — deep slate/charcoal (no random green) */
+  --success-bg: 210 20% 96%;          /* #F1F5F9 — crisp slate tint */
+  --success-border: 215 16% 85%;      /* #CBD5E1 */
 
-  --warning: 34 65% 42%;              /* #B27524 — warm amber sand */
-  --warning-bg: 36 50% 96%;           /* #FAF7F0 */
-  --warning-border: 36 40% 88%;       /* #EEE5D5 */
+  --warning: 28 60% 38%;              /* #9A5B18 — deep warm amber sand */
+  --warning-bg: 36 40% 96%;           /* #FAF6F0 */
+  --warning-border: 32 30% 86%;       /* #ECE1D5 */
 
-  --danger: 12 55% 46%;               /* #B54531 — warm terracotta/brick */
-  --danger-bg: 12 50% 97%;            /* #FAF2F0 */
-  --danger-border: 12 40% 88%;        /* #F2DAD5 */
+  --danger: 15 45% 40%;               /* #933E2B — subdued warm terracotta rust */
+  --danger-bg: 25 20% 96%;            /* #F7F3F1 */
+  --danger-border: 20 20% 88%;        /* #E7DDD8 */
 
-  --info: 26 92% 58%;                 /* #FA8C38 — matches light warm orange */
-  --info-bg: 28 85% 97%;              /* #FFF8F3 */
-  --info-border: 25 80% 86%;          /* #FEDCBE */
+  --info: 15 75% 28%;                 /* #7C2D12 — matches deep burnt orange */
+  --info-bg: 25 30% 97%;              /* #FAF6F2 */
+  --info-border: 22 25% 87%;          /* #E8D5C6 */
 
   /* ── Radius ──────────────────────────────────────────── */
   --radius-sm: 6px;
@@ -241,7 +241,7 @@ a[role="button"],
   border-color: hsl(var(--danger));
 }
 .btn-danger:hover {
-  background: #DC2626;
+  background: #63230D;
 }
 
 .btn-sm {
@@ -300,6 +300,7 @@ a[role="button"],
   background: hsl(var(--success-bg));
   color: hsl(var(--success));
   border-color: hsl(var(--success-border));
+  font-weight: 600;
 }
 
 .badge-warning {
@@ -322,8 +323,9 @@ a[role="button"],
 
 .badge-blue {
   background: hsl(var(--brand-blue-light));
-  color: #A04A15;
+  color: #4D1B0A;
   border-color: hsl(var(--brand-blue-border));
+  font-weight: 600;
 }
 
 /* ============================================================
@@ -378,11 +380,11 @@ a[role="button"],
   flex-shrink: 0;
 }
 
-.status-dot-received  { background: #FA8C38; } /* light warm orange */
-.status-dot-progress  { background: #D9822B; } /* warm amber */
-.status-dot-completed { background: #1C1917; } /* pitch stone/black */
-.status-dot-payment   { background: #B54531; } /* warm terracotta */
-.status-dot-delivered { background: #78716C; } /* warm stone gray */
+.status-dot-received  { background: #7C2D12; } /* deep darkened burnt orange */
+.status-dot-progress  { background: #8F3C18; } /* warm roasted amber */
+.status-dot-completed { background: #0F172A; } /* deep charcoal/black */
+.status-dot-payment   { background: #78716C; } /* warm stone */
+.status-dot-delivered { background: #0F172A; } /* deep charcoal/black */
 
 /* ============================================================
    SHIMMER LOADING

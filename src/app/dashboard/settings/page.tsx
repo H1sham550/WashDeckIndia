@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   if (session.role !== "OWNER") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shadow-sm">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm">
           <ShieldAlert size={24} />
         </div>
         <h2 className="text-xl font-bold text-slate-800">Store Owner Access Required</h2>
@@ -45,6 +45,17 @@ export default async function SettingsPage() {
   const b = station?.branding || ({} as any);
   const s = station?.settings || ({} as any);
 
+  const rawColor = b.primaryColor;
+  const isLegacyColor =
+    !rawColor ||
+    rawColor.toLowerCase() === "#0f766e" ||
+    rawColor.toLowerCase() === "#0d9488" ||
+    rawColor.toLowerCase() === "#f78024" ||
+    rawColor.toLowerCase() === "#f25c05" ||
+    rawColor.toLowerCase() === "#c2541a" ||
+    rawColor.toLowerCase() === "#943b10";
+  const primaryColor = isLegacyColor ? "#7C2D12" : rawColor;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6">
@@ -58,7 +69,7 @@ export default async function SettingsPage() {
           name: station?.name || "",
           logoUrl: b.squareLogoUrl || "",
           bannerUrl: b.bookingCoverUrl || "",
-          primaryColor: b.primaryColor || "#0f766e",
+          primaryColor: primaryColor,
           phone: b.businessPhone || "",
           email: b.businessEmail || "",
           address: b.businessAddress || "",

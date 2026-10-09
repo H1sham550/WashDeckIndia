@@ -73,7 +73,7 @@ export default async function PublicBookingPage({ params }: { params: Promise<{ 
     logoUrl: b.squareLogoUrl || null,
     phone: b.businessPhone || null,
     address: b.businessAddress || null,
-    primaryColor: b.primaryColor || "#0f766e",
+    primaryColor: b.primaryColor && b.primaryColor.toLowerCase() !== "#0f766e" ? b.primaryColor : "#7C2D12",
   };
 
   const rawServices = await prisma.service.findMany({

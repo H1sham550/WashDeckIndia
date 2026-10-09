@@ -30,7 +30,7 @@ export default async function SettingsPage() {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">SMTP Engine Status</span>
-              <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Connected (Active)</span>
+              <span className="font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">Connected (Active)</span>
             </div>
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">System Sender Email</span>
@@ -84,7 +84,7 @@ export default async function SettingsPage() {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">Database Connection</span>
-              <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Optimal (&lt; 12ms pool)</span>
+              <span className="font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">Optimal (&lt; 12ms pool)</span>
             </div>
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">Batched Entitlement Cache</span>
@@ -111,7 +111,7 @@ export default async function SettingsPage() {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">Admin Impersonation Banner</span>
-              <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Mandatory & Active</span>
+              <span className="font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">Mandatory & Active</span>
             </div>
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
               <span className="text-slate-500 font-semibold">Session Token Expiry</span>

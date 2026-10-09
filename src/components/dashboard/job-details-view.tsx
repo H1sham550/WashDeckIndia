@@ -390,15 +390,15 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
   const getStatusBadgeClass = (status: JobStatus) => {
     switch (status) {
       case "RECEIVED":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-blue-50 text-blue-800 border-blue-200";
       case "IN_PROGRESS":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-slate-100 text-slate-800 border-slate-200";
       case "SERVICE_COMPLETED":
-        return "bg-purple-50 text-purple-700 border-purple-200";
+        return "bg-slate-100 text-slate-800 border-slate-200";
       case "PAYMENT_PENDING":
-        return "bg-rose-50 text-rose-700 border-rose-200";
+        return "bg-stone-100 text-stone-800 border-stone-200";
       case "DELIVERED":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-slate-900 text-white border-slate-900";
       default:
         return "bg-slate-50 text-slate-700 border-slate-200";
     }
@@ -434,15 +434,15 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center gap-3 p-4 text-sm text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
           <AlertTriangle className="shrink-0" size={18} />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
-          <CheckCircle2 className="shrink-0" size={18} />
+        <div className="flex items-center gap-3 p-4 text-sm text-slate-800 bg-slate-100 border border-slate-200 rounded-lg">
+          <CheckCircle2 className="shrink-0 text-slate-700" size={18} />
           <span>{success}</span>
         </div>
       )}
@@ -550,7 +550,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
             {/* Cancel Button */}
             <button
               onClick={() => setShowCancelModal(true)}
-              className="px-4 py-2.5 rounded-lg border text-rose-600 hover:bg-rose-50 text-xs font-bold transition"
+              className="px-4 py-2.5 rounded-lg border text-stone-700 hover:bg-stone-100 text-xs font-bold transition"
             >
               Cancel Job
             </button>
@@ -597,7 +597,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
             <div className="bg-white border rounded-xl p-5 shadow-sm space-y-3">
               <div className="flex items-center justify-between border-b pb-2">
                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Before Servicing Photos</h3>
-                <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">Vehicle Intake</span>
+                <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">Vehicle Intake</span>
               </div>
               <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
                 {beforePhotos.map((url, idx) => (
@@ -613,9 +613,9 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                         <Loader2 className="animate-spin text-[var(--primary-color)]" size={24} />
                       </div>
                     ) : (
-                      <label className="h-24 border-2 border-dashed border-teal-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-teal-50/50 transition text-teal-700">
+                      <label className="h-24 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition text-slate-400 hover:text-slate-600">
                         <Camera size={22} />
-                        <span className="text-[10px] font-extrabold mt-1">Add Before Photo</span>
+                        <span className="text-[10px] font-bold mt-1">Add Before Photo</span>
                         <input
                           type="file"
                           multiple
@@ -708,7 +708,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                 <button
                   onClick={handleWhatsAppShare}
                   disabled={sharing}
-                  className="w-full flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm disabled:opacity-50"
+                  className="w-full flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-bold transition shadow-sm disabled:opacity-50"
                 >
                   {sharing ? (
                     <Loader2 className="animate-spin" size={14} />
@@ -739,7 +739,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                   <span className="text-slate-800">₹{job.invoice.subtotal}</span>
                 </div>
                 {job.invoice.discount > 0 && (
-                  <div className="flex justify-between text-rose-600">
+                  <div className="flex justify-between text-stone-600">
                     <span>Discount applied:</span>
                     <span>-₹{job.invoice.discount}</span>
                   </div>
@@ -751,7 +751,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                 <div className="flex justify-between border-t pt-2 text-xs">
                   <span>Payment status:</span>
                   <span className={`px-2 py-0.5 rounded font-extrabold uppercase ${
-                    job.invoice.paymentStatus === "PAID" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                    job.invoice.paymentStatus === "PAID" ? "bg-slate-100 text-slate-800 border border-slate-200" : "bg-stone-100 text-stone-800 border border-stone-200"
                   }`}>
                     {job.invoice.paymentStatus}
                   </span>
@@ -766,7 +766,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                   <button
                     type="button"
                     onClick={handleSharePaymentReminder}
-                    className="w-full mt-3 flex h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-600 hover:bg-emerald-50 text-emerald-700 text-xs font-bold transition"
+                    className="w-full mt-3 flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs font-bold transition"
                   >
                     Send Payment Reminder
                   </button>
@@ -827,7 +827,7 @@ export function JobDetailsView({ job: initialJob, station }: JobDetailsViewProps
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="flex h-9 items-center justify-center gap-2 rounded-lg text-white text-xs font-bold px-4 hover:bg-rose-700 transition bg-rose-600"
+                  className="flex h-9 items-center justify-center gap-2 rounded-lg text-white text-xs font-bold px-4 hover:bg-black transition bg-slate-900"
                 >
                   {isPending ? <Loader2 className="animate-spin" size={14} /> : "Cancel Job Card"}
                 </button>

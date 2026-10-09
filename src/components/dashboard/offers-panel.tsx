@@ -237,7 +237,7 @@ export function OffersPanel({ initialOffers, services }: OffersPanelProps) {
               <div className="space-y-2">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-amber-50 text-amber-500 border border-amber-200 flex items-center justify-center shrink-0">
+                    <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
                       <Sparkles size={16} />
                     </div>
                     <div>
@@ -249,7 +249,7 @@ export function OffersPanel({ initialOffers, services }: OffersPanelProps) {
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                     offer.isActive
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      ? "bg-blue-50 text-blue-800 border-blue-200"
                       : "bg-slate-100 text-slate-500 border-slate-200"
                   }`}>
                     {offer.isActive ? "Active" : "Paused"}
@@ -262,7 +262,7 @@ export function OffersPanel({ initialOffers, services }: OffersPanelProps) {
 
                 <div className="bg-slate-50 border rounded-lg p-3 text-xs font-semibold flex items-center justify-between text-slate-600">
                   <div className="flex items-center gap-1.5">
-                    <Award size={14} className="text-amber-500" />
+                    <Award size={14} className="text-blue-700" />
                     <span>Reward:</span>
                   </div>
                   <span className="font-extrabold text-slate-800">{offer.rewardDescription}</span>
@@ -280,7 +280,7 @@ export function OffersPanel({ initialOffers, services }: OffersPanelProps) {
                     title={offer.isActive ? "Pause Offer" : "Resume Offer"}
                     className={`h-8 w-8 rounded-lg border flex items-center justify-center transition-all bg-white ${
                       offer.isActive
-                        ? "text-slate-400 hover:text-amber-600 hover:border-amber-600"
+                        ? "text-slate-400 hover:text-slate-700 hover:border-slate-400"
                         : "text-[var(--primary-color)] border-[var(--primary-color)] hover:bg-slate-50"
                     }`}
                   >
@@ -289,7 +289,7 @@ export function OffersPanel({ initialOffers, services }: OffersPanelProps) {
                   <button
                     onClick={() => handleDelete(offer.id)}
                     title="End Offer"
-                    className="h-8 w-8 rounded-lg border text-slate-400 hover:text-rose-600 hover:border-rose-600 transition-all bg-white"
+                    className="h-8 w-8 rounded-lg border text-slate-400 hover:text-slate-900 hover:border-slate-900 transition-all bg-white"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -478,7 +478,7 @@ export function OffersPanel({ initialOffers, services }: OffersPanelProps) {
                             className="inline-flex items-center gap-0.5 text-[10px] font-bold bg-white border rounded px-1.5 py-0.5"
                           >
                             <span className="uppercase text-slate-700">{v.vehicleNumber}</span>
-                            <button type="button" onClick={() => handleRemoveSelectedVehicle(v.id)} className="text-slate-400 hover:text-rose-600 ml-0.5">
+                            <button type="button" onClick={() => handleRemoveSelectedVehicle(v.id)} className="text-slate-400 hover:text-slate-900 ml-0.5">
                               <X size={10} />
                             </button>
                           </span>

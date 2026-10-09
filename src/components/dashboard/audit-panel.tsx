@@ -65,10 +65,10 @@ export function AuditPanel({ initialLogs, users, distinctActions }: AuditPanelPr
 
   function getBadgeColor(action: string) {
     const uppercase = action.toUpperCase();
-    if (uppercase.includes("CREATE") || uppercase.includes("CREATED")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    if (uppercase.includes("DELETE") || uppercase.includes("DELETED") || uppercase.includes("DISABLE") || uppercase.includes("DISABLED")) return "bg-rose-50 text-rose-700 border-rose-200";
-    if (uppercase.includes("UPDATE") || uppercase.includes("UPDATED") || uppercase.includes("CHANGE")) return "bg-blue-50 text-blue-700 border-blue-200";
-    if (uppercase.includes("PAY") || uppercase.includes("PAID") || uppercase.includes("REDEEM")) return "bg-purple-50 text-purple-700 border-purple-200";
+    if (uppercase.includes("CREATE") || uppercase.includes("CREATED")) return "bg-blue-50 text-blue-800 border-blue-200";
+    if (uppercase.includes("DELETE") || uppercase.includes("DELETED") || uppercase.includes("DISABLE") || uppercase.includes("DISABLED")) return "bg-stone-100 text-stone-700 border-stone-200";
+    if (uppercase.includes("UPDATE") || uppercase.includes("UPDATED") || uppercase.includes("CHANGE")) return "bg-slate-100 text-slate-800 border-slate-200";
+    if (uppercase.includes("PAY") || uppercase.includes("PAID") || uppercase.includes("REDEEM")) return "bg-slate-900 text-white border-slate-900";
     return "bg-slate-100 text-slate-700 border-slate-200";
   }
 

@@ -364,7 +364,7 @@ export function VehiclesDirectory({ initialVehicles, userRole }: VehiclesDirecto
                   {v.tags && v.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {v.tags.map((tag) => (
-                        <span key={tag} className="text-[9px] font-bold bg-teal-50 border border-teal-200 text-teal-700 px-1.5 py-0.5 rounded">
+                        <span key={tag} className="text-[9px] font-bold bg-slate-100 border border-slate-200 text-slate-700 px-1.5 py-0.5 rounded">
                           {tag}
                         </span>
                       ))}
@@ -543,8 +543,8 @@ export function VehiclesDirectory({ initialVehicles, userRole }: VehiclesDirecto
                 <h4 className="font-extrabold text-[10px] text-slate-400 uppercase tracking-wider border-b pb-1 flex items-center gap-1">
                   <UserPlus size={14} /> Link New Contact
                 </h4>
-                {error && <p className="text-xs text-rose-600 font-bold">{error}</p>}
-                {success && <p className="text-xs text-emerald-600 font-bold">{success}</p>}
+                {error && <p className="text-xs text-stone-700 font-bold">{error}</p>}
+                {success && <p className="text-xs text-blue-700 font-bold">{success}</p>}
                 <form onSubmit={handleAddContact} className="space-y-3 text-xs font-semibold text-slate-600">
                   <div>
                     <label className="mb-1 block">Full Name *</label>
@@ -630,13 +630,13 @@ export function VehiclesDirectory({ initialVehicles, userRole }: VehiclesDirecto
                     <div
                       key={c.id}
                       className={`p-3 border rounded-xl text-xs space-y-2 relative flex flex-col justify-between ${
-                        c.isPrimary ? "bg-teal-50/50 border-teal-200" : "bg-slate-50 border-slate-200"
+                        c.isPrimary ? "bg-blue-50/60 border-blue-200" : "bg-slate-50 border-slate-200"
                       }`}
                     >
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded border ${
-                            c.isPrimary ? "bg-teal-100 border-teal-300 text-teal-800" : "bg-slate-200 border-slate-300 text-slate-700"
+                            c.isPrimary ? "bg-blue-100 border-blue-200 text-blue-900" : "bg-slate-200 border-slate-300 text-slate-700"
                           }`}>
                             {c.label} {c.isPrimary && "• Primary"}
                           </span>
@@ -646,7 +646,7 @@ export function VehiclesDirectory({ initialVehicles, userRole }: VehiclesDirecto
                           <button
                             onClick={() => handleRemoveContact(c.customer.id)}
                             disabled={isPending}
-                            className="text-slate-400 hover:text-rose-600 p-1 hover:bg-slate-100 rounded transition"
+                            className="text-slate-400 hover:text-slate-900 p-1 hover:bg-slate-100 rounded transition"
                             title="Unlink Contact"
                           >
                             <Trash2 size={13} />

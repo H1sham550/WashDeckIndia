@@ -10,7 +10,7 @@ export default async function AuditPage() {
   if (session.role !== "OWNER") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center space-y-4">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200 shadow-sm">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200 shadow-sm">
           <ShieldAlert size={24} />
         </div>
         <h2 className="text-xl font-bold text-slate-800">Store Owner Access Required</h2>

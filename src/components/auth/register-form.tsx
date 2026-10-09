@@ -101,9 +101,9 @@ export function RegisterForm() {
             <div
               className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-black transition ${
                 step === s.num
-                  ? "bg-teal-700 text-white shadow-md ring-4 ring-teal-700/10"
+                  ? "bg-blue-600 text-white shadow-md ring-4 ring-blue-600/10"
                   : step > s.num
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-slate-900 text-white"
                   : "bg-slate-100 text-slate-400 border border-slate-200"
               }`}
             >
@@ -121,8 +121,8 @@ export function RegisterForm() {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-bold flex items-center gap-3">
-          <AlertTriangle className="shrink-0" size={18} />
+        <div className="p-4 bg-stone-100 border border-stone-200 rounded-xl text-stone-800 text-xs font-bold flex items-center gap-3">
+          <AlertTriangle className="shrink-0 text-stone-600" size={18} />
           <span>{error}</span>
         </div>
       )}
@@ -146,7 +146,7 @@ export function RegisterForm() {
                   placeholder="e.g. Abdullah Al-Otaibi"
                   value={credentials.ownerName}
                   onChange={(e) => setCredentials((prev) => ({ ...prev, ownerName: e.target.value }))}
-                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-white text-slate-800"
+                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-white text-slate-800"
                 />
               </div>
             </div>
@@ -161,7 +161,7 @@ export function RegisterForm() {
                   placeholder="e.g. Apex Auto Spa & Detailing"
                   value={credentials.stationName}
                   onChange={(e) => setCredentials((prev) => ({ ...prev, stationName: e.target.value }))}
-                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-white text-slate-800"
+                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-white text-slate-800"
                 />
               </div>
             </div>
@@ -176,7 +176,7 @@ export function RegisterForm() {
                   placeholder="+91 98765 43210 or owner@washdeck.in"
                   value={credentials.identity}
                   onChange={(e) => setCredentials((prev) => ({ ...prev, identity: e.target.value }))}
-                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-white text-slate-800"
+                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-white text-slate-800"
                 />
               </div>
             </div>
@@ -191,7 +191,7 @@ export function RegisterForm() {
                   placeholder="Minimum 6 characters"
                   value={credentials.password}
                   onChange={(e) => setCredentials((prev) => ({ ...prev, password: e.target.value }))}
-                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-700/10 bg-white text-slate-800"
+                  className="h-11 w-full pl-10 pr-3.5 border border-slate-300 rounded-xl text-xs font-semibold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 bg-white text-slate-800"
                 />
               </div>
             </div>
@@ -199,7 +199,7 @@ export function RegisterForm() {
 
           <button
             type="submit"
-            className="w-full h-12 bg-teal-700 hover:bg-teal-800 text-white rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-2 transition active-tap mt-6"
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-2 transition active-tap mt-6"
           >
             <span>Continue to Choose Plan</span>
             <ArrowRight size={16} />
@@ -211,7 +211,7 @@ export function RegisterForm() {
       {step === 2 && (
         <div className="space-y-5">
           <div className="text-center space-y-1.5">
-            <span className="px-3.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
+            <span className="px-3.5 py-1 bg-blue-50 text-blue-800 border border-blue-200 text-xs font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
               <Sparkles size={14} />
               1 Month Free Trial Included
             </span>
@@ -225,7 +225,7 @@ export function RegisterForm() {
               onClick={() => setSelectedPlan("STARTER")}
               className={`p-5 rounded-2xl border cursor-pointer transition relative flex flex-col justify-between ${
                 selectedPlan === "STARTER"
-                  ? "border-teal-700 bg-teal-50/50 ring-2 ring-teal-700/20 shadow-md"
+                  ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20 shadow-md"
                   : "border-slate-200 bg-white hover:border-slate-300"
               }`}
             >
@@ -245,7 +245,7 @@ export function RegisterForm() {
                 </ul>
               </div>
               <div className="mt-5 pt-3 border-t border-slate-200/60 text-center">
-                <span className={`text-xs font-extrabold ${selectedPlan === "STARTER" ? "text-teal-700" : "text-slate-400"}`}>
+                <span className={`text-xs font-extrabold ${selectedPlan === "STARTER" ? "text-blue-700" : "text-slate-400"}`}>
                   {selectedPlan === "STARTER" ? "✓ Selected Plan" : "Select Starter"}
                 </span>
               </div>
@@ -256,7 +256,7 @@ export function RegisterForm() {
               onClick={() => setSelectedPlan("PRO_STATION")}
               className={`p-5 rounded-2xl border cursor-pointer transition relative flex flex-col justify-between ${
                 selectedPlan === "PRO_STATION"
-                  ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/30 shadow-xl"
+                  ? "border-blue-600 bg-blue-50/70 ring-2 ring-blue-600/30 shadow-xl"
                   : "border-slate-200 bg-white hover:border-slate-300"
               }`}
             >
@@ -265,12 +265,12 @@ export function RegisterForm() {
               </div>
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="font-black text-xs text-teal-900">Pro Auto Spa</span>
+                  <span className="font-black text-xs text-slate-900">Pro Auto Spa</span>
                   <Crown size={16} className="text-amber-500" />
                 </div>
                 <div className="mt-3">
                   <span className="text-2xl font-black text-slate-900">₹ 0</span>
-                  <span className="text-[11px] text-teal-700 block font-extrabold mt-0.5">1st Month Free (then 499/mo)</span>
+                  <span className="text-[11px] text-blue-700 block font-extrabold mt-0.5">1st Month Free (then 499/mo)</span>
                 </div>
                 <ul className="mt-4 space-y-2 text-xs text-slate-700 font-semibold">
                   <li className="flex items-center gap-1.5">✓ Unlimited Jobs</li>
@@ -279,8 +279,8 @@ export function RegisterForm() {
                   <li className="flex items-center gap-1.5">✓ 10 Staff Accounts</li>
                 </ul>
               </div>
-              <div className="mt-5 pt-3 border-t border-teal-200 text-center">
-                <span className={`text-xs font-black ${selectedPlan === "PRO_STATION" ? "text-teal-800" : "text-slate-400"}`}>
+              <div className="mt-5 pt-3 border-t border-blue-200 text-center">
+                <span className={`text-xs font-black ${selectedPlan === "PRO_STATION" ? "text-blue-800" : "text-slate-400"}`}>
                   {selectedPlan === "PRO_STATION" ? "✓ Selected Plan" : "Select Pro"}
                 </span>
               </div>
@@ -291,7 +291,7 @@ export function RegisterForm() {
               onClick={() => setSelectedPlan("ENTERPRISE")}
               className={`p-5 rounded-2xl border cursor-pointer transition relative flex flex-col justify-between ${
                 selectedPlan === "ENTERPRISE"
-                  ? "border-teal-700 bg-teal-50/50 ring-2 ring-teal-700/20 shadow-md"
+                  ? "border-blue-600 bg-blue-50/50 ring-2 ring-blue-600/20 shadow-md"
                   : "border-slate-200 bg-white hover:border-slate-300"
               }`}
             >
@@ -311,7 +311,7 @@ export function RegisterForm() {
                 </ul>
               </div>
               <div className="mt-5 pt-3 border-t border-slate-200/60 text-center">
-                <span className={`text-xs font-extrabold ${selectedPlan === "ENTERPRISE" ? "text-teal-700" : "text-slate-400"}`}>
+                <span className={`text-xs font-extrabold ${selectedPlan === "ENTERPRISE" ? "text-blue-700" : "text-slate-400"}`}>
                   {selectedPlan === "ENTERPRISE" ? "✓ Selected Plan" : "Select Enterprise"}
                 </span>
               </div>
@@ -329,7 +329,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="flex-1 h-12 bg-teal-700 hover:bg-teal-800 text-white rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-2 transition active-tap"
+              className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-2 transition active-tap"
             >
               <span>Continue to Set Wash Prices</span>
               <ArrowRight size={16} />
@@ -361,7 +361,7 @@ export function RegisterForm() {
                   required
                   value={prices.BIKE}
                   onChange={(e) => setPrices((p) => ({ ...p, BIKE: Number(e.target.value) }))}
-                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-teal-700"
+                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -380,7 +380,7 @@ export function RegisterForm() {
                   required
                   value={prices.HATCHBACK}
                   onChange={(e) => setPrices((p) => ({ ...p, HATCHBACK: Number(e.target.value) }))}
-                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-teal-700"
+                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -399,7 +399,7 @@ export function RegisterForm() {
                   required
                   value={prices.SEDAN}
                   onChange={(e) => setPrices((p) => ({ ...p, SEDAN: Number(e.target.value) }))}
-                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-teal-700"
+                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -418,7 +418,7 @@ export function RegisterForm() {
                   required
                   value={prices.SUV}
                   onChange={(e) => setPrices((p) => ({ ...p, SUV: Number(e.target.value) }))}
-                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-teal-700"
+                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -437,7 +437,7 @@ export function RegisterForm() {
                   required
                   value={prices.LUXURY}
                   onChange={(e) => setPrices((p) => ({ ...p, LUXURY: Number(e.target.value) }))}
-                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-teal-700"
+                  className="w-20 h-10 border border-slate-300 rounded-lg px-2 text-xs font-extrabold text-slate-900 text-right bg-white outline-none focus:border-blue-600"
                 />
               </div>
             </div>
@@ -454,7 +454,7 @@ export function RegisterForm() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 h-12 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition active-tap"
+              className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition active-tap"
             >
               {loading ? (
                 <span>Creating Account & Starting Trial...</span>

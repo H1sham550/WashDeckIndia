@@ -289,7 +289,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
         <div className="border-b border-slate-100 bg-slate-50/80 px-8 py-5 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-sm">
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-xs shadow-sm">
                 W
               </span>
               <h2 className="text-lg font-bold text-slate-900 tracking-tight">Onboard New Station</h2>
@@ -310,15 +310,15 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                     className={cn(
                       "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all",
                       step === item
-                        ? "bg-emerald-600 text-white shadow-md ring-4 ring-emerald-100"
+                        ? "bg-blue-600 text-white shadow-md ring-4 ring-blue-100"
                         : step > item
-                        ? "bg-emerald-100 text-emerald-800"
+                        ? "bg-blue-50 text-blue-800"
                         : "bg-slate-200 text-slate-500"
                     )}
                   >
                     {step > item ? <CheckCircle2 className="h-4 w-4" /> : item}
                   </div>
-                  {item < 3 && <div className={cn("h-0.5 w-6 transition-all", step > item ? "bg-emerald-500" : "bg-slate-200")} />}
+                  {item < 3 && <div className={cn("h-0.5 w-6 transition-all", step > item ? "bg-blue-600" : "bg-slate-200")} />}
                 </div>
               ))}
             </div>
@@ -334,8 +334,8 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
 
         {/* Error Alert */}
         {error && (
-          <div className="mx-8 mt-4 flex items-center gap-3 rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 text-sm text-rose-700 animate-in shake">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-rose-600" />
+          <div className="mx-8 mt-4 flex items-center gap-3 rounded-xl bg-stone-100 border border-stone-200 px-4 py-3 text-sm text-stone-700 animate-in shake">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-stone-700" />
             <span className="font-medium">{error}</span>
           </div>
         )}
@@ -359,7 +359,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                       value={name}
                       onChange={(e) => handleNameChange(e.target.value)}
                       placeholder="e.g. Sparkle Shine Car Wash"
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
@@ -381,7 +381,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                         "w-full rounded-xl border pl-8 pr-10 py-2.5 text-sm font-semibold transition-all",
                         isSlugLocked
                           ? "bg-slate-100/80 border-slate-200 text-slate-600 cursor-not-allowed"
-                          : "bg-white border-emerald-600 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                          : "bg-white border-blue-600 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                       )}
                     />
                     <button
@@ -407,7 +407,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                     <select
                       value={country}
                       onChange={(e) => handleCountryChange(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-semibold text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 bg-white"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-semibold text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
                     >
                       {COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -450,7 +450,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                       value={phone || currentCountryConfig.phoneCode + " "}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+91 98765 43210"
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
@@ -467,7 +467,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="support@sparkleshine.com"
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
@@ -483,7 +483,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="123 Wash Street, Expressway District, City"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
 
@@ -513,11 +513,11 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
           {/* STEP 2: OWNER ACCOUNT */}
           {step === 2 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-              <div className="rounded-2xl bg-emerald-50/70 border border-emerald-200/80 p-4 flex items-start gap-3">
-                <ShieldCheck className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <div className="text-xs text-emerald-900">
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-200/80 p-4 flex items-start gap-3">
+                <ShieldCheck className="h-5 w-5 text-blue-700 flex-shrink-0 mt-0.5" />
+                <div className="text-xs text-blue-950">
                   <p className="font-bold">Automated Security & Credential Generation</p>
-                  <p className="mt-0.5 text-emerald-800">
+                  <p className="mt-0.5 text-blue-800">
                     To maintain strict SaaS audit compliance, passwords are never manually typed. We generate a secure temporary credential (`{autoPassword}`) that the owner is required to change upon first login.
                   </p>
                 </div>
@@ -536,7 +536,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                       value={ownerName}
                       onChange={(e) => setOwnerName(e.target.value)}
                       placeholder="e.g. Rajesh Kumar or Ahmed Al-Mansoor"
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
@@ -553,7 +553,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                       value={ownerEmail}
                       onChange={(e) => setOwnerEmail(e.target.value)}
                       placeholder="owner@example.com"
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
@@ -570,7 +570,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                       value={ownerMobile || currentCountryConfig.phoneCode + " "}
                       onChange={(e) => setOwnerMobile(e.target.value)}
                       placeholder="+91 98765 43210"
-                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-2.5 text-sm font-medium text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
                 </div>
@@ -580,7 +580,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                 <div>
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Auto-Generated Temporary Password</span>
                   <div className="flex items-center gap-2 mt-1">
-                    <Lock className="h-4 w-4 text-emerald-600" />
+                    <Lock className="h-4 w-4 text-blue-700" />
                     <span className="font-mono text-lg font-bold tracking-widest text-slate-900">{autoPassword}</span>
                   </div>
                 </div>
@@ -590,7 +590,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                     const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
                     setAutoPassword(`WD-${randomCode}`);
                   }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-blue-800 bg-blue-50 hover:bg-blue-100 transition-colors"
                 >
                   Regenerate Code
                 </button>
@@ -603,13 +603,13 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="rounded-2xl bg-slate-900 text-white p-4 flex items-center justify-between shadow-lg">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="h-5 w-5 text-emerald-400" />
+                  <Sparkles className="h-5 w-5 text-blue-400" />
                   <div>
                     <h4 className="text-sm font-bold">Monthly SaaS Subscription Architecture</h4>
                     <p className="text-xs text-slate-300">All WashDeck plans bill on recurring monthly billing cycles with automatic grace period management.</p>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30">
+                <span className="px-2.5 py-1 rounded-lg bg-blue-500/20 text-blue-300 text-[10px] font-bold uppercase tracking-wider border border-blue-500/30">
                   Monthly Model
                 </span>
               </div>
@@ -628,7 +628,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                         className={cn(
                           "cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between relative",
                           isSelected
-                            ? "border-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-500/20 shadow-md"
+                            ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-500/20 shadow-md"
                             : "border-slate-200 hover:border-slate-300 bg-white"
                         )}
                       >
@@ -640,7 +640,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                                 Trial
                               </span>
                             ) : (
-                              <span className="font-bold text-emerald-700 text-sm">
+                              <span className="font-bold text-blue-800 text-sm">
                                 {plan.id === "custom" ? "Custom" : `${currentCountryConfig.currencySymbol}${plan.price}/mo`}
                               </span>
                             )}
@@ -649,9 +649,9 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                         </div>
 
                         {isSelected && (
-                          <div className="mt-3 pt-2 border-t border-emerald-200/60 flex items-center justify-between text-xs font-bold text-emerald-800">
+                          <div className="mt-3 pt-2 border-t border-blue-200/60 flex items-center justify-between text-xs font-bold text-blue-800">
                             <span>Selected Tier</span>
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            <CheckCircle2 className="h-4 w-4 text-blue-700" />
                           </div>
                         )}
                       </div>
@@ -702,8 +702,8 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
 
                 <div>
                   <label className="block text-xs font-bold text-slate-600 mb-1">Next Billing Date</label>
-                  <div className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800 flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4 text-emerald-600" />
+                  <div className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-800 flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4 text-blue-700" />
                     <span>{calculateNextBillingDate()}</span>
                   </div>
                 </div>
@@ -714,7 +714,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
           {/* STEP 4: SUCCESS & CREDENTIALS DOWNLOAD */}
           {step === 4 && createdStation && (
             <div className="space-y-6 text-center animate-in zoom-in-95 duration-300 py-2">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shadow-inner">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-blue-700 shadow-inner">
                 <CheckCircle2 className="h-10 w-10" />
               </div>
 
@@ -725,29 +725,29 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                 </p>
               </div>
 
-              <div className="mx-auto max-w-md rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 p-6 text-left space-y-4 shadow-sm">
-                <div className="flex items-center justify-between border-b border-emerald-200/80 pb-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">Owner Login Email</span>
+              <div className="mx-auto max-w-md rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/60 p-6 text-left space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-blue-200/80 pb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-950">Owner Login Email</span>
                   <span className="font-semibold text-slate-900 text-sm">{createdStation.ownerEmail}</span>
                 </div>
 
-                <div className="flex items-center justify-between border-b border-emerald-200/80 pb-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">Temporary Password</span>
+                <div className="flex items-center justify-between border-b border-blue-200/80 pb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-950">Temporary Password</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-lg text-emerald-950 bg-white px-2.5 py-1 rounded-lg border border-emerald-200">
+                    <span className="font-mono font-bold text-lg text-blue-950 bg-white px-2.5 py-1 rounded-lg border border-blue-200">
                       {createdStation.tempPassword}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-emerald-800">Subscription Status: Active ({createdStation.planName})</span>
-                  <span className="font-bold text-emerald-900">Renews: {createdStation.nextBilling}</span>
+                  <span className="font-semibold text-blue-800">Subscription Status: Active ({createdStation.planName})</span>
+                  <span className="font-bold text-blue-950">Renews: {createdStation.nextBilling}</span>
                 </div>
               </div>
 
               {emailSent && (
-                <div className="mx-auto max-w-md rounded-xl bg-emerald-100/80 border border-emerald-300 px-4 py-2.5 text-xs font-bold text-emerald-800 animate-in fade-in">
+                <div className="mx-auto max-w-md rounded-xl bg-blue-50 border border-blue-200 px-4 py-2.5 text-xs font-bold text-blue-800 animate-in fade-in">
                   ✓ Credentials dispatched via verified email to {createdStation.ownerEmail}!
                 </div>
               )}
@@ -774,7 +774,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                 <button
                   type="button"
                   onClick={handleDownloadWelcomePDF}
-                  className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-700 transition-all"
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-blue-700 transition-all"
                 >
                   <Download className="h-4 w-4" />
                   Download Welcome PDF
@@ -813,7 +813,7 @@ IMPORTANT: Please advise the owner to log in and change their temporary password
                     type="button"
                     disabled={isPending}
                     onClick={handleFinalSubmit}
-                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-2 text-xs font-bold text-white shadow-md hover:bg-emerald-700 disabled:opacity-50 transition-all"
+                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 disabled:opacity-50 transition-all"
                   >
                     {isPending ? (
                       <>

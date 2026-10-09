@@ -161,7 +161,7 @@ export default async function AdminPage() {
           value={totalUsersCount}
           subtext="Station owners & staff"
           icon={Users}
-          accent="emerald"
+          accent="blue"
         />
         <KpiCard
           label="Job Cards Handled"
@@ -408,9 +408,9 @@ const COLOR_MAP: Record<
   { icon: string; bg: string; ring: string }
 > = {
   green: {
-    icon: "text-emerald-600",
-    bg: "bg-emerald-50",
-    ring: "border-emerald-100",
+    icon: "text-blue-700",
+    bg: "bg-blue-50",
+    ring: "border-blue-100",
   },
   teal: {
     icon: "text-wd-teal-700",
@@ -423,7 +423,7 @@ const COLOR_MAP: Record<
     bg: "bg-amber-50",
     ring: "border-amber-100",
   },
-  red: { icon: "text-red-600", bg: "bg-red-50", ring: "border-red-100" },
+  red: { icon: "text-stone-700", bg: "bg-stone-100", ring: "border-stone-200" },
   slate: {
     icon: "text-slate-500",
     bg: "bg-slate-100",
@@ -482,7 +482,7 @@ function KpiCard({
 }) {
   const colorMap: Record<string, MetricColor> = {
     violet: "blue",
-    emerald: "green",
+    emerald: "blue",
     teal: "teal",
     amber: "amber",
   };

@@ -49,7 +49,7 @@ export function VehicleBrandInput({
         <button
           type="button"
           onClick={() => setShowPills((p) => !p)}
-          className="text-[10px] font-bold text-teal-700 hover:text-teal-800 transition underline underline-offset-2"
+          className="text-[10px] font-bold text-blue-700 hover:text-blue-800 transition underline underline-offset-2"
         >
           {showPills ? "Hide Brands" : "Popular Brands"}
         </button>
@@ -87,8 +87,8 @@ export function VehicleBrandInput({
                 }}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition shrink-0 ${
                   isSelected
-                    ? "bg-teal-700 text-white shadow-xs"
-                    : "bg-white text-slate-700 border border-slate-200 hover:border-teal-500 hover:text-teal-700"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "bg-white text-slate-700 border border-slate-200 hover:border-blue-500 hover:text-blue-700"
                 }`}
               >
                 {brand}

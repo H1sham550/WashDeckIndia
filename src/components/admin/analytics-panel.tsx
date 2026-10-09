@@ -48,7 +48,7 @@ export function AnalyticsPanel({
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monthly Recurring (MRR)</p>
           <p className="text-xl font-black text-slate-900 mt-1 flex items-baseline gap-1">
             {formatCurrencyCompact(mrr, "INR")}
-            <span className="text-[10px] font-bold text-emerald-600 flex items-center">+12.4% <ArrowUpRight size={10} /></span>
+            <span className="text-[10px] font-bold text-blue-700 flex items-center">+12.4% <ArrowUpRight size={10} /></span>
           </p>
         </div>
         <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs">
@@ -71,7 +71,7 @@ export function AnalyticsPanel({
         </div>
         <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs col-span-2 sm:col-span-1">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Renewal Rate</p>
-          <p className="text-xl font-black text-slate-900 mt-1 text-emerald-600">
+          <p className="text-xl font-black text-slate-900 mt-1 text-blue-800">
             {renewalRate}%
           </p>
         </div>

@@ -61,6 +61,17 @@ export default async function JobDetailsPage({ params }: PageProps) {
       : null,
   };
 
+  const rawColor = b.primaryColor;
+  const isLegacyColor =
+    !rawColor ||
+    rawColor.toLowerCase() === "#0f766e" ||
+    rawColor.toLowerCase() === "#0d9488" ||
+    rawColor.toLowerCase() === "#f78024" ||
+    rawColor.toLowerCase() === "#f25c05" ||
+    rawColor.toLowerCase() === "#c2541a" ||
+    rawColor.toLowerCase() === "#943b10";
+  const primaryColor = isLegacyColor ? "#7C2D12" : rawColor;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <JobDetailsView
@@ -69,7 +80,7 @@ export default async function JobDetailsPage({ params }: PageProps) {
           name: station.name,
           logoUrl: b.squareLogoUrl || "",
           upiId: "",
-          primaryColor: b.primaryColor || "#0f766e",
+          primaryColor: primaryColor,
           serviceCompletedTemplate: "Hi {customerName}, your vehicle {vehicleNumber} has been serviced successfully. Invoice & report: {reportUrl}",
           paymentReminderTemplate: "Hi {customerName}, friendly reminder that payment of {amount} is pending for vehicle {vehicleNumber}.",
         }}

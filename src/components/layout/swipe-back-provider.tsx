@@ -205,7 +205,7 @@ export function SwipeBackProvider({ children }: { children: React.ReactNode }) {
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black shadow-md transition-all active:scale-95"
               >
                 <LogOut size={14} />
                 <span>{loggingOut ? "Logging out..." : "Log Out"}</span>

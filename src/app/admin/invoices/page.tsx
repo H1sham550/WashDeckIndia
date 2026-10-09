@@ -92,7 +92,7 @@ export default async function InvoicesPage() {
                       {inv.jobCard.vehicle.vehicleNumber}
                     </td>
                     <td className="py-3 px-4 text-slate-500">
-                      {formatCurrency(Number(inv.subtotal), "INR")} / <span className="text-emerald-600 font-bold">-{formatCurrency(Number(inv.discount), "INR")}</span>
+                      {formatCurrency(Number(inv.subtotal), "INR")} / <span className="text-blue-800 font-bold">-{formatCurrency(Number(inv.discount), "INR")}</span>
                     </td>
                     <td className="py-3 px-4 font-black text-slate-900">
                       {formatCurrency(Number(inv.finalAmount), "INR")}

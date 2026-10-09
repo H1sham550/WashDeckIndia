@@ -22,7 +22,7 @@ export default async function RegisterPage() {
         </div>
         <Link
           href="/login"
-          className="text-xs font-bold text-teal-700 hover:text-teal-800 hover:underline transition"
+          className="text-xs font-bold text-blue-700 hover:text-blue-800 hover:underline transition"
         >
           Already have an account? Sign In
         </Link>
@@ -30,7 +30,7 @@ export default async function RegisterPage() {
 
       <div className="py-10 px-4 max-w-3xl mx-auto w-full">
         <div className="text-center mb-8 space-y-2">
-          <span className="px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 text-[11px] font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
+          <span className="px-3 py-1 bg-blue-50 text-blue-800 border border-blue-200 text-[11px] font-black rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
             <Sparkles size={14} />
             30-Day Free Trial • No Credit Card Required
           </span>

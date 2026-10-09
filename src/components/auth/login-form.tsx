@@ -56,8 +56,8 @@ export function LoginForm() {
       {/* Header is now beautifully handled by the parent page to prevent duplication on mobile */}
 
       {error && (
-        <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-lg">
-          <AlertTriangle className="shrink-0" size={16} />
+        <div className="mb-4 flex items-center gap-3 p-4 text-xs font-semibold text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
+          <AlertTriangle className="shrink-0 text-stone-600" size={16} />
           <span>{error}</span>
         </div>
       )}
@@ -131,7 +131,7 @@ export function LoginForm() {
           New to WashDeck?{" "}
           <a
             href="/register"
-            className="font-bold text-teal-700 hover:text-teal-800 hover:underline transition"
+            className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition"
           >
             Register Store Account (1 Month FREE)
           </a>

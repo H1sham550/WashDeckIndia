@@ -60,7 +60,7 @@ export default async function PublicReportPage({ params }: PageProps) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4 bg-slate-50 font-sans">
         <div className="bg-white border rounded-xl p-8 max-w-md text-center shadow-sm">
-          <h2 className="text-xl font-bold text-rose-600">This report has expired.</h2>
+          <h2 className="text-xl font-bold text-stone-800">This report has expired.</h2>
           <p className="text-sm text-slate-500 mt-2 leading-relaxed">
             For privacy and data retention policies, this service report has expired. Reports expire 30 days after generation.
           </p>
@@ -73,12 +73,23 @@ export default async function PublicReportPage({ params }: PageProps) {
   const afterPhotos = job.photos.filter((p) => p.type === "AFTER").map((p) => p.url);
   const subtotal = job.services.reduce((sum, s) => sum + Number(s.priceSnapshot), 0);
 
+  const rawColor = b.primaryColor;
+  const isLegacyColor =
+    !rawColor ||
+    rawColor.toLowerCase() === "#0f766e" ||
+    rawColor.toLowerCase() === "#0d9488" ||
+    rawColor.toLowerCase() === "#f78024" ||
+    rawColor.toLowerCase() === "#f25c05" ||
+    rawColor.toLowerCase() === "#c2541a" ||
+    rawColor.toLowerCase() === "#943b10";
+  const primaryColor = isLegacyColor ? "#7C2D12" : rawColor;
+
   return (
     <div
       className="min-h-screen bg-slate-50 py-8 px-4 font-sans"
       style={
         {
-          "--primary-color": b.primaryColor || "#0f766e",
+          "--primary-color": primaryColor,
         } as React.CSSProperties
       }
     >
@@ -130,8 +141,8 @@ export default async function PublicReportPage({ params }: PageProps) {
             </div>
           </div>
           <div className="text-right">
-            <span className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full">
-              <ShieldCheck size={12} className="text-emerald-600" />
+            <span className="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-800 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full">
+              <ShieldCheck size={12} className="text-blue-700" />
               Verified Report
             </span>
             <p className="text-xs font-mono text-slate-400 mt-1">Ref: {secureSlug.slice(0, 8).toUpperCase()}</p>
@@ -198,7 +209,7 @@ export default async function PublicReportPage({ params }: PageProps) {
                 className="flex justify-between items-center py-2.5 px-4 bg-slate-50 rounded-xl border border-slate-100"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                  <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center">
                     <Check size={14} strokeWidth={3} />
                   </div>
                   <span className="text-sm font-bold text-slate-700">{service.serviceNameSnapshot}</span>

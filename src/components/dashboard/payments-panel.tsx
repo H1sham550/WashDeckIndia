@@ -105,15 +105,15 @@ export function PaymentsPanel({ initialInvoices, station }: PaymentsPanelProps) 
     <div className="space-y-6">
       {/* Success/Error Alerts */}
       {error && (
-        <div className="flex items-center gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl">
+        <div className="flex items-center gap-3 p-4 text-sm text-stone-800 bg-stone-100 border border-stone-200 rounded-xl">
           <AlertTriangle className="shrink-0" size={18} />
           <span>{error}</span>
         </div>
       )}
 
       {success && (
-        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl">
-          <CheckCircle2 className="shrink-0" size={18} />
+        <div className="flex items-center gap-3 p-4 text-sm text-slate-800 bg-slate-100 border border-slate-200 rounded-xl">
+          <CheckCircle2 className="shrink-0 text-slate-700" size={18} />
           <span>{success}</span>
         </div>
       )}
@@ -121,7 +121,7 @@ export function PaymentsPanel({ initialInvoices, station }: PaymentsPanelProps) 
       {/* Metrics Strips */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 bg-rose-50 text-rose-500 rounded-lg flex items-center justify-center shrink-0">
+          <div className="h-12 w-12 bg-slate-100 text-slate-700 rounded-lg flex items-center justify-center shrink-0">
             <AlertTriangle size={24} />
           </div>
           <div>
@@ -131,7 +131,7 @@ export function PaymentsPanel({ initialInvoices, station }: PaymentsPanelProps) 
         </div>
 
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="h-12 w-12 bg-amber-50 text-amber-500 rounded-lg flex items-center justify-center shrink-0">
+          <div className="h-12 w-12 bg-slate-100 text-slate-700 rounded-lg flex items-center justify-center shrink-0">
             <Car size={24} />
           </div>
           <div>

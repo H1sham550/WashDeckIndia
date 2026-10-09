@@ -37,7 +37,7 @@ export default async function OnboardingPage() {
           gstNumber: "",
           logoUrl: b.squareLogoUrl || "",
           bannerUrl: b.bookingCoverUrl || "",
-          primaryColor: b.primaryColor || "#0f766e",
+          primaryColor: b.primaryColor && b.primaryColor.toLowerCase() !== "#0f766e" ? b.primaryColor : "#7C2D12",
           upiId: "",
           vipSpendThreshold: Number(s.vipSpendThreshold) || 10000,
           vipVisitThreshold: s.vipVisitThreshold || 5,

@@ -158,8 +158,8 @@ export function StaffClockInCard({
           </p>
 
           {locationError && (
-            <div className="flex items-start gap-2 p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs mt-2 font-medium">
-              <AlertTriangle size={15} className="shrink-0 text-rose-500 mt-0.5" />
+            <div className="flex items-start gap-2 p-2.5 bg-stone-100 border border-stone-200 text-stone-800 rounded-xl text-xs mt-2 font-medium">
+              <AlertTriangle size={15} className="shrink-0 text-stone-700 mt-0.5" />
               <span>{locationError}</span>
             </div>
           )}
@@ -214,7 +214,7 @@ export function StaffClockInCard({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white text-slate-900 border rounded-2xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-4">
             <div className="flex items-center gap-3 border-b pb-3">
-              <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center shrink-0">
                 <Navigation size={22} />
               </div>
               <div>
@@ -246,7 +246,7 @@ export function StaffClockInCard({
                   setShowPermissionModal(false);
                   handleClockIn();
                 }}
-                className="w-1/2 py-2.5 px-4 text-xs font-black text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
+                className="w-1/2 py-2.5 px-4 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
               >
                 <MapPin size={14} /> Request & Clock In
               </button>

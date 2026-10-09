@@ -671,7 +671,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
     switch (status) {
       case "ACTIVE":
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+          <span className="inline-flex items-center gap-1 text-xs font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full border border-blue-200">
             <CheckCircle size={12} />
             Active
           </span>
@@ -685,7 +685,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
         );
       case "EXPIRED":
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-bold bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200">
+          <span className="inline-flex items-center gap-1 text-xs font-bold bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full border border-stone-200">
             <XCircle size={12} />
             Expired
           </span>
@@ -717,7 +717,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
         </div>
 
         <div className="bg-white border rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
+          <div className="h-11 w-11 rounded-lg flex items-center justify-center shrink-0 bg-blue-50 text-blue-700">
             <Coins size={22} />
           </div>
           <div>
@@ -881,7 +881,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                             <button
                               onClick={() => handleDeleteStation(station.id)}
                               title="Soft Delete Station"
-                              className="h-7 w-7 rounded-md border flex items-center justify-center text-slate-400 hover:text-rose-600 hover:border-rose-600 transition-all bg-white"
+                              className="h-7 w-7 rounded-md border flex items-center justify-center text-slate-400 hover:text-stone-700 hover:border-stone-700 transition-all bg-white"
                             >
                               <Trash2 size={12} />
                             </button>
@@ -902,7 +902,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                             <p className="truncate text-[10px] text-slate-400 font-medium">{station.users[0].email}</p>
                           </div>
                         ) : (
-                          <div className="text-[10px] text-rose-500 font-semibold italic bg-rose-50 p-2 rounded-lg border border-rose-100">
+                          <div className="text-[10px] text-stone-600 font-semibold italic bg-stone-100 p-2 rounded-lg border border-stone-200">
                             No Owner user associated.
                           </div>
                         )}
@@ -920,7 +920,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                         <button
                           onClick={() => handleStatusToggle(station.id, station.status)}
                           className={`flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-lg text-white text-xs font-bold px-3 transition shadow-sm ${
-                            isSuspended ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-600 hover:bg-amber-700"
+                            isSuspended ? "bg-blue-600 hover:bg-blue-700" : "bg-stone-800 hover:bg-stone-900"
                           }`}
                         >
                           {isSuspended ? <Play size={12} /> : <Pause size={12} />}
@@ -946,7 +946,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                           <div className="flex justify-between items-center text-slate-600">
                             <span>Time Remaining:</span>
                             <span className={`font-extrabold px-1.5 py-0.5 rounded text-[10px] uppercase ${
-                              daysLeft > 10 ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
+                              daysLeft > 10 ? "bg-blue-50 text-blue-800" : "bg-stone-100 text-stone-700"
                             }`}>
                               {daysLeft} Days Left
                             </span>
@@ -962,7 +962,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                           )}
                         </div>
                       ) : (
-                        <div className="bg-rose-50 border border-rose-100 rounded-lg p-3 text-xs text-rose-700 italic font-semibold">
+                        <div className="bg-stone-100 border border-stone-200 rounded-lg p-3 text-xs text-stone-700 italic font-semibold">
                           No active subscription license registered for this station.
                         </div>
                       )}
@@ -1176,7 +1176,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                       </td>
                       <td className="px-6 py-4">
                         {plan.isActive ? (
-                          <span className="inline-flex items-center text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                          <span className="inline-flex items-center text-[10px] font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full border border-blue-200">
                             Active
                           </span>
                         ) : (
@@ -1194,7 +1194,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                         </button>
                         <button
                           onClick={() => handleDeletePlan(plan.id)}
-                          className="h-8 w-8 rounded-lg border flex items-center justify-center text-slate-400 hover:text-rose-600 hover:border-rose-600 transition-all bg-white"
+                          className="h-8 w-8 rounded-lg border flex items-center justify-center text-slate-400 hover:text-stone-700 hover:border-stone-700 transition-all bg-white"
                         >
                           <Trash2 size={12} />
                         </button>
@@ -1282,7 +1282,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
             <div className="bg-white border rounded-xl p-5 shadow-sm space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">MRR</span>
-                <div className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <div className="h-7 w-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
                   <Activity size={14} />
                 </div>
               </div>
@@ -1594,7 +1594,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                         </td>
                         <td className="px-6 py-4">
                           {tx.status === "ACTIVE" ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-blue-50 text-blue-800 px-2 py-0.5 rounded-full border border-blue-200">
                               Active
                             </span>
                           ) : tx.status === "GRACE" ? (
@@ -1642,7 +1642,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
 
             {createdCredentials ? (
               <div className="p-6 text-center space-y-6 overflow-y-auto">
-                <div className="inline-flex h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 items-center justify-center border border-emerald-200">
+                <div className="inline-flex h-14 w-14 rounded-full bg-blue-50 text-blue-700 items-center justify-center border border-blue-200">
                   <CheckCircle size={32} />
                 </div>
                 <div>
@@ -1661,7 +1661,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400 uppercase text-[9px] tracking-wider">Temp Password</span>
-                    <span className="text-rose-600 font-mono font-extrabold text-sm">{createdCredentials.tempPassword}</span>
+                    <span className="text-blue-900 font-mono font-extrabold text-sm">{createdCredentials.tempPassword}</span>
                   </div>
                 </div>
 
@@ -2553,7 +2553,7 @@ export function AdminPanel({ initialStations, initialPlans, initialAuditLogs, me
       {/* Toast Notification */}
       {toast && (
         <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-slate-900 text-white text-xs font-bold px-4 py-3.5 rounded-xl shadow-2xl border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-300 select-none">
-          <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"}`} />
+          <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${toast.type === "success" ? "bg-blue-600" : "bg-stone-600"}`} />
           <span>{toast.message}</span>
         </div>
       )}

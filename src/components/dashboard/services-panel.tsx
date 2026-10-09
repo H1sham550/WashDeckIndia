@@ -262,12 +262,12 @@ export function ServicesPanel({ services: initialServices, templates: initialTem
     <div className="space-y-6">
       {/* Messages */}
       {error && (
-        <div className="p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-4 text-sm text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
           {error}
         </div>
       )}
       {success && (
-        <div className="p-4 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <div className="p-4 text-sm text-slate-800 bg-slate-100 border border-slate-200 rounded-lg">
           {success}
         </div>
       )}
@@ -344,7 +344,7 @@ export function ServicesPanel({ services: initialServices, templates: initialTem
                     </button>
                     <button
                       onClick={() => handleDeleteService(s.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border rounded-lg transition"
+                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 border rounded-lg transition"
                       title="Delete Service"
                     >
                       <Trash2 size={14} />
@@ -481,7 +481,7 @@ export function ServicesPanel({ services: initialServices, templates: initialTem
                     </div>
                     <button
                       onClick={() => handleDeleteTemplate(t.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border rounded-lg transition"
+                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 border rounded-lg transition"
                       title="Delete Template"
                     >
                       <Trash2 size={14} />
@@ -492,7 +492,7 @@ export function ServicesPanel({ services: initialServices, templates: initialTem
                   <div className="flex flex-wrap gap-1.5 pt-4">
                     {t.items.map((item, idx) => (
                       <span key={idx} className="inline-flex items-center gap-1 bg-slate-50 border px-2.5 py-1 rounded-md text-xs font-semibold text-slate-700">
-                        <Check size={12} className="text-emerald-500 shrink-0" />
+                        <Check size={12} className="text-blue-600 shrink-0" />
                         {item.service.name}
                       </span>
                     ))}

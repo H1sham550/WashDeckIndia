@@ -74,7 +74,7 @@ export function RegisterVehicleModal({ onClose, initialVehicleNumber = "" }: Reg
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           {error && (
-            <div className="p-3 text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg">
+            <div className="p-3 text-xs font-semibold text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
               {error}
             </div>
           )}

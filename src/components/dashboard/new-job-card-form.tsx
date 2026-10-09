@@ -224,7 +224,7 @@ export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormP
       </div>
 
       {error && (
-        <div className="flex items-center gap-3 p-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center gap-3 p-4 text-sm text-stone-800 bg-stone-100 border border-stone-200 rounded-lg">
           <AlertCircle className="shrink-0" size={18} />
           <span>{error}</span>
         </div>
@@ -237,7 +237,7 @@ export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormP
           {templates.length > 0 && (
             <div className="bg-white border rounded-xl p-5 shadow-sm space-y-3">
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Sparkles size={14} className="text-amber-500" />
+                <Sparkles size={14} className="text-blue-700" />
                 Quick Templates
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -364,7 +364,7 @@ export function NewJobCardForm({ vehicle, services, templates }: NewJobCardFormP
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(idx)}
-                    className="absolute top-1.5 right-1.5 p-1 rounded-md bg-white/80 text-rose-600 border hover:bg-white shadow-sm opacity-90 transition"
+                    className="absolute top-1.5 right-1.5 p-1 rounded-md bg-white/80 text-slate-700 border hover:bg-white shadow-sm opacity-90 transition"
                   >
                     <Trash2 size={12} />
                   </button>

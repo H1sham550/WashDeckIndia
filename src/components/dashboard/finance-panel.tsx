@@ -57,15 +57,15 @@ type FinancePanelProps = {
 };
 
 const EXPENSE_CATEGORIES = [
-  { value: "ELECTRICITY", label: "Electricity Bill", color: "bg-amber-50 text-amber-700 border-amber-200", barColor: "bg-amber-500", hexColor: "#F59E0B" },
-  { value: "WATER", label: "Water Bill / Supply", color: "bg-cyan-50 text-cyan-700 border-cyan-200", barColor: "bg-cyan-500", hexColor: "#06B6D4" },
-  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-emerald-50 text-emerald-700 border-emerald-200", barColor: "bg-emerald-500", hexColor: "#10B981" },
-  { value: "UTILITIES", label: "Internet & Phone Utilities", color: "bg-blue-50 text-blue-700 border-blue-200", barColor: "bg-blue-500", hexColor: "#3B82F6" },
-  { value: "RENT", label: "Rent & Lease", color: "bg-indigo-50 text-indigo-700 border-indigo-200", barColor: "bg-indigo-500", hexColor: "#6366F1" },
-  { value: "SALARIES", label: "Staff Salaries & Commissions", color: "bg-purple-50 text-purple-700 border-purple-200", barColor: "bg-purple-500", hexColor: "#A855F7" },
-  { value: "MARKETING", label: "Marketing & Ads", color: "bg-pink-50 text-pink-700 border-pink-200", barColor: "bg-pink-500", hexColor: "#EC4899" },
-  { value: "REPAIRS", label: "Equipment Maintenance & Repairs", color: "bg-orange-50 text-orange-700 border-orange-200", barColor: "bg-orange-500", hexColor: "#F97316" },
-  { value: "OTHER", label: "Other Operational", color: "bg-slate-50 text-slate-700 border-slate-200", barColor: "bg-slate-500", hexColor: "#64748B" }
+  { value: "ELECTRICITY", label: "Electricity Bill", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-700", hexColor: "#334155" },
+  { value: "WATER", label: "Water Bill / Supply", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-600", hexColor: "#475569" },
+  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-blue-50 text-blue-800 border-blue-200", barColor: "bg-blue-600", hexColor: "#7C2D12" },
+  { value: "UTILITIES", label: "Internet & Phone Utilities", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-500", hexColor: "#64748B" },
+  { value: "RENT", label: "Rent & Lease", color: "bg-stone-100 text-stone-700 border-stone-200", barColor: "bg-stone-700", hexColor: "#44403C" },
+  { value: "SALARIES", label: "Staff Salaries & Commissions", color: "bg-stone-100 text-stone-700 border-stone-200", barColor: "bg-stone-600", hexColor: "#57534E" },
+  { value: "MARKETING", label: "Marketing & Ads", color: "bg-blue-50 text-blue-800 border-blue-200", barColor: "bg-blue-500", hexColor: "#63230D" },
+  { value: "REPAIRS", label: "Equipment Maintenance & Repairs", color: "bg-stone-100 text-stone-700 border-stone-200", barColor: "bg-stone-500", hexColor: "#78716C" },
+  { value: "OTHER", label: "Other Operational", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-400", hexColor: "#94A3B8" }
 ];
 
 export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: FinancePanelProps) {
@@ -443,8 +443,8 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
       )}
 
       {success && (
-        <div className="flex items-center gap-3 p-4 text-sm text-emerald-700 bg-emerald-50/80 border border-emerald-200 rounded-xl">
-          <CheckCircle2 className="shrink-0 text-emerald-600" size={18} />
+        <div className="flex items-center gap-3 p-4 text-sm text-slate-800 bg-slate-100 border border-slate-200 rounded-xl">
+          <CheckCircle2 className="shrink-0 text-slate-700" size={18} />
           <span className="font-semibold">{success}</span>
         </div>
       )}
@@ -454,14 +454,14 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         {/* Cash Inflow (Income) */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-1.5 text-emerald-600">
+            <div className="flex items-center gap-1.5 text-slate-600">
               <ArrowUpRight size={14} />
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Cash Inflow</span>
             </div>
             <p className="text-2xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalIncome)}</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Paid service invoices</p>
           </div>
-          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600">
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-100 text-slate-700">
             <TrendingUp size={20} />
           </div>
         </div>
@@ -469,34 +469,32 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         {/* Cash Outflow (Expenses) */}
         <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-1.5 text-rose-600">
+            <div className="flex items-center gap-1.5 text-slate-600">
               <ArrowDownRight size={14} />
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Cash Outflow</span>
             </div>
             <p className="text-2xl font-extrabold text-slate-800 mt-1">{formatCurrency(totalExpense)}</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Logged operational costs</p>
           </div>
-          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-rose-50 text-rose-600">
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-100 text-slate-700">
             <TrendingDown size={20} />
           </div>
         </div>
 
         {/* Net Cash Flow (Profit/Loss) */}
         <div className={`bg-white border rounded-2xl p-4 shadow-xs flex items-center justify-between border-l-4 ${
-          netProfit >= 0 ? "border-l-emerald-500" : "border-l-rose-500"
+          netProfit >= 0 ? "border-l-blue-600" : "border-l-stone-500"
         }`}>
           <div>
             <div className="flex items-center gap-1.5 text-slate-400">
               <span className="text-[10px] font-black uppercase tracking-wider">Net Profit / Loss</span>
             </div>
-            <p className={`text-2xl font-extrabold mt-1 ${netProfit >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+            <p className={`text-2xl font-extrabold mt-1 ${netProfit >= 0 ? "text-slate-900" : "text-stone-700"}`}>
               {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)}
             </p>
             <p className="text-[10px] text-slate-400 mt-0.5">Inflow minus Outflow</p>
           </div>
-          <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
-            netProfit >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
-          }`}>
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-700">
             <Coins size={20} />
           </div>
         </div>
@@ -505,10 +503,10 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs flex items-center justify-between">
           <div>
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Profit Margin</span>
-            <p className="text-2xl font-extrabold text-blue-900 mt-1">{profitMargin}%</p>
+            <p className="text-2xl font-extrabold text-slate-900 mt-1">{profitMargin}%</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Expense ratio: {expenseRatio}%</p>
           </div>
-          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-600">
+          <div className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0 bg-slate-100 text-slate-700">
             <DollarSign size={20} />
           </div>
         </div>
@@ -638,7 +636,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-teal-50 text-teal-700">
+              <div className="p-1.5 rounded-lg bg-slate-100 text-slate-800">
                 <Car size={18} />
               </div>
               <h3 className="text-sm font-bold text-slate-800">
@@ -666,7 +664,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 type="button"
                 onClick={() => setChartViewMode("SALES")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  chartViewMode === "SALES" ? "bg-white text-teal-700 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  chartViewMode === "SALES" ? "bg-white text-blue-700 shadow-xs" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 Sales (₹)
@@ -675,7 +673,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 type="button"
                 onClick={() => setChartViewMode("CARS")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  chartViewMode === "CARS" ? "bg-white text-blue-700 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  chartViewMode === "CARS" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 Cars Serviced (🚗)
@@ -687,45 +685,45 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
         {/* Top KPI Metrics Strip for Vehicle Sales Correlation */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {/* Total Cars Washed */}
-          <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100">
-            <div className="flex items-center justify-between text-blue-600">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex items-center justify-between text-slate-600">
               <span className="text-[10px] font-black uppercase tracking-wider">Cars Serviced</span>
               <Car size={15} />
             </div>
-            <p className="text-xl font-black text-blue-900 mt-1">{totalPeriodCars}</p>
-            <p className="text-[10px] text-blue-600/80 mt-0.5">Vehicles washed in period</p>
+            <p className="text-xl font-black text-slate-900 mt-1">{totalPeriodCars}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Vehicles washed in period</p>
           </div>
 
           {/* Total Sales Generated */}
-          <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
-            <div className="flex items-center justify-between text-emerald-600">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex items-center justify-between text-slate-600">
               <span className="text-[10px] font-black uppercase tracking-wider">Total Sales</span>
               <TrendingUp size={15} />
             </div>
-            <p className="text-xl font-black text-emerald-900 mt-1">{formatCurrency(totalPeriodSales)}</p>
-            <p className="text-[10px] text-emerald-600/80 mt-0.5">Paid service inflow</p>
+            <p className="text-xl font-black text-slate-900 mt-1">{formatCurrency(totalPeriodSales)}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Paid service inflow</p>
           </div>
 
           {/* Average Revenue Per Car */}
-          <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-100">
-            <div className="flex items-center justify-between text-amber-600">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex items-center justify-between text-slate-600">
               <span className="text-[10px] font-black uppercase tracking-wider">Avg Ticket / Car</span>
               <Sparkles size={15} />
             </div>
-            <p className="text-xl font-black text-amber-900 mt-1">{formatCurrency(overallAvgTicket)}</p>
-            <p className="text-[10px] text-amber-600/80 mt-0.5">Average spend per vehicle</p>
+            <p className="text-xl font-black text-slate-900 mt-1">{formatCurrency(overallAvgTicket)}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Average spend per vehicle</p>
           </div>
 
           {/* Peak Volume Day */}
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="flex items-center justify-between text-slate-500">
+            <div className="flex items-center justify-between text-slate-600">
               <span className="text-[10px] font-black uppercase tracking-wider">Peak Traffic Day</span>
               <Calendar size={15} />
             </div>
             <p className="text-sm font-black text-slate-800 mt-1 truncate">
               {peakCarDay && peakCarDay.carsCount > 0 ? `${peakCarDay.dayName}, ${peakCarDay.label}` : "No traffic yet"}
             </p>
-            <p className="text-[10px] text-slate-500 mt-0.5">
+            <p className="text-[10px] text-slate-400 mt-0.5">
               {peakCarDay && peakCarDay.carsCount > 0 ? `${peakCarDay.carsCount} cars • ${formatCurrency(peakCarDay.sales)}` : "0 cars logged"}
             </p>
           </div>
@@ -748,19 +746,19 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
               </div>
               <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-1.5">
-                  <Car size={14} className="text-blue-600" />
+                  <Car size={14} className="text-slate-600" />
                   <span className="text-slate-500 font-medium">Cars:</span>
                   <span className="font-bold text-slate-900">{activeItem.carsCount} vehicles</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <TrendingUp size={14} className="text-emerald-600" />
+                  <TrendingUp size={14} className="text-slate-600" />
                   <span className="text-slate-500 font-medium">Sales:</span>
-                  <span className="font-bold text-emerald-700">{formatCurrency(activeItem.sales)}</span>
+                  <span className="font-bold text-slate-900">{formatCurrency(activeItem.sales)}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Sparkles size={14} className="text-amber-600" />
+                  <Sparkles size={14} className="text-slate-600" />
                   <span className="text-slate-500 font-medium">Avg / Car:</span>
-                  <span className="font-bold text-amber-800">{formatCurrency(activeItem.avgTicket)}</span>
+                  <span className="font-bold text-slate-900">{formatCurrency(activeItem.avgTicket)}</span>
                 </div>
               </div>
             </div>
@@ -805,16 +803,16 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto select-none">
                   <defs>
                     <linearGradient id="salesBarGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.95" />
-                      <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.75" />
+                      <stop offset="0%" stopColor="#7C2D12" stopOpacity="0.95" />
+                      <stop offset="100%" stopColor="#63230D" stopOpacity="0.75" />
                     </linearGradient>
                     <linearGradient id="salesBarGradHover" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#0f766e" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.95" />
+                      <stop offset="0%" stopColor="#4D1B0A" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#7C2D12" stopOpacity="0.95" />
                     </linearGradient>
                     <linearGradient id="carsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                      <stop offset="0%" stopColor="#0F172A" stopOpacity="0.10" />
+                      <stop offset="100%" stopColor="#0F172A" stopOpacity="0.0" />
                     </linearGradient>
                   </defs>
 
@@ -849,7 +847,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           x={svgW - padR + 8}
                           y={y + 3.5}
                           textAnchor="start"
-                          className="fill-blue-500 font-bold text-[9px]"
+                          className="fill-slate-500 font-bold text-[9px]"
                         >
                           {carsVal} {r === 1 ? "cars" : ""}
                         </text>
@@ -880,7 +878,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                               width={barWidth + 4}
                               height={barH + 2}
                               rx={5}
-                              fill="#0d9488"
+                              fill="#7C2D12"
                               opacity={0.3}
                             />
                           )}
@@ -908,7 +906,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                               y={barY - 5}
                               textAnchor="middle"
                               className={`font-black text-[9px] ${
-                                isHovered ? "fill-teal-900 font-extrabold" : "fill-teal-700"
+                                isHovered ? "fill-slate-900 font-extrabold" : "fill-slate-700"
                               }`}
                             >
                               {d.sales >= 1000 ? `₹${(d.sales / 1000).toFixed(1)}k` : `₹${d.sales}`}
@@ -924,7 +922,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                       <path
                         d={carLineD}
                         fill="none"
-                        stroke="#3b82f6"
+                        stroke="#0F172A"
                         strokeWidth="2.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -939,12 +937,12 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                               cy={p.y}
                               r={isHovered ? 7 : 4.5}
                               fill="#ffffff"
-                              stroke="#3b82f6"
+                              stroke="#0F172A"
                               strokeWidth={isHovered ? 3 : 2}
                               className="transition-all duration-150 cursor-pointer"
                             />
                             {/* Inner dot */}
-                            <circle cx={p.x} cy={p.y} r={isHovered ? 3 : 2} fill="#1d4ed8" />
+                            <circle cx={p.x} cy={p.y} r={isHovered ? 3 : 2} fill="#0F172A" />
 
                             {/* Car count pill above node */}
                             {p.cars > 0 && (
@@ -955,7 +953,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                                   width="22"
                                   height="13"
                                   rx="6.5"
-                                  fill="#1e40af"
+                                  fill="#0F172A"
                                   className="shadow-xs"
                                 />
                                 <text
@@ -1007,7 +1005,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                             isHovered
                               ? "fill-slate-900 font-extrabold"
                               : d.isToday
-                              ? "fill-teal-700 font-black"
+                              ? "fill-blue-700 font-black"
                               : "fill-slate-500"
                           }`}
                         >
@@ -1018,7 +1016,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           y={padT + cH + 25}
                           textAnchor="middle"
                           className={`text-[8px] font-semibold ${
-                            isHovered || d.isToday ? "fill-teal-700 font-bold" : "fill-slate-400"
+                            isHovered || d.isToday ? "fill-blue-700 font-bold" : "fill-slate-400"
                           }`}
                         >
                           {d.label}
@@ -1032,15 +1030,15 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-slate-600 pt-3 border-t border-slate-200/80 mt-2 px-2">
                   <div className="flex items-center gap-5 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <span className="w-3.5 h-3 rounded-md bg-teal-600 shadow-2xs block" />
+                      <span className="w-3.5 h-3 rounded-md bg-blue-600 shadow-2xs block" />
                       <span className="text-slate-800">Sales Generated (₹)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <span className="w-3.5 h-0.5 bg-blue-600 block" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-blue-600 border border-white block" />
+                        <span className="w-3.5 h-0.5 bg-slate-900 block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-white block" />
                       </div>
-                      <span className="text-blue-800">Cars Serviced (🚗 Count)</span>
+                      <span className="text-slate-800">Cars Serviced (🚗 Count)</span>
                     </div>
                   </div>
 
@@ -1162,14 +1160,14 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="inline-block px-2 py-0.5 text-[9px] font-black tracking-wide uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="inline-block px-2 py-0.5 text-[9px] font-black tracking-wide uppercase rounded bg-blue-50 text-blue-800 border border-blue-200">
                             Inflow
                           </span>
                         </td>
                         <td className="py-3 px-4">
                           <span className="font-extrabold text-slate-600">{tx.paymentMethod}</span>
                         </td>
-                        <td className="py-3 px-4 text-right font-extrabold text-emerald-600 whitespace-nowrap">
+                        <td className="py-3 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap">
                           +{formatCurrency(tx.amount)}
                         </td>
                         <td className="py-3 px-4 text-center text-slate-400 italic text-[10px]">
@@ -1200,7 +1198,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                         <td className="py-3 px-4 text-slate-400 text-xs">
                           Operational Expense
                         </td>
-                        <td className="py-3 px-4 text-right font-extrabold text-rose-600 whitespace-nowrap">
+                        <td className="py-3 px-4 text-right font-extrabold text-stone-700 whitespace-nowrap">
                           -{formatCurrency(tx.amount)}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -1214,7 +1212,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                             </button>
                             <button
                               onClick={() => handleDeleteExpense(tx.id)}
-                              className="h-7 w-7 border border-slate-200 rounded-lg hover:bg-rose-50 text-slate-600 hover:text-rose-600 transition active-tap"
+                              className="h-7 w-7 border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition active-tap"
                               title="Delete Expense"
                             >
                               <Trash2 size={12} />
@@ -1258,7 +1256,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
             {/* Modal Form */}
             <form onSubmit={handleExpenseSubmit} className="p-5 space-y-4">
               {error && (
-                <div className="flex items-center gap-3 p-3 text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-center gap-3 p-3 text-xs text-stone-800 bg-stone-100 border border-stone-200 rounded-xl">
                   <AlertCircle className="shrink-0" size={16} />
                   <span>{error}</span>
                 </div>

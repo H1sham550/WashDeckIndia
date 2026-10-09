@@ -110,11 +110,11 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
   function getNotifIcon(priority: string) {
     switch (priority) {
       case "CRITICAL":
-        return <AlertTriangle size={16} className="text-red-600" />;
+        return <AlertTriangle size={16} className="text-stone-800" />;
       case "HIGH":
-        return <ShieldAlert size={16} className="text-amber-600" />;
+        return <ShieldAlert size={16} className="text-blue-700" />;
       case "MEDIUM":
-        return <CheckCircle2 size={16} className="text-teal-700" />;
+        return <CheckCircle2 size={16} className="text-slate-800" />;
       default:
         return <Sparkles size={16} className="text-blue-700" />;
     }
@@ -145,7 +145,7 @@ export function NotificationCenter({ align = "right" }: NotificationCenterProps)
       >
         <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white animate-pulse" />
+          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-600 ring-2 ring-white animate-pulse" />
         )}
       </button>
 

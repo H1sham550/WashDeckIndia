@@ -72,14 +72,14 @@ function StepIndicator({ current }: { current: number }) {
                 className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium border transition-all"
                 style={{
                   background: done
-                    ? "#16A34A"
+                    ? "#7C2D12"
                     : active
-                    ? "hsl(220 91% 54%)"
+                    ? "#0F172A"
                     : "white",
                   borderColor: done
-                    ? "#16A34A"
+                    ? "#7C2D12"
                     : active
-                    ? "hsl(220 91% 54%)"
+                    ? "#0F172A"
                     : "#CBD5E1",
                   color: done || active ? "white" : "#64748B",
                 }}
@@ -89,8 +89,8 @@ function StepIndicator({ current }: { current: number }) {
               <span
                 className="hidden sm:block text-xs mt-1"
                 style={{
-                  color: active ? "hsl(220 91% 54%)" : "#94A3B8",
-                  fontWeight: active ? 500 : 400,
+                  color: active ? "#0F172A" : "#94A3B8",
+                  fontWeight: active ? 700 : 400,
                   fontSize: 10,
                 }}
               >
@@ -101,7 +101,7 @@ function StepIndicator({ current }: { current: number }) {
               <div
                 className="flex-1 h-px mx-2"
                 style={{
-                  background: done ? "#16A34A" : "#E2E8F0",
+                  background: done ? "#7C2D12" : "#E2E8F0",
                   minWidth: 16,
                 }}
               />
@@ -178,10 +178,9 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
     return (
       <div className="py-12 text-center space-y-4 max-w-md mx-auto px-4">
         <div
-          className="h-14 w-14 rounded-full flex items-center justify-center mx-auto"
-          style={{ background: "#DCFCE7" }}
+          className="h-14 w-14 rounded-full flex items-center justify-center mx-auto bg-blue-50 border border-blue-200"
         >
-          <Check size={28} strokeWidth={2.5} style={{ color: "#16A34A" }} />
+          <Check size={28} strokeWidth={2.5} style={{ color: "#7C2D12" }} />
         </div>
         <div>
           <h2 className="text-xl font-semibold" style={{ color: "#0F172A" }}>
@@ -215,8 +214,8 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
 
         <button
           onClick={() => { setSuccess(null); setStep(1); setName(""); setMobile(""); setVehicleNumber(""); }}
-          className="text-sm font-medium"
-          style={{ color: "hsl(220 91% 54%)" }}
+          className="text-sm font-bold hover:underline"
+          style={{ color: "#7C2D12" }}
         >
           Book another appointment
         </button>
@@ -236,7 +235,7 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
         disabled={disabled}
         className="w-full h-11 rounded flex items-center justify-center gap-2 text-sm font-medium transition-opacity disabled:opacity-50"
         style={{
-          background: "hsl(220 91% 54%)",
+          background: "#7C2D12",
           color: "white",
           borderRadius: 8,
         }}
@@ -279,7 +278,7 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
           ) : (
             <div
               className="h-8 w-8 rounded flex items-center justify-center text-white text-sm font-semibold"
-              style={{ background: station.primaryColor || "hsl(220 91% 54%)" }}
+              style={{ background: station.primaryColor || "#7C2D12" }}
             >
               {station.name.charAt(0).toUpperCase()}
             </div>
@@ -294,8 +293,8 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
         {station.phone && (
           <a
             href={`tel:${station.phone}`}
-            className="flex items-center gap-1.5 text-sm"
-            style={{ color: "hsl(220 91% 54%)" }}
+            className="flex items-center gap-1.5 text-sm hover:underline"
+            style={{ color: "#7C2D12" }}
           >
             <Phone size={14} />
             <span className="hidden sm:inline">{station.phone}</span>
@@ -358,8 +357,8 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
                       className="w-full flex items-center justify-between px-4 py-3 border rounded text-left transition-all"
                       style={{
                         borderRadius: 8,
-                        borderColor: isSelected ? "hsl(220 91% 54%)" : "#E2E8F0",
-                        background: isSelected ? "hsl(214 100% 97%)" : "white",
+                        borderColor: isSelected ? "#7C2D12" : "#E2E8F0",
+                        background: isSelected ? "#FAF6F2" : "white",
                       }}
                     >
                       <div>
@@ -377,7 +376,7 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
                           ₹{svcPrice}
                         </span>
                         {isSelected && (
-                          <Check size={15} strokeWidth={2.5} style={{ color: "hsl(220 91% 54%)" }} />
+                          <Check size={15} strokeWidth={2.5} style={{ color: "#7C2D12" }} />
                         )}
                       </div>
                     </button>
@@ -423,10 +422,10 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
                     className="py-2.5 text-xs border rounded transition-all"
                     style={{
                       borderRadius: 8,
-                      borderColor: timeSlot === slot ? "hsl(220 91% 54%)" : "#E2E8F0",
-                      background: timeSlot === slot ? "hsl(214 100% 97%)" : "white",
-                      color: timeSlot === slot ? "hsl(220 91% 54%)" : "#0F172A",
-                      fontWeight: timeSlot === slot ? 500 : 400,
+                      borderColor: timeSlot === slot ? "#7C2D12" : "#E2E8F0",
+                      background: timeSlot === slot ? "#FAF6F2" : "white",
+                      color: timeSlot === slot ? "#7C2D12" : "#0F172A",
+                      fontWeight: timeSlot === slot ? 600 : 400,
                     }}
                   >
                     {slot}
@@ -449,8 +448,7 @@ export function PublicBookingWizard({ station, services }: { station: StationDat
 
             {error && (
               <div
-                className="mb-4 px-4 py-3 rounded text-sm"
-                style={{ background: "#FEF2F2", color: "#B91C1C", borderRadius: 8 }}
+                className="mb-4 px-4 py-3 rounded-xl text-sm bg-stone-100 text-stone-800 border border-stone-200"
               >
                 {error}
               </div>

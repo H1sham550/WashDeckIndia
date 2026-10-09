@@ -366,7 +366,7 @@ export function SpotlightSearch({ variant = "button", className = "" }: Spotligh
                                 className={`p-2 rounded-lg shrink-0 ${
                                   isSelected
                                     ? "bg-blue-600 text-white"
-                                    : "bg-amber-50 text-amber-600"
+                                    : "bg-slate-100 text-slate-700"
                                 }`}
                               >
                                 <ClipboardList size={16} />
@@ -407,7 +407,7 @@ export function SpotlightSearch({ variant = "button", className = "" }: Spotligh
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
-                                  isSelected ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"
+                                  isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"
                                 }`}
                               >
                                 <Car size={16} />
@@ -448,7 +448,7 @@ export function SpotlightSearch({ variant = "button", className = "" }: Spotligh
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
-                                  isSelected ? "bg-blue-600 text-white" : "bg-emerald-50 text-emerald-600"
+                                  isSelected ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                                 }`}
                               >
                                 <User size={16} />
@@ -489,7 +489,7 @@ export function SpotlightSearch({ variant = "button", className = "" }: Spotligh
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
-                                  isSelected ? "bg-blue-600 text-white" : "bg-rose-50 text-rose-600"
+                                  isSelected ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
                                 }`}
                               >
                                 <Receipt size={16} />
@@ -530,7 +530,7 @@ export function SpotlightSearch({ variant = "button", className = "" }: Spotligh
                             <div className="flex items-center gap-3 min-w-0">
                               <div
                                 className={`p-2 rounded-lg shrink-0 ${
-                                  isSelected ? "bg-blue-600 text-white" : "bg-teal-50 text-teal-600"
+                                  isSelected ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-700"
                                 }`}
                               >
                                 <Wrench size={16} />

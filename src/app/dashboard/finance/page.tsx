@@ -146,8 +146,9 @@ export default async function FinancePage() {
     rawColor.toLowerCase() === "#f78024" ||
     rawColor.toLowerCase() === "#f25c05" ||
     rawColor.toLowerCase() === "#c2541a" ||
-    rawColor.toLowerCase() === "#943b10";
-  const primaryColor = isLegacyColor ? "#7C2D12" : rawColor;
+    rawColor.toLowerCase() === "#943b10" ||
+    rawColor.toLowerCase() === "#7c2d12";
+  const primaryColor = isLegacyColor ? "#D9531E" : rawColor;
   const currency = entitlements.stationMetadata?.currency === "USD" ? "$" : "₹";
 
   return (

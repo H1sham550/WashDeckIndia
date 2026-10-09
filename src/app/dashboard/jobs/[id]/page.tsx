@@ -69,8 +69,9 @@ export default async function JobDetailsPage({ params }: PageProps) {
     rawColor.toLowerCase() === "#f78024" ||
     rawColor.toLowerCase() === "#f25c05" ||
     rawColor.toLowerCase() === "#c2541a" ||
-    rawColor.toLowerCase() === "#943b10";
-  const primaryColor = isLegacyColor ? "#7C2D12" : rawColor;
+    rawColor.toLowerCase() === "#943b10" ||
+    rawColor.toLowerCase() === "#7c2d12";
+  const primaryColor = isLegacyColor ? "#D9531E" : rawColor;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">

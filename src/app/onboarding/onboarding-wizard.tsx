@@ -63,7 +63,7 @@ export function OnboardingWizard({ initialStation }: OnboardingWizardProps) {
 
   // Branding
   const [branding, setBranding] = useState({
-    primaryColor: initialStation.primaryColor && initialStation.primaryColor.toLowerCase() !== "#0f766e" ? initialStation.primaryColor : "#7C2D12",
+    primaryColor: initialStation.primaryColor && initialStation.primaryColor.toLowerCase() !== "#0f766e" && initialStation.primaryColor.toLowerCase() !== "#7c2d12" ? initialStation.primaryColor : "#D9531E",
     logoUrl: initialStation.logoUrl,
   });
   const [uploadingLogo, setUploadingLogo] = useState(false);

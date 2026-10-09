@@ -64,8 +64,9 @@ export function SettingsForm({ station }: SettingsFormProps) {
       raw.toLowerCase() === "#f78024" ||
       raw.toLowerCase() === "#f25c05" ||
       raw.toLowerCase() === "#c2541a" ||
-      raw.toLowerCase() === "#943b10";
-    return isLegacy ? "#7C2D12" : raw;
+      raw.toLowerCase() === "#943b10" ||
+      raw.toLowerCase() === "#7c2d12";
+    return isLegacy ? "#D9531E" : raw;
   })();
   const [formData, setFormData] = useState({ ...station, primaryColor: initialColor });
   const [activeTab, setActiveTab] = useState<"branding" | "operations" | "communication" | "localization">("branding");
@@ -290,7 +291,7 @@ export function SettingsForm({ station }: SettingsFormProps) {
                       type="text"
                       value={formData.primaryColor}
                       onChange={(e) => setFormData((prev) => ({ ...prev, primaryColor: e.target.value }))}
-                      placeholder="#7C2D12"
+                      placeholder="#D9531E"
                       className="h-10 border rounded-md px-3 text-sm font-medium w-32 outline-none focus:border-[var(--primary-color)]"
                       style={{ focusBorderColor: formData.primaryColor } as React.CSSProperties}
                     />

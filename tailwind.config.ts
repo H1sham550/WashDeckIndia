@@ -24,44 +24,44 @@ const config: Config = {
           DEFAULT: "hsl(var(--brand-blue-light))",
           foreground: "hsl(var(--brand-blue))",
         },
-        // Clownfish theme mapping for blue scale (darkened, grounded burnt orange)
+        // Clownfish theme mapping for blue scale (Sunset Persimmon #D9531E — balanced warm automotive orange)
         blue: {
-          50:  "#FAF6F2", // Softest warm neutral tint
-          100: "#F5ECE5", // Subtle warm sand
-          200: "#E8D5C6", // Muted warm border
-          300: "#CFAAA0", // Muted terracotta
-          400: "#A96240", // Soft warm clay
-          500: "#8F3C18", // Warm roasted amber
-          600: "#7C2D12", // Deep Darkened Burnt Orange (Primary CTA — grounded, mature, glare-free)
-          700: "#63230D", // Dark roasted terracotta hover
-          800: "#4D1B0A", // Deep mahogany rust
-          900: "#361307", // Dark espresso
-          950: "#1F0B04", // Deep charcoal ember
+          50:  "#FFF8F4", // Softest warm peach-cream tint
+          100: "#FEEDDF", // Soft warm tint
+          200: "#FCD7BF", // Delicate warm border
+          300: "#F7B28B", // Soft warm accent
+          400: "#EE8652", // Mid warm orange
+          500: "#E3662B", // Bright persimmon
+          600: "#D9531E", // Sunset Persimmon (Primary CTA — unmistakable orange, zero brown, zero glare)
+          700: "#BD4313", // Deep persimmon hover
+          800: "#98340E", // Deep terracotta
+          900: "#75280B", // Dark warm espresso mahogany
+          950: "#441404", // Charcoal ember
         },
         // Dedicated Clownfish semantic tokens
         clownfish: {
           canvas: "#F2F0E4",
           card: "#FFFFFF",
           black: "#000000",
-          orange: "#7C2D12",
-          hover: "#63230D",
+          orange: "#D9531E",
+          hover: "#BD4313",
           sand: "#E0DAC8",
-          peach: "#FAF6F2",
+          peach: "#FFF8F4",
         },
-        // WashDeck brand teal remapped to darkened burnt orange palette (eliminates residual teal)
+        // WashDeck brand teal remapped to Sunset Persimmon palette (eliminates residual teal)
         "wd-teal": {
-          DEFAULT: "#7C2D12",
-          50:  "#FAF6F2",
-          100: "#F5ECE5",
-          200: "#E8D5C6",
-          300: "#CFAAA0",
-          400: "#8F3C18",
-          500: "#7C2D12",
-          600: "#63230D",
-          700: "#4D1B0A",
-          800: "#361307",
-          900: "#1F0B04",
-          950: "#120602",
+          DEFAULT: "#D9531E",
+          50:  "#FFF8F4",
+          100: "#FEEDDF",
+          200: "#FCD7BF",
+          300: "#F7B28B",
+          400: "#EE8652",
+          500: "#D9531E",
+          600: "#BD4313",
+          700: "#98340E",
+          800: "#75280B",
+          900: "#441404",
+          950: "#240A02",
         },
       },
       borderRadius: {

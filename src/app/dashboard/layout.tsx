@@ -48,10 +48,11 @@ export default async function DashboardLayout({
     station.primaryColor.toLowerCase() === "#f78024" ||
     station.primaryColor.toLowerCase() === "#f25c05" ||
     station.primaryColor.toLowerCase() === "#c2541a" ||
-    station.primaryColor.toLowerCase() === "#943b10";
+    station.primaryColor.toLowerCase() === "#943b10" ||
+    station.primaryColor.toLowerCase() === "#7c2d12";
   const primaryColor = entitlements.features.branding && !isLegacyColor
     ? station?.primaryColor
-    : "#7C2D12";
+    : "#D9531E";
 
   const planLabel = entitlements.currentPlanName
     ? `${entitlements.currentPlanName} Plan`

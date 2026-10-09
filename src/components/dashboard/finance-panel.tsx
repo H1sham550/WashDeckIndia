@@ -59,11 +59,11 @@ type FinancePanelProps = {
 const EXPENSE_CATEGORIES = [
   { value: "ELECTRICITY", label: "Electricity Bill", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-700", hexColor: "#334155" },
   { value: "WATER", label: "Water Bill / Supply", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-600", hexColor: "#475569" },
-  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-blue-50 text-blue-800 border-blue-200", barColor: "bg-blue-600", hexColor: "#7C2D12" },
+  { value: "SUPPLIES", label: "Supplies & Chemicals", color: "bg-blue-50 text-blue-800 border-blue-200", barColor: "bg-blue-600", hexColor: "#D9531E" },
   { value: "UTILITIES", label: "Internet & Phone Utilities", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-500", hexColor: "#64748B" },
   { value: "RENT", label: "Rent & Lease", color: "bg-stone-100 text-stone-700 border-stone-200", barColor: "bg-stone-700", hexColor: "#44403C" },
   { value: "SALARIES", label: "Staff Salaries & Commissions", color: "bg-stone-100 text-stone-700 border-stone-200", barColor: "bg-stone-600", hexColor: "#57534E" },
-  { value: "MARKETING", label: "Marketing & Ads", color: "bg-blue-50 text-blue-800 border-blue-200", barColor: "bg-blue-500", hexColor: "#63230D" },
+  { value: "MARKETING", label: "Marketing & Ads", color: "bg-blue-50 text-blue-800 border-blue-200", barColor: "bg-blue-500", hexColor: "#BD4313" },
   { value: "REPAIRS", label: "Equipment Maintenance & Repairs", color: "bg-stone-100 text-stone-700 border-stone-200", barColor: "bg-stone-500", hexColor: "#78716C" },
   { value: "OTHER", label: "Other Operational", color: "bg-slate-100 text-slate-700 border-slate-200", barColor: "bg-slate-400", hexColor: "#94A3B8" }
 ];
@@ -803,12 +803,12 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                 <svg viewBox={`0 0 ${svgW} ${svgH}`} className="w-full h-auto select-none">
                   <defs>
                     <linearGradient id="salesBarGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#7C2D12" stopOpacity="0.95" />
-                      <stop offset="100%" stopColor="#63230D" stopOpacity="0.75" />
+                      <stop offset="0%" stopColor="#D9531E" stopOpacity="0.95" />
+                      <stop offset="100%" stopColor="#BD4313" stopOpacity="0.75" />
                     </linearGradient>
                     <linearGradient id="salesBarGradHover" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4D1B0A" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#7C2D12" stopOpacity="0.95" />
+                      <stop offset="0%" stopColor="#98340E" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#D9531E" stopOpacity="0.95" />
                     </linearGradient>
                     <linearGradient id="carsAreaGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#0F172A" stopOpacity="0.10" />
@@ -878,7 +878,7 @@ export function FinancePanel({ initialIncomes, initialExpenses, primaryColor }: 
                               width={barWidth + 4}
                               height={barH + 2}
                               rx={5}
-                              fill="#7C2D12"
+                              fill="#D9531E"
                               opacity={0.3}
                             />
                           )}

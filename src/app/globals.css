@@ -15,11 +15,11 @@
    ============================================================ */
 
 :root {
-  /* ── Brand: Deep Grounded Burnt Orange (Darkened, mature, glare-free) ── */
-  --brand-blue: 15 75% 28%;          /* #7C2D12 — deep darkened burnt orange */
-  --brand-blue-hover: 15 78% 21%;    /* #63230D — rich dark roasted terracotta hover */
-  --brand-blue-light: 25 30% 97%;   /* #FAF6F2 — delicate warm sand-cream tint */
-  --brand-blue-border: 22 25% 87%;  /* #E8D5C6 — subtle warm sand border */
+  /* ── Brand: Sunset Persimmon (#D9531E — balanced warm automotive orange) ── */
+  --brand-blue: 17 76% 48%;          /* #D9531E — Sunset Persimmon (unmistakable orange, no brown) */
+  --brand-blue-hover: 17 80% 41%;    /* #BD4313 — deep persimmon hover */
+  --brand-blue-light: 24 85% 97%;   /* #FFF7F2 — delicate soft peach-cream tint */
+  --brand-blue-border: 20 60% 88%;  /* #F7DAC9 — warm sand-persimmon border */
 
   /* ── Surface: Crisp White on Warm Alabaster Canvas ───────────── */
   --surface: 0 0% 100%;               /* #FFFFFF — crisp white cards */
@@ -51,9 +51,9 @@
   --danger-bg: 25 20% 96%;            /* #F7F3F1 */
   --danger-border: 20 20% 88%;        /* #E7DDD8 */
 
-  --info: 15 75% 28%;                 /* #7C2D12 — matches deep burnt orange */
-  --info-bg: 25 30% 97%;              /* #FAF6F2 */
-  --info-border: 22 25% 87%;          /* #E8D5C6 */
+  --info: 17 76% 48%;                 /* #D9531E — matches Sunset Persimmon */
+  --info-bg: 24 85% 97%;              /* #FFF7F2 */
+  --info-border: 20 60% 88%;          /* #F7DAC9 */
 
   /* ── Radius ──────────────────────────────────────────── */
   --radius-sm: 6px;
@@ -241,7 +241,7 @@ a[role="button"],
   border-color: hsl(var(--danger));
 }
 .btn-danger:hover {
-  background: #63230D;
+  background: #7F3424;
 }
 
 .btn-sm {
@@ -323,7 +323,7 @@ a[role="button"],
 
 .badge-blue {
   background: hsl(var(--brand-blue-light));
-  color: #4D1B0A;
+  color: #98340E;
   border-color: hsl(var(--brand-blue-border));
   font-weight: 600;
 }
@@ -380,8 +380,8 @@ a[role="button"],
   flex-shrink: 0;
 }
 
-.status-dot-received  { background: #7C2D12; } /* deep darkened burnt orange */
-.status-dot-progress  { background: #8F3C18; } /* warm roasted amber */
+.status-dot-received  { background: #D9531E; } /* Sunset Persimmon orange */
+.status-dot-progress  { background: #E06A26; } /* warm amber orange */
 .status-dot-completed { background: #0F172A; } /* deep charcoal/black */
 .status-dot-payment   { background: #78716C; } /* warm stone */
 .status-dot-delivered { background: #0F172A; } /* deep charcoal/black */
